@@ -1,6 +1,12 @@
 # Message::Driver
 
-TODO: Write a gem description
+easy messaging for ruby
+
+[![Build Status](https://travis-ci.org/soupmatt/message-driver.png?branch=master)](https://travis-ci.org/soupmatt/message-driver)
+
+[![Dependency Status](https://gemnasium.com/soupmatt/message-driver.png)](https://gemnasium.com/soupmatt/message-driver)
+
+[![Code Climate](https://codeclimate.com/github/soupmatt/message-driver.png)](https://codeclimate.com/github/soupmatt/message-driver)
 
 ## Installation
 
