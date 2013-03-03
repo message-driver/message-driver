@@ -20,6 +20,16 @@ Or install it yourself as:
 
 TODO: Write usage instructions here
 
+## TODO
+
+* adapters
+    * bunny
+    * stomp
+    * others?
+* write rdoc for API
+* subscription-based message processors
+* destination metadata
+
 ## Contributing
 
 1. Fork it
