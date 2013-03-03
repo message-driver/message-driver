@@ -7,6 +7,9 @@ group :tools do
   gem 'guard'
   gem 'guard-bundler'
   gem 'guard-rspec'
+end
+
+group :darwin do
   gem 'ruby_gntp'
   gem 'rb-fsevent'
 end
