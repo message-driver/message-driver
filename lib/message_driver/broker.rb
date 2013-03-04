@@ -1,9 +1,8 @@
 module MessageDriver
   class Broker
     class << self
-      def configure(options={})
-        opts = {adapter: :in_memory}.merge(options)
-        @adapter = resolve_adapter(opts[:adapter])
+      def configure(options)
+        @adapter = resolve_adapter(options[:adapter], options)
       end
 
       def adapter
@@ -12,12 +11,14 @@ module MessageDriver
 
       private
 
-      def resolve_adapter(adapter)
+      def resolve_adapter(adapter, options)
         case adapter
-        when Symbol
-          resolve_adapter(find_adapter_class(adapter))
+        when nil
+          raise "you must specify an adapter"
+        when Symbol, String
+          resolve_adapter(find_adapter_class(adapter), options)
         when Class
-          resolve_adapter(adapter.new)
+          resolve_adapter(adapter.new(options), options)
         when MessageDriver::Adapter::Base
           adapter
         else

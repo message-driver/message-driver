@@ -7,8 +7,8 @@ module MessageDriver
 
   module Adapter
     class InMemory < Base
-      def initialize
-        @messages
+      def initialize(config={})
+        #does nothing
       end
 
       def send_message(destination, body, headers={}, properties={})

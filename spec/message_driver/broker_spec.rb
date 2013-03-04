@@ -4,24 +4,24 @@ describe MessageDriver::Broker do
   subject { described_class }
 
   describe ".configure" do
-    it "creates an InMemory adapter if you don't specify one" do
-      subject.configure
-
-      expect(subject.adapter).to be_a MessageDriver::Adapter::InMemory
+    it "raises an error if you don't specify an adapter" do
+      expect {
+        subject.configure({})
+      }.to raise_error(/must specify an adapter/)
     end
 
     it "if you provide an adapter instance, it uses that one" do
-      adapter = MessageDriver::Adapter::Base.new
+      adapter = MessageDriver::Adapter::InMemory.new({})
 
       subject.configure(adapter: adapter)
       expect(subject.adapter).to be adapter
     end
 
     it "if you provide an adapter class, it will instansiate it" do
-      adapter = MessageDriver::Adapter::Base.new
+      adapter = MessageDriver::Adapter::InMemory
 
       subject.configure(adapter: adapter)
-      expect(subject.adapter).to be adapter
+      expect(subject.adapter).to be_a adapter
     end
 
     it "if you provide a symbol, it will try to look up the adapter class" do

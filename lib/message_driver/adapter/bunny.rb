@@ -7,6 +7,9 @@ module MessageDriver
 
   module Adapter
     class Bunny < Base
+      def initialize(config)
+
+      end
 
     end
   end

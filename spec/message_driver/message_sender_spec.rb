@@ -5,7 +5,7 @@ describe MessageDriver::MessageSender do
     include MessageDriver::MessageSender
   end
 
-  let(:adapter) { MessageDriver::Adapter::Base.new }
+  let(:adapter) { MessageDriver::Adapter::InMemory.new }
   before do
     MessageDriver.configure(adapter: adapter)
   end

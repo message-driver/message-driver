@@ -1,6 +1,13 @@
 require 'spec_helper'
 
 describe MessageDriver::Adapter::Base do
+  class TestAdapter < described_class
+    def initialize(configuration)
+
+    end
+  end
+  subject { TestAdapter.new({}) }
+
   describe "#send_message" do
     it "raises an error" do
       expect {
