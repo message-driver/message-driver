@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.version       = Message::Driver::VERSION
   gem.authors       = ["Matt Campbell"]
   gem.email         = ["matt@soupmatt.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.description   = %q{Easy message queues for ruby using AMQ, STOMP and others}
+  gem.summary       = %q{Easy message queues for ruby}
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($/)
