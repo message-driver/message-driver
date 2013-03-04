@@ -5,9 +5,9 @@ describe MessageDriver::MessageSender do
     include MessageDriver::MessageSender
   end
 
-  let(:adapter) { stub(MessageDriver::Adapter::Base) }
+  let(:adapter) { MessageDriver::Adapter::Base.new }
   before do
-    MessageDriver::Broker.configure(adapter)
+    MessageDriver.configure(adapter: adapter)
   end
 
   subject { TestSender.new }

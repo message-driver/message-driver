@@ -7,7 +7,7 @@ require 'message_driver/message_sender'
 require 'message_driver/message_receiver'
 
 module MessageDriver
-  def self.configure
-    Broker.configure
+  def self.configure(options={})
+    Broker.configure(options)
   end
 end

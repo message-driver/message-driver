@@ -5,9 +5,9 @@ describe MessageDriver::MessageReceiver do
     include MessageDriver::MessageReceiver
   end
 
-  let(:adapter) { stub(MessageDriver::Adapter::Base) }
+  let(:adapter) { MessageDriver::Adapter::Base.new }
   before do
-    MessageDriver::Broker.configure(adapter)
+    MessageDriver.configure(adapter: adapter)
   end
 
   subject { TestReceiver.new }
