@@ -1,8 +1,8 @@
 module MessageDriver
   class Broker
     class << self
-      def configure(config_file="config/message_driver.yml")
-        @adapter = MessageDriver::Adapter::InMemory.new
+      def configure(adapter=MessageDriver::Adapter::InMemory.new)
+        @adapter = adapter
       end
 
       def adapter

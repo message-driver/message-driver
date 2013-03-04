@@ -5,8 +5,8 @@ module MessageDriver
         @messages
       end
 
-      def send_message(destination, body, headers={})
-        message_store[destination] << {:body => body, :headers => headers}
+      def send_message(destination, body, headers={}, properties={})
+        message_store[destination] << Message.new(body, headers, properties)
       end
 
       def pop_message(destination, options={})

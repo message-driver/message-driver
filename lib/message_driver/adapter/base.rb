@@ -1,7 +1,7 @@
 module MessageDriver
   module Adapter
     class Base
-      def send_message(destination, body, headers={})
+      def send_message(destination, body, headers={}, properties={})
         raise "Must be implemented in subclass"
       end
 
