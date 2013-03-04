@@ -1,6 +1,8 @@
 require 'message_driver'
 
-config = case ENV["ADAPTER_UNDER_TEST"]
+adapter_file = File.expand_path("../../.adapter_under_test", __FILE__)
+adapter = ENV['APDAPTER_UNDER_TEST'] || (File.exist?(adapter_file) && File.read(adapter_file).chomp)
+config = case adapter
          when 'bunny'
            {adapter: :bunny}
          when 'in_memory'
