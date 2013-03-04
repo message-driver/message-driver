@@ -1,6 +1,6 @@
 # Message::Driver
 
-easy messaging for ruby
+Easy message queues for ruby
 
 [![Build Status](https://travis-ci.org/soupmatt/message-driver.png?branch=master)](https://travis-ci.org/soupmatt/message-driver)
 
