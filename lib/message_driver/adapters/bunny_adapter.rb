@@ -17,10 +17,10 @@ module MessageDriver
       private
 
       def validate_bunny_version
-        required = Gem::Requirement.create('>= 0.9.0pre7')
-        current = Gem::Requirement.create(Bunny::VERSION)
+        required = Gem::Requirement.create('~> 0.9.0.pre7')
+        current = Gem::Version.create(Bunny::VERSION)
         unless required.satisfied_by? current
-          raise "bunny 0.9.0pre7 or later is required for the bunny adapter"
+          raise "bunny 0.9.0.pre7 or later is required for the bunny adapter"
         end
       end
     end
