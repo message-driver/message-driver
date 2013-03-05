@@ -6,8 +6,10 @@ guard 'bundler' do
   watch(/^.+\.gemspec/)
 end
 
+default_rspec_opts = {cli: '-f doc', run_all: {cli: ''}}
+
 group 'specs' do
-  guard 'rspec', cli: '-f doc', run_all: {cli: ''} do
+  guard 'rspec', default_rspec_opts do
     watch(%r{^spec/.+_spec\.rb$})
     watch(%r{^lib/(.+)\.rb$})          { |m| "spec/#{m[1]}_spec.rb" }
     watch(%r{^spec/support/(.+)\.rb$}) { "spec" }
@@ -16,7 +18,7 @@ group 'specs' do
 end
 
 group 'features' do
-  guard 'rspec', turnip: true, cli: '-f doc' do
+  guard 'rspec', default_rspec_opts.merge(turnip: true) do
     watch(%r{^spec/.+_spec\.rb$})
     watch(%r{^lib/(.+)\.rb$})          { |m| "spec/#{m[1]}_spec.rb" }
     watch(%r{^spec/support/(.+)\.rb$}) { "spec" }
