@@ -16,7 +16,10 @@ group 'specs' do
 end
 
 group 'features' do
-  guard 'rspec', turnip: true, cli: '-f doc --tag turnip', run_all: {cli: '--tag turnip'} do
+  guard 'rspec', turnip: true, cli: '-f doc' do
+    watch(%r{^spec/.+_spec\.rb$})
+    watch(%r{^lib/(.+)\.rb$})          { |m| "spec/#{m[1]}_spec.rb" }
+    watch(%r{^spec/support/(.+)\.rb$}) { "spec" }
     watch(%r{^spec/acceptance/(.+)\.feature$})
     watch(%r{^spec/acceptance/steps/(.+)_steps\.rb$})  { |m| Dir[File.join("**/#{m[1]}.feature")][0] || 'spec/acceptance' }
     watch('spec/spec_helper.rb')  { "spec" }

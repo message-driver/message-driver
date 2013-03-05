@@ -6,7 +6,6 @@ RSpec::Core::RakeTask.new(:spec)
 
 RSpec::Core::RakeTask.new(:turnip) do |t|
   t.rspec_path = "rspec -r turnip/rspec"
-  t.pattern = './spec/acceptance{,/*/**}/*.feature'
 end
 
 task :default => [:spec, :turnip]
