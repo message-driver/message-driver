@@ -10,6 +10,9 @@ RSpec.configure do |config|
   if defined?(Turnip)
     config.filter_run :turnip
     config.filter_run :integration
+    %w(in_memory bunny).each do |a|
+      config.filter_run_excluding a.to_sym unless a.to_sym == MessageDriver::Broker.configuration[:adapter]
+    end
   else
     config.filter_run :focus
     config.filter_run_excluding :integration

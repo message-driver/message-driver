@@ -9,9 +9,12 @@ module MessageDriver
 
   module Adapters
     class BunnyAdapter < Base
+      attr_reader :connection
+
       def initialize(config)
         validate_bunny_version
 
+        @connection = Bunny.new(config)
       end
 
       private

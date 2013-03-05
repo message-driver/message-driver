@@ -3,10 +3,15 @@ module MessageDriver
     class << self
       def configure(options)
         @adapter = resolve_adapter(options[:adapter], options)
+        @configuration = options
       end
 
       def adapter
         @adapter
+      end
+
+      def configuration
+        @configuration
       end
 
       private

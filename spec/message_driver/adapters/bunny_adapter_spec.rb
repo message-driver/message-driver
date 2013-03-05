@@ -3,7 +3,7 @@ require 'spec_helper'
 require 'message_driver/adapters/bunny_adapter'
 
 module MessageDriver::Adapters
-  describe BunnyAdapter, :integration do
+  describe BunnyAdapter, :bunny, :integration do
     pending do
       let(:adapter) { described_class.new({}) }
       it_behaves_like "an adapter"
@@ -41,7 +41,11 @@ module MessageDriver::Adapters
         end
       end
 
-      
+      it "connects to the rabbit broker" do
+        adapter = described_class.new({})
+
+        expect(adapter.connection).to be_a Bunny::Session
+      end
     end
   end
 end
