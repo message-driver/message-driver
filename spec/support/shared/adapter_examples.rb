@@ -2,7 +2,7 @@ shared_examples "an adapter" do
   let(:destination) { "shared_adapter_examples_queue" }
   describe "#pop_message" do
     let(:body) { "The message body" }
-    let(:headers) { { foo: :bar, bar: :baz} }
+    let(:headers) { { "foo" => "bar", "bar" => "baz"} }
     let(:properties) { {persistent: true, client_ack: true} }
 
     before do
@@ -16,7 +16,7 @@ shared_examples "an adapter" do
       it { should be_a MessageDriver::Message::Base }
       its(:body) { should eq(body) }
       its(:headers) { should eq(headers) }
-      its(:properties) { should eq(properties) }
+      its(:properties) { should_not be_nil }
     end
   end
 end
