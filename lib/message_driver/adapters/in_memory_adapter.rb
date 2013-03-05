@@ -1,12 +1,12 @@
 module MessageDriver
   class Broker
     def self.in_memory_adapter
-      MessageDriver::Adapter::InMemory
+      MessageDriver::Adapters::InMemoryAdapter
     end
   end
 
-  module Adapter
-    class InMemory < Base
+  module Adapters
+    class InMemoryAdapter < Base
       def initialize(config={})
         #does nothing
       end

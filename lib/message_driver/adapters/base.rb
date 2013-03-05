@@ -1,5 +1,5 @@
 module MessageDriver
-  module Adapter
+  module Adapters
     class Base
       def initialize(configuration)
         raise "Must be implemented in subclass"

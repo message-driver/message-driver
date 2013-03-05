@@ -19,15 +19,15 @@ module MessageDriver
           resolve_adapter(find_adapter_class(adapter), options)
         when Class
           resolve_adapter(adapter.new(options), options)
-        when MessageDriver::Adapter::Base
+        when MessageDriver::Adapters::Base
           adapter
         else
-          raise "adapter must be a MessageDriver::Adapter::Base, but this object is a #{adapter.class}"
+          raise "adapter must be a MessageDriver::Adapters::Base, but this object is a #{adapter.class}"
         end
       end
 
       def find_adapter_class(adapter_name)
-        require "message_driver/adapter/#{adapter_name}"
+        require "message_driver/adapters/#{adapter_name}_adapter"
 
         adapter_method = "#{adapter_name}_adapter"
 

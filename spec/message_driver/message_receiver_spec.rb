@@ -1,37 +1,41 @@
 require 'spec_helper'
 
-describe MessageDriver::MessageReceiver do
-  class TestReceiver
-    include MessageDriver::MessageReceiver
-  end
+require 'message_driver/adapters/in_memory_adapter'
 
-  let(:adapter) { MessageDriver::Adapter::InMemory.new }
-  before do
-    MessageDriver.configure(adapter: adapter)
-  end
-
-  subject { TestReceiver.new }
-
-  describe "#pop_message" do
-    let(:destination) { "my_queue" }
-    let(:expected) { stub(MessageDriver::Message) }
-
-    it "requires the destination and returns the message" do
-      adapter.should_receive(:pop_message).with(destination, {}).and_return(expected)
-
-      actual = subject.pop_message(destination)
-
-      expect(actual).to be expected
+module MessageDriver
+  describe MessageDriver::MessageReceiver do
+    class TestReceiver
+      include MessageDriver::MessageReceiver
     end
 
-    let(:options) { {foo: :bar} }
+    let(:adapter) { MessageDriver::Adapters::InMemoryAdapter.new }
+    before do
+      MessageDriver.configure(adapter: adapter)
+    end
 
-    it "passes the options through and returns the message" do
-      adapter.should_receive(:pop_message).with(destination, options).and_return(expected)
+    subject { TestReceiver.new }
 
-      actual = subject.pop_message(destination, options)
+    describe "#pop_message" do
+      let(:destination) { "my_queue" }
+      let(:expected) { stub(MessageDriver::Message) }
 
-      expect(actual).to be expected
+      it "requires the destination and returns the message" do
+        adapter.should_receive(:pop_message).with(destination, {}).and_return(expected)
+
+        actual = subject.pop_message(destination)
+
+        expect(actual).to be expected
+      end
+
+      let(:options) { {foo: :bar} }
+
+      it "passes the options through and returns the message" do
+        adapter.should_receive(:pop_message).with(destination, options).and_return(expected)
+
+        actual = subject.pop_message(destination, options)
+
+        expect(actual).to be expected
+      end
     end
   end
 end
