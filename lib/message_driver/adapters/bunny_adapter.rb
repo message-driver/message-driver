@@ -22,6 +22,10 @@ module MessageDriver
       end
 
       class QueueDestination < Destination
+        def initialize(adapter, name, dest_options, message_props)
+          super
+          adapter.connection.queue(name, dest_options)
+        end
       end
 
       class ExchangeDestination < Destination

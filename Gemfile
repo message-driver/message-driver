@@ -7,6 +7,7 @@ group :tools do
   gem 'guard'
   gem 'guard-bundler'
   gem 'guard-rspec'
+  gem 'pry-debugger'
 end
 
 group :darwin do

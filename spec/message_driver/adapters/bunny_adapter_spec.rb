@@ -102,7 +102,7 @@ module MessageDriver::Adapters
       context "with defaults" do
         context "the resulting destination" do
           let(:dest_name) { "my_dest" }
-          let(:result) { adapter.create_destination(dest_name) }
+          let(:result) { adapter.create_destination(dest_name, exclusive: true) }
           subject { result }
 
           it { should be_a BunnyAdapter::QueueDestination }
@@ -112,12 +112,18 @@ module MessageDriver::Adapters
       context "the type is queue" do
         context "the resulting destination" do
           let(:dest_name) { "my_dest" }
-          let(:result) { adapter.create_destination(dest_name, type: :queue) }
+          let!(:result) { adapter.create_destination(dest_name, type: :queue, exclusive: true) }
           subject { result }
 
           it { should be_a BunnyAdapter::QueueDestination }
           it "strips off the type so it isn't set on the destination"
-          it "ensures the queue is declared"
+          it "ensures the queue is declared" do
+            expect {
+              connection.with_channel do |ch|
+                ch.queue(dest_name, passive: true)
+              end
+            }.to_not raise_error
+          end
           it "sends via the default exchange"
         end
       end
