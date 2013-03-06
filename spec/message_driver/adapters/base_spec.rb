@@ -24,5 +24,21 @@ module MessageDriver::Adapters
         }.to raise_error "Must be implemented in subclass"
       end
     end
+
+    describe "#stop" do
+      it "raises an error" do
+        expect {
+          subject.stop
+        }.to raise_error "Must be implemented in subclass"
+      end
+    end
+
+    describe "#create_destination" do
+      it "raises an error" do
+        expect {
+          subject.create_destination("foo")
+        }.to raise_error "Must be implemented in subclass"
+      end
+    end
   end
 end

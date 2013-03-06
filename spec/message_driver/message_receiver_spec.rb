@@ -20,7 +20,7 @@ module MessageDriver
       let(:expected) { stub(MessageDriver::Message) }
 
       it "requires the destination and returns the message" do
-        adapter.should_receive(:pop_message).with(destination, {}).and_return(expected)
+        Broker.instance.should_receive(:pop_message).with(destination, {}).and_return(expected)
 
         actual = subject.pop_message(destination)
 
@@ -30,7 +30,7 @@ module MessageDriver
       let(:options) { {foo: :bar} }
 
       it "passes the options through and returns the message" do
-        adapter.should_receive(:pop_message).with(destination, options).and_return(expected)
+        Broker.instance.should_receive(:pop_message).with(destination, options).and_return(expected)
 
         actual = subject.pop_message(destination, options)
 

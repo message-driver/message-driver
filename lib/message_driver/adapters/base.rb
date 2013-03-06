@@ -17,7 +17,7 @@ module MessageDriver
         raise "Must be implemented in subclass"
       end
 
-      def create_destination(destination, options={})
+      def create_destination(name, dest_options={}, message_props={})
         raise "Must be implemented in subclass"
       end
     end

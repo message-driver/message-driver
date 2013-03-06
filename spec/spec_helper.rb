@@ -11,7 +11,6 @@ RSpec.configure do |c|
   c.treat_symbols_as_metadata_keys_with_true_values = true
   c.order = 'random'
   c.filter_run :focus
-  c.run_all_when_everything_filtered = true
 
   c.include AcceptanceContext, turnip: true
 
@@ -22,5 +21,7 @@ RSpec.configure do |c|
     %w(in_memory bunny).map(&:to_sym).each do |a|
       c.filter_run_excluding a if a != broker_config[:adapter]
     end
+  else
+    c.run_all_when_everything_filtered = true
   end
 end

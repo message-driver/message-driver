@@ -1,12 +1,21 @@
 module MessageDriver
   class Broker
-    def self.in_memory_adapter
+    def in_memory_adapter
       MessageDriver::Adapters::InMemoryAdapter
     end
   end
 
   module Adapters
     class InMemoryAdapter < Base
+
+      class Message < MessageDriver::Message::Base
+
+      end
+
+      class Destination < MessageDriver::Destination::Base
+
+      end
+
       def initialize(config={})
         #does nothing
       end
@@ -23,18 +32,14 @@ module MessageDriver
         @message_stop = nil
       end
 
-      def create_destination(destination_name, options={})
-        #doesn't need to do anything
+      def create_destination(name, dest_options={}, message_props={})
+        Destination.new(self, name, dest_options, message_props)
       end
 
       private
 
       def message_store
         @message_store ||= Hash.new { |h,k| h[k] = [] }
-      end
-
-      class Message < MessageDriver::Message::Base
-
       end
     end
   end

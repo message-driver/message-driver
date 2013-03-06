@@ -53,17 +53,22 @@ module MessageDriver::Adapters
     shared_context "a connected adapter" do
       let!(:adapter) { described_class.new(valid_connection_attrs) }
       let(:connection) { adapter.connection }
-      let(:channel) { connection.create_channel }
-      let(:tmp_queue_name) { "my_temp_queue" }
-      let!(:tmp_queue) { channel.queue(tmp_queue_name, exclusive: true) }
 
       after do
         connection.close
       end
     end
 
-    describe "#send_message" do
+    shared_context "with a queue" do
       include_context "a connected adapter"
+
+      let(:channel) { connection.create_channel }
+      let(:tmp_queue_name) { "my_temp_queue" }
+      let!(:tmp_queue) { channel.queue(tmp_queue_name, exclusive: true) }
+    end
+
+    describe "#send_message" do
+      include_context "with a queue"
       let(:body) { "This is my message body!" }
       let(:headers) { {"foo" => "bar"} }
       let(:properties) { {persistent: false} }
@@ -81,15 +86,66 @@ module MessageDriver::Adapters
       end
     end
 
-    #describe "#pop_message" do
-      #include_context "a connected adapter"
-    #end
-
-    it_behaves_like "an adapter" do
-      include_context "a connected adapter"
-      let(:destination) { tmp_queue_name }
-      let(:adapter) { described_class.new(valid_connection_attrs) }
+    describe "#pop_message" do
+      include_context "with a queue"
+      it "needs some real tests"
     end
 
+    it_behaves_like "an adapter" do
+      include_context "with a queue"
+      let(:destination) { tmp_queue_name }
+    end
+
+    describe "#create_destination" do
+      include_context "a connected adapter"
+
+      context "with defaults" do
+        context "the resulting destination" do
+          let(:dest_name) { "my_dest" }
+          let(:result) { adapter.create_destination(dest_name) }
+          subject { result }
+
+          it { should be_a BunnyAdapter::QueueDestination }
+        end
+      end
+
+      context "the type is queue" do
+        context "the resulting destination" do
+          let(:dest_name) { "my_dest" }
+          let(:result) { adapter.create_destination(dest_name, type: :queue) }
+          subject { result }
+
+          it { should be_a BunnyAdapter::QueueDestination }
+          it "strips off the type so it isn't set on the destination"
+          it "ensures the queue is declared"
+          it "sends via the default exchange"
+        end
+      end
+
+      context "the type is exchange" do
+        context "the resulting destination" do
+          let(:dest_name) { "my_dest" }
+          let(:result) { adapter.create_destination(dest_name, type: :exchange) }
+          subject { result }
+
+          it { should be_a BunnyAdapter::ExchangeDestination }
+          it "strips off the type so it isn't set on the destination"
+          it "raises an error when pop_message is called" do
+            expect {
+              subject.pop_message(dest_name)
+            }.to raise_error "You can't pop a message off an exchange"
+          end
+          it "sends to the specified exchange"
+        end
+      end
+
+      context "the type is invalid" do
+        it "raises in an error" do
+          expect {
+            adapter.create_destination("my_dest", type: :foo_bar)
+          }.to raise_error "invalid destination type #{:foo_bar}"
+        end
+      end
+    end
   end
 end

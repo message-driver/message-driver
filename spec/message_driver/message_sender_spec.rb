@@ -20,7 +20,7 @@ module MessageDriver
       let(:body) { "my message body" }
 
       it "only requires destination and body" do
-        adapter.should_receive(:send_message).with(destination, body, {}, {})
+        Broker.instance.should_receive(:send_message).with(destination, body, {}, {})
 
         subject.send_message(destination, body)
       end
@@ -29,7 +29,7 @@ module MessageDriver
       let(:properties) { {bar: :baz} }
 
       it "also passes through the headers and properties" do
-        adapter.should_receive(:send_message).with(destination, body, headers, properties)
+        Broker.instance.should_receive(:send_message).with(destination, body, headers, properties)
 
         subject.send_message(destination, body, headers, properties)
       end

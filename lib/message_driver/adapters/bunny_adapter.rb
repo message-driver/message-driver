@@ -2,13 +2,34 @@ require 'bunny'
 
 module MessageDriver
   class Broker
-    def self.bunny_adapter
+    def bunny_adapter
       MessageDriver::Adapters::BunnyAdapter
     end
   end
 
   module Adapters
     class BunnyAdapter < Base
+
+      class Message < MessageDriver::Message::Base
+        attr_reader :delivery_info
+
+        def initialize(delivery_info, properties, payload)
+          super(payload, properties[:headers], properties)
+        end
+      end
+
+      class Destination < MessageDriver::Destination::Base
+      end
+
+      class QueueDestination < Destination
+      end
+
+      class ExchangeDestination < Destination
+        def pop_message(destination, options={})
+          raise "You can't pop a message off an exchange"
+        end
+      end
+
       attr_reader :connection
 
       def initialize(config)
@@ -40,9 +61,14 @@ module MessageDriver
         result
       end
 
-      def create_destination(destination, options={})
-        @connection.with_channel do |ch|
-          ch.queue(destination, options)
+      def create_destination(name, dest_options={}, message_props={})
+        case dest_options[:type]
+        when :exchange
+          ExchangeDestination.new(self, name, dest_options, message_props)
+        when :queue, nil
+          QueueDestination.new(self, name, dest_options, message_props)
+        else
+          raise "invalid destination type #{dest_options[:type]}"
         end
       end
 
@@ -57,14 +83,6 @@ module MessageDriver
         current = Gem::Version.create(Bunny::VERSION)
         unless required.satisfied_by? current
           raise "bunny 0.9.0.pre7 or later is required for the bunny adapter"
-        end
-      end
-
-      class Message < MessageDriver::Message::Base
-        attr_reader :delivery_info
-
-        def initialize(delivery_info, properties, payload)
-          super(payload, properties[:headers], properties)
         end
       end
     end
