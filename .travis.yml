@@ -14,8 +14,8 @@ rvm:
   - jruby-head
   - rbx-19mode
 env:
-  - ADAPTER_UNDER_TEST=in_memory
-  - ADAPTER_UNDER_TEST=bunny
+  - ADAPTER=in_memory
+  - ADAPTER=bunny
 matrix:
   allow_failures:
     - rvm: ruby-head

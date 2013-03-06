@@ -1,7 +1,7 @@
 module AcceptanceMethods
   def _broker_config
     adapter_file = File.expand_path("../../../.adapter_under_test", __FILE__)
-    adapter = ENV['ADAPTER_UNDER_TEST'] || (File.exist?(adapter_file) && File.read(adapter_file).chomp)
+    adapter = ENV['ADAPTER'] || (File.exist?(adapter_file) && File.read(adapter_file).chomp)
     case adapter
     when 'bunny'
       {
