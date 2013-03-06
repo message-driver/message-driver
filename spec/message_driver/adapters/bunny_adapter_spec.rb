@@ -103,14 +103,14 @@ module MessageDriver::Adapters
               end
             }.to_not raise_error
           end
-          context "sending a message" do
+          context "publishing a message" do
             let(:body) { "Testing the QueueDestination" }
             let(:headers) { {"foo" => "bar"} }
             let(:properties) { {persistent: false} }
             before do
-              subject.send_message(body, headers, properties)
+              subject.publish(body, headers, properties)
             end
-            it "sends via the default exchange" do
+            it "publishes via the default exchange" do
               msg = subject.pop_message
               expect(msg.body).to eq(body)
               expect(msg.headers).to eq(headers)
@@ -140,7 +140,7 @@ module MessageDriver::Adapters
               subject.pop_message(dest_name)
             }.to raise_error "You can't pop a message off an exchange"
           end
-          context "sending a message" do
+          context "publishing a message" do
             let(:body) { "Testing the QueueDestination" }
             let(:headers) { {"foo" => "bar"} }
             let(:properties) { {persistent: false} }
@@ -154,9 +154,9 @@ module MessageDriver::Adapters
               q
             end
             before do
-              subject.send_message(body, headers, properties)
+              subject.publish(body, headers, properties)
             end
-            it "sends to the specified exchange" do
+            it "publishes to the specified exchange" do
               connection.with_channel do |ch|
                 q = ch.queue(queue.name, passive: true)
                 msg = q.pop

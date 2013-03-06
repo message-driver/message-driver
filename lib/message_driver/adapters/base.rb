@@ -5,7 +5,7 @@ module MessageDriver
         raise "Must be implemented in subclass"
       end
 
-      def send_message(destination, body, headers={}, properties={})
+      def publish(destination, body, headers={}, properties={})
         raise "Must be implemented in subclass"
       end
 

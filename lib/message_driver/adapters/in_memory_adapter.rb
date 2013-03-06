@@ -20,7 +20,7 @@ module MessageDriver
         #does nothing
       end
 
-      def send_message(destination, body, headers={}, properties={})
+      def publish(destination, body, headers={}, properties={})
         message_store[destination] << Message.new(body, headers, properties)
       end
 

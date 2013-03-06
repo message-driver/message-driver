@@ -9,10 +9,10 @@ module MessageDriver::Adapters
     end
     subject { TestAdapter.new({}) }
 
-    describe "#send_message" do
+    describe "#publish" do
       it "raises an error" do
         expect {
-          subject.send_message(:destination, {foo: "bar"})
+          subject.publish(:destination, {foo: "bar"})
         }.to raise_error "Must be implemented in subclass"
       end
     end

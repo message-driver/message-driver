@@ -29,10 +29,12 @@ TODO: Write usage instructions here
 ## TODO
 
 * adapters
-    * bunny
     * stomp
-    * others?
-* write rdoc for API
+    * zeromq?
+    * jms?
+* rdoc for API
+* examples for usage
+* documentation
 * subscription-based message processors
 * destination metadata
 

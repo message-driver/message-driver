@@ -5,7 +5,7 @@ shared_examples "a destination" do
     let(:properties) { {persistent: true, client_ack: true} }
 
     before do
-      destination.send_message(body, headers, properties)
+      destination.publish(body, headers, properties)
     end
 
     context "the result" do

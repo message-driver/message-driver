@@ -20,10 +20,10 @@ module MessageDriver
       end
 
       class Destination < MessageDriver::Destination::Base
-        def send_message(body, headers={}, properties={})
+        def publish(body, headers={}, properties={})
           props = @message_props.merge(properties)
           props[:headers] = headers if headers
-          @adapter.send_message(body, exchange_name, routing_key(properties), props)
+          @adapter.publish(body, exchange_name, routing_key(properties), props)
         end
 
         def exchange_name
@@ -66,7 +66,7 @@ module MessageDriver
         @connection.start
       end
 
-      def send_message(body, exchange, routing_key, properties)
+      def publish(body, exchange, routing_key, properties)
         @connection.with_channel do |ch|
           ch.basic_publish(body, exchange, routing_key, properties)
         end

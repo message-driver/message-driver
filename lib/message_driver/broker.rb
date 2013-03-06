@@ -32,9 +32,9 @@ module MessageDriver
       @destinations = {}
     end
 
-    def send_message(destination, body, headers={}, properties={})
+    def publish(destination, body, headers={}, properties={})
       dest = find_destination(destination)
-      dest.send_message(body, headers, properties)
+      dest.publish(body, headers, properties)
     end
 
     def pop_message(destination, options={})

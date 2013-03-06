@@ -11,8 +11,8 @@ module MessageDriver
         after_initialize
       end
 
-      def send_message(body, headers={}, properties={})
-        @adapter.send_message(@name, body, headers, @message_props.merge(properties))
+      def publish(body, headers={}, properties={})
+        @adapter.publish(@name, body, headers, @message_props.merge(properties))
       end
 
       def pop_message(options={})

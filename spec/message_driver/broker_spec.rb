@@ -60,7 +60,7 @@ module MessageDriver
       end
     end
 
-    describe "#send_message" do
+    describe "#publish" do
       it "needs some real tests"
 
       context "when the destination can't be found" do

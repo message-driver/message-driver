@@ -5,7 +5,8 @@
 Initial Release
 
 * Features
-    * Send a message
+    * Publish a message
     * Pop a message
 * Adapters
     * InMemory
+    * Bunny (amqp 0.9)
