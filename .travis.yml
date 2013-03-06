@@ -4,7 +4,7 @@ services:
   - rabbitmq
 before_script:
   - sudo rabbitmqctl add_vhost message-driver-test
-  - set_permissions -p message-driver-test guest ".*" ".*" ".*"
+  - sudo rabbitmqctl set_permissions -p message-driver-test guest ".*" ".*" ".*"
 rvm:
   - 1.9.2
   - 1.9.3
