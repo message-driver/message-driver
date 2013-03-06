@@ -6,10 +6,11 @@ guard 'bundler' do
   watch(/^.+\.gemspec/)
 end
 
-default_rspec_opts = {cli: '-f doc', run_all: {cli: ''}}
+unit_spec_opts = {cli: '-f doc --tag ~type:integration', run_all: {cli: '--tag ~type:integration'}}
+acceptance_spec_opts = {cli: '-f doc --tag type:integration', run_all: {cli: '--tag type:integration'}}
 
 group 'specs' do
-  guard 'rspec', default_rspec_opts do
+  guard 'rspec', unit_spec_opts do
     watch(%r{^spec/.+_spec\.rb$})
     watch(%r{^lib/(.+)\.rb$})          { |m| "spec/#{m[1]}_spec.rb" }
     watch(%r{^spec/support/(.+)\.rb$}) { "spec" }
@@ -18,7 +19,7 @@ group 'specs' do
 end
 
 group 'features' do
-  guard 'rspec', default_rspec_opts.merge(turnip: true) do
+  guard 'rspec', acceptance_spec_opts do
     watch(%r{^spec/.+_spec\.rb$})
     watch(%r{^lib/(.+)\.rb$})          { |m| "spec/#{m[1]}_spec.rb" }
     watch(%r{^spec/support/(.+)\.rb$}) { "spec" }

@@ -14,6 +14,12 @@ module MessageDriver
         @configuration
       end
 
+      def stop
+        if @adapter
+          @adapter.stop
+        end
+      end
+
       private
 
       def resolve_adapter(adapter, options)

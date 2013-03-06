@@ -19,6 +19,10 @@ module MessageDriver
         message_store[destination].shift
       end
 
+      def stop
+        @message_stop = nil
+      end
+
       private
 
       def message_store

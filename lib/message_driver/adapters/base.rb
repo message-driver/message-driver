@@ -12,6 +12,10 @@ module MessageDriver
       def pop_message(destination, options={})
         raise "Must be implemented in subclass"
       end
+
+      def stop
+        raise "Must be implemented in subclass"
+      end
     end
   end
 end

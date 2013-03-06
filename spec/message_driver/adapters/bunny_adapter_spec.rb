@@ -3,7 +3,7 @@ require 'spec_helper'
 require 'message_driver/adapters/bunny_adapter'
 
 module MessageDriver::Adapters
-  describe BunnyAdapter, :bunny, :integration do
+  describe BunnyAdapter, :bunny, type: :integration do
 
     let(:valid_connection_attrs) { {
       vhost: 'message-driver-test',

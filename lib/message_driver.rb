@@ -10,4 +10,8 @@ module MessageDriver
   def self.configure(options={})
     Broker.configure(options)
   end
+
+  def self.stop
+    Broker.stop
+  end
 end

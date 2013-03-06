@@ -40,6 +40,10 @@ module MessageDriver
         result
       end
 
+      def stop
+        @connection.close
+      end
+
       private
 
       def validate_bunny_version
