@@ -16,6 +16,10 @@ module MessageDriver
       def stop
         raise "Must be implemented in subclass"
       end
+
+      def create_destination(destination, options={})
+        raise "Must be implemented in subclass"
+      end
     end
   end
 end

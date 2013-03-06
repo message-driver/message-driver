@@ -4,7 +4,10 @@ module AcceptanceMethods
     adapter = ENV['ADAPTER_UNDER_TEST'] || (File.exist?(adapter_file) && File.read(adapter_file).chomp)
     case adapter
     when 'bunny'
-      {adapter: :bunny}
+      {
+        adapter: :bunny,
+        vhost: 'message-driver-test'
+      }
     when 'in_memory'
       {adapter: :in_memory}
     else
@@ -27,12 +30,4 @@ module AcceptanceContext
       end
     end
   end
-end
-
-RSpec.configure do |c|
-  include AcceptanceMethods
-
-  c.include AcceptanceContext, turnip: true
-
-  c.reporter.message("Acceptance Tests running with broker config: #{_broker_config}")
 end

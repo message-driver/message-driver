@@ -40,6 +40,12 @@ module MessageDriver
         result
       end
 
+      def create_destination(destination, options={})
+        @connection.with_channel do |ch|
+          ch.queue(destination, options)
+        end
+      end
+
       def stop
         @connection.close
       end

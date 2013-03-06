@@ -23,6 +23,10 @@ module MessageDriver
         @message_stop = nil
       end
 
+      def create_destination(destination_name, options={})
+        #doesn't need to do anything
+      end
+
       private
 
       def message_store
