@@ -1,16 +1,15 @@
-shared_examples "an adapter" do
-  let(:destination) { "shared_adapter_examples_queue" }
+shared_examples "a destination" do
   describe "#pop_message" do
     let(:body) { "The message body" }
     let(:headers) { { "foo" => "bar", "bar" => "baz"} }
     let(:properties) { {persistent: true, client_ack: true} }
 
     before do
-      adapter.send_message(destination, body, headers, properties)
+      destination.send_message(body, headers, properties)
     end
 
     context "the result" do
-      let!(:message) { adapter.pop_message(destination) }
+      let!(:message) { destination.pop_message }
       subject { message }
 
       it { should be_a MessageDriver::Message::Base }
