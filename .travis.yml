@@ -1,4 +1,10 @@
 language: ruby
+bundler_args: --without tools darwin
+services:
+  - rabbitmq
+before_script:
+  - sudo rabbitmqctl add_vhost message-driver-test
+  - set_permissions -p message-driver-test guest ".*" ".*" ".*"
 rvm:
   - 1.9.2
   - 1.9.3
@@ -7,7 +13,9 @@ rvm:
   - ruby-head
   - jruby-head
   - rbx-19mode
-bundler_args: --without tools darwin
+env:
+  - ADAPTER_UNDER_TEST=in_memory
+  - ADAPTER_UNDER_TEST=bunny
 matrix:
   allow_failures:
     - rvm: ruby-head
