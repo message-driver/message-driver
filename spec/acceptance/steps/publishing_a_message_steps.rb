@@ -1,6 +1,5 @@
 steps_for :publishing_a_message do
   include MessageDriver::MessagePublisher
-  include MessageDriver::MessageReceiver
 
   step "I publish a message to :dest_name" do |dest_name|
     publish(dest_name, "Test Message")
