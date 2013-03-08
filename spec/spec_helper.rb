@@ -17,10 +17,8 @@ RSpec.configure do |c|
   broker_config = _broker_config
   c.reporter.message("Acceptance Tests running with broker config: #{broker_config}")
 
-  if c.inclusion_filter[:type] == "integration"
-    %w(in_memory bunny).map(&:to_sym).each do |a|
-      c.filter_run_excluding a if a != broker_config[:adapter]
-    end
+  if c.inclusion_filter[:all_adapters] == true
+    c.filter_run broker_config[:adapter]
   else
     c.run_all_when_everything_filtered = true
   end
