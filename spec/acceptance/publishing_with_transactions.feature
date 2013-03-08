@@ -12,21 +12,23 @@ Feature: Publishing a Message within a Transaction
     When I execute the following code:
     """ruby
     with_message_transaction do
-      publish(:my_queue, "Transacted Message")
+      publish(:my_queue, "Transacted Message 1")
+      publish(:my_queue, "Transacted Message 2")
     end
     """
 
-    Then I expect to find 1 message on :my_queue with:
-      | body               |
-      | Transacted Message |
+    Then I expect to find 2 messages on :my_queue with:
+      | body                 |
+      | Transacted Message 1 |
+      | Transacted Message 2 |
 
-  @pending
   Scenario: An error is raised inside the block
     When I execute the following code:
     """ruby
     with_message_transaction do
-      publish(:my_queue, "Transacted Message")
+      publish(:my_queue, "Transacted Message 1")
       raise "an error that causes a rollback"
+      publish(:my_queue, "Transacted Message 2")
     end
     """
 

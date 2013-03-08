@@ -16,16 +16,20 @@ module MessageDriver::Adapters
           it "raises an error" do
             stub_const("Bunny::VERSION", version)
             expect {
-              described_class.new({})
+              described_class.new(valid_connection_attrs)
             }.to raise_error "bunny 0.9.0.pre7 or later is required for the bunny adapter"
           end
         end
         shared_examples "doesn't raise an error" do
           it "doesn't raise an an error" do
             stub_const("Bunny::VERSION", version)
+            adapter = nil
             expect {
-              described_class.new({})
+              adapter = described_class.new(valid_connection_attrs)
             }.to_not raise_error
+
+            #cleanup the connection
+            adapter.stop
           end
         end
         %w(0.8.0 0.9.0.pre6).each do |v|

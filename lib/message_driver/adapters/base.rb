@@ -22,7 +22,7 @@ module MessageDriver
       end
 
       def with_transaction(options={}, &block)
-        raise "This adapter does not support transactions"
+        yield
       end
     end
   end

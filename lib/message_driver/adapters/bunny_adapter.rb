@@ -37,7 +37,7 @@ module MessageDriver
 
       class QueueDestination < Destination
         def after_initialize
-          adapter.connection.with_channel do |ch|
+          @adapter.current_context.with_channel do |ch|
             ch.queue(@name, @dest_options)
           end
         end
@@ -67,24 +67,22 @@ module MessageDriver
       end
 
       def publish(body, exchange, routing_key, properties)
-        @connection.with_channel do |ch|
+        current_context.with_channel do |ch|
           ch.basic_publish(body, exchange, routing_key, properties)
         end
       end
 
       def pop_message(destination, options={})
-        result = nil
-        @connection.with_channel do |ch|
+        current_context.with_channel do |ch|
           queue = ch.queue(destination, passive: true)
 
           message = queue.pop
           if message.nil? || message[0].nil?
             nil
           else
-            result = Message.new(*message)
+            Message.new(*message)
           end
         end
-        result
       end
 
       def create_destination(name, dest_options={}, message_props={})
@@ -98,15 +96,56 @@ module MessageDriver
         end
       end
 
-      def with_transaction(options={})
-        yield
+      def with_transaction(options={}, &block)
+        current_context.with_transaction(&block)
       end
 
       def stop
-        @connection.close
+        connection.close
+      end
+
+      def current_context
+        @context ||= ChannelContext.new(connection)
       end
 
       private
+
+      class ChannelContext
+        attr_reader :connection, :is_transactional
+
+        def initialize(connection)
+          @connection = connection
+          @channel = connection.create_channel
+          @transaction_depth = 0
+          @is_transactional = false
+        end
+
+        def with_transaction(&block)
+          if !is_transactional
+            @channel.tx_select
+            @is_transactional = true
+          end
+
+          begin
+            @transaction_depth += 1
+            yield
+            @channel.tx_commit if @transaction_depth == 1
+          rescue
+            @channel.tx_rollback if @transaction_depth == 1
+            raise
+          ensure
+            @transaction_depth -= 1
+          end
+        end
+
+        def with_channel
+          result = yield @channel
+          if is_transactional && @transaction_depth < 1
+            @channel.tx_commit
+          end
+          result
+        end
+      end
 
       def validate_bunny_version
         required = Gem::Requirement.create('~> 0.9.0.pre7')

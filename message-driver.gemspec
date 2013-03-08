@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version = '>= 1.9.2'
 
   gem.add_development_dependency "rake"
-  gem.add_development_dependency "rspec"
-  gem.add_development_dependency "turnip"
+  gem.add_development_dependency "rspec", "~> 2.13.0"
+  gem.add_development_dependency "turnip", "~> 1.1.0"
   gem.add_development_dependency "bunny", "~> 0.9.0.pre7"
 end

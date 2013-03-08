@@ -4,7 +4,7 @@ module MessageDriver
   class Broker
     extend Forwardable
 
-    attr_reader :adapter, :configuration, :with_transaction
+    attr_reader :adapter, :configuration
 
     def_delegators :@adapter, :stop
 
