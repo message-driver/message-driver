@@ -4,7 +4,7 @@ module MessageDriver
   class Broker
     extend Forwardable
 
-    attr_reader :adapter, :configuration
+    attr_reader :adapter, :configuration, :with_transaction
 
     def_delegators :@adapter, :stop
 
@@ -13,8 +13,12 @@ module MessageDriver
         @instance = new(options)
       end
 
-      def method_missing(*args)
-        @instance.send(*args)
+      def method_missing(m, *args)
+        @instance.send(m, *args)
+      end
+
+      def with_transaction(options, &block)
+        @instance.with_transaction(options, &block)
       end
 
       def instance
@@ -45,6 +49,10 @@ module MessageDriver
     def destination(key, dest_name, dest_options={}, message_props={})
       dest = adapter.create_destination(dest_name, dest_options, message_props)
       @destinations[key] = dest
+    end
+
+    def with_transaction(options={}, &block)
+      adapter.with_transaction(options, &block)
     end
 
     private

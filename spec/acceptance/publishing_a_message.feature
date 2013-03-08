@@ -1,8 +1,19 @@
-@publishing_a_message
+@all_adapters
 Feature: Publishing A Message
   Background:
-    Given I have a destination "my_queue"
+    Given The following broker configuration:
+    """ruby
+    MessageDriver::Broker.define do |b|
+      b.destination :my_queue, "my_queue", exclusive: true
+    end
+    """
 
-  Scenario:
-    When I publish a message to "my_queue"
-    Then it ends up at the destination "my_queue"
+  Scenario: Running within a with_message_transaction block
+    When I execute the following code:
+    """ruby
+    publish(:my_queue, "Test Message")
+    """
+
+    Then I expect to find 1 message on :my_queue with:
+      | body         |
+      | Test Message |

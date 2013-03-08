@@ -20,6 +20,10 @@ module MessageDriver
       def create_destination(name, dest_options={}, message_props={})
         raise "Must be implemented in subclass"
       end
+
+      def with_transaction(options={}, &block)
+        raise "This adapter does not support transactions"
+      end
     end
   end
 end

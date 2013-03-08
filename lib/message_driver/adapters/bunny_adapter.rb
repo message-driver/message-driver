@@ -98,6 +98,10 @@ module MessageDriver
         end
       end
 
+      def with_transaction(options={})
+        yield
+      end
+
       def stop
         @connection.close
       end

@@ -57,5 +57,9 @@ module MessageDriver
         expect(actual).to be expected
       end
     end
+
+    describe "#with_message_transaction" do
+      it "needs some real tests"
+    end
   end
 end
