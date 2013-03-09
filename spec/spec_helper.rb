@@ -1,9 +1,6 @@
 require 'message_driver'
 
 Dir["./spec/support/**/*.rb"].sort.each {|f| require f}
-Dir["./spec/acceptance/steps/**/*_steps.rb"].sort.each {|f| require f}
-
-Turnip.type = :integration
 
 RSpec.configure do |c|
   include AcceptanceMethods
