@@ -37,6 +37,11 @@ TODO: Write usage instructions here
 * documentation
 * subscription-based message processors
 * destination metadata
+* dynamic destinations
+
+* features for existing adapters
+    * bunny
+        * connection error handling
 
 ## Contributing
 

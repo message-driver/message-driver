@@ -6,6 +6,7 @@ Initial Release
 
 * Features
     * Publish a message
+    * Broker transactions for publishing
     * Pop a message
 * Adapters
     * InMemory
