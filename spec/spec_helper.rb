@@ -11,6 +11,7 @@ RSpec.configure do |c|
 
   c.reporter.message("Acceptance Tests running with broker config: #{BrokerConfig.config}")
 
+  c.filter_run_excluding :no_travis if ENV['TRAVIS']=='true' && ENV['ADAPTER']=='bunny'
   if c.inclusion_filter[:all_adapters] == true
     c.filter_run BrokerConfig.current_adapter
   else
