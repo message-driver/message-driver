@@ -4,7 +4,7 @@ module MessageDriver
   class Broker
     extend Forwardable
 
-    attr_reader :adapter, :configuration
+    attr_reader :adapter, :configuration, :destinations
 
     def_delegators :@adapter, :stop
 
@@ -46,8 +46,12 @@ module MessageDriver
       dest.pop_message(options)
     end
 
+    def dynamic_destination(dest_name, dest_options={}, message_props={})
+      adapter.create_destination(dest_name, dest_options, message_props)
+    end
+
     def destination(key, dest_name, dest_options={}, message_props={})
-      dest = adapter.create_destination(dest_name, dest_options, message_props)
+      dest = dynamic_destination(dest_name, dest_options, message_props)
       @destinations[key] = dest
     end
 

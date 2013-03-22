@@ -3,6 +3,8 @@ require 'message_driver/adapters/in_memory_adapter'
 
 module MessageDriver
   describe Broker do
+    subject(:broker) { described_class.new(adapter: :in_memory) }
+
     describe ".configure" do
       it "calls new, passing in the options and saves the instance" do
         options = {foo: :bar}
@@ -77,6 +79,20 @@ module MessageDriver
 
     describe "#destination" do
       it "needs some real tests"
+    end
+
+    describe "#dynamic_destination" do
+      it "returns the destination" do
+        destination = broker.dynamic_destination("my_queue", exclusive: true)
+        expect(destination).to be_a MessageDriver::Destination::Base
+      end
+      it "doesn't save the destination" do
+        destination = nil
+        expect {
+          destination = broker.dynamic_destination("my_queue", exclusive: true)
+        }.to_not change{broker.destinations.size}
+        expect(broker.destinations.values).to_not include(destination)
+      end
     end
   end
 end

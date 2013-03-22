@@ -7,26 +7,24 @@ When "I execute the following code:" do |src|
 end
 
 Then(/^I expect to find (#{NUMBER}) messages? on (#{STRING_OR_SYM})$/) do |count, destination|
+  expect(test_runner).to have_no_errors
   messages = test_runner.fetch_messages(destination)
   expect(messages).to have(count).items
 end
 
 Then(/^I expect to find (#{NUMBER}) messages? on (#{STRING_OR_SYM}) with:$/) do |count, destination, table|
+  expect(test_runner).to have_no_errors
   messages = test_runner.fetch_messages(destination)
   expect(messages).to have(count).items
-
-  actual = messages.collect do |msg|
-    table.headers.inject({}) do |memo, obj|
-      memo[obj] = msg.send(obj)
-      memo
-    end
-  end
-
-  expect(actual).to eq(table.hashes)
+  expect(messages).to match_message_table(table)
 end
 
 Then(/^I expect it to raise "(.*?)"$/) do |error_msg|
   expect(test_runner.raised_error).to_not be_nil
   expect(test_runner.raised_error.to_s).to match error_msg
+  test_runner.raised_error = nil
 end
 
+Then "I expect to have no errors" do
+  expect(test_runner).to have_no_errors
+end
