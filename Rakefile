@@ -14,8 +14,10 @@ RSpec::Core::RakeTask.new(:integrations) do |t|
   t.pattern = "./spec/integration{,/*/**}/*_spec.rb"
 end
 
+cucumber_opts = "--format progress --tag @all_adapters,@#{BrokerConfig.current_adapter}"
+cucumber_opts += " --tag ~@no_travis" if ENV['TRAVIS']=='true' && ENV['ADAPTER']=='bunny'
 Cucumber::Rake::Task.new do |t|
-  t.cucumber_opts = "--format progress --tag @all_adapters,@#{BrokerConfig.current_adapter}"
+  t.cucumber_opts = cucumber_opts
 end
 
 task :default => [:spec, :integrations, :cucumber]
