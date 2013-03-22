@@ -36,6 +36,12 @@ module MessageDriver
         Destination.new(self, name, dest_options, message_props)
       end
 
+      def reset_after_tests
+        message_store.each do |destination, message_array|
+          message_array.replace([])
+        end
+      end
+
       private
 
       def message_store
