@@ -9,6 +9,7 @@ Initial Release
     * Broker transactions for publishing
     * Pop a message
     * named and dynamic destinations
+    * message_count for destinations
 * Adapters
     * InMemory
         * #reset_after_test method for clearing out queues
