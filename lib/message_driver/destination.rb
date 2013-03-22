@@ -22,6 +22,10 @@ module MessageDriver
       def after_initialize
         #does nothing, feel free to override as needed
       end
+
+      def message_count
+        raise "#message_count is not supported by #{self.class}"
+      end
     end
   end
 end

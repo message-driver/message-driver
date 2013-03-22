@@ -55,6 +55,12 @@ module MessageDriver
         def routing_key(properties)
           @name
         end
+
+        def message_count
+          @adapter.current_context.with_channel do |ch|
+            ch.queue(@name, @dest_options.merge(passive: true)).message_count
+          end
+        end
       end
 
       class ExchangeDestination < Destination

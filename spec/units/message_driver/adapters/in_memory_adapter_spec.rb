@@ -14,8 +14,11 @@ module MessageDriver::Adapters
         subject { destination }
 
         it { should be_a InMemoryAdapter::Destination }
+
+        include_examples "supports #message_count"
       end
     end
+
     describe "#reset_after_tests" do
       #make some destinations
       # throw some messages on it
@@ -24,7 +27,7 @@ module MessageDriver::Adapters
       # assert destinations are empty
 
       it "empties all the destination queues" do
-        destinations = (1..3).map &adapter.method(:create_destination)
+        destinations = (1..3).map(&adapter.method(:create_destination))
         destinations.each do |destination|
           destination.publish("There's always money in the banana stand!", {}, {})
         end

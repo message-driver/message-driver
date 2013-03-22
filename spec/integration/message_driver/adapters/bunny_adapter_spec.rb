@@ -92,10 +92,13 @@ module MessageDriver::Adapters
       context "the type is queue" do
         context "the resulting destination" do
           let(:dest_name) { "my_dest" }
-          let!(:result) { adapter.create_destination(dest_name, type: :queue, exclusive: true) }
-          subject { result }
+          subject(:destination) { adapter.create_destination(dest_name, type: :queue, exclusive: true) }
+          before do
+            destination
+          end
 
           it { should be_a BunnyAdapter::QueueDestination }
+          include_examples "supports #message_count"
 
           it "strips off the type so it isn't set on the destination" do
             expect(subject.dest_options).to_not have_key :type
@@ -123,9 +126,7 @@ module MessageDriver::Adapters
               expect(msg.delivery_info.routing_key).to eq(subject.name)
             end
           end
-          it_behaves_like "a destination" do
-            let(:destination) { result }
-          end
+          it_behaves_like "a destination"
         end
         context "and bindings are provided" do
           let(:dest_name) { "binding_test_queue" }
@@ -150,10 +151,11 @@ module MessageDriver::Adapters
       context "the type is exchange" do
         context "the resulting destination" do
           let(:dest_name) { "my_dest" }
-          let(:result) { adapter.create_destination(dest_name, type: :exchange) }
-          subject { result }
+          subject(:destination) { adapter.create_destination(dest_name, type: :exchange) }
 
           it { should be_a BunnyAdapter::ExchangeDestination }
+          include_examples "doesn't support #message_count"
+
           it "strips off the type so it isn't set on the destination" do
             expect(subject.dest_options).to_not have_key :type
           end

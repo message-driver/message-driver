@@ -13,7 +13,13 @@ module MessageDriver
       end
 
       class Destination < MessageDriver::Destination::Base
-
+        def initialize(adapter, name, dest_options, message_props, message_store)
+          super(adapter, name, dest_options, message_props)
+          @message_store = message_store
+        end
+        def message_count
+          @message_store[@name].size
+        end
       end
 
       def initialize(config={})
@@ -29,11 +35,11 @@ module MessageDriver
       end
 
       def stop
-        @message_stop = nil
+        message_store.clear
       end
 
       def create_destination(name, dest_options={}, message_props={})
-        Destination.new(self, name, dest_options, message_props)
+        Destination.new(self, name, dest_options, message_props, message_store)
       end
 
       def reset_after_tests

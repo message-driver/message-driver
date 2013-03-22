@@ -19,3 +19,22 @@ shared_examples "a destination" do
     end
   end
 end
+
+shared_examples "doesn't support #message_count" do
+  describe "#message_count" do
+    it "raises an error" do
+      expect {
+        destination.message_count
+      }.to raise_error "#message_count is not supported by #{destination.class}"
+    end
+  end
+end
+
+shared_examples "supports #message_count" do
+  it "reports it's message_count" do
+    expect {
+      destination.publish("msg1")
+      destination.publish("msg2")
+    }.to change{destination.message_count}.by(2)
+  end
+end
