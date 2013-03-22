@@ -90,6 +90,12 @@ module MessageDriver::Adapters
       end
 
       context "the type is queue" do
+        context "and there is no destination name given" do
+          subject(:destination) { adapter.create_destination("", type: :queue, exclusive: true) }
+          it { should be_a BunnyAdapter::QueueDestination }
+          its(:name) { should be_a String }
+          its(:name) { should_not be_empty }
+        end
         context "the resulting destination" do
           let(:dest_name) { "my_dest" }
           subject(:destination) { adapter.create_destination(dest_name, type: :queue, exclusive: true) }
@@ -98,6 +104,9 @@ module MessageDriver::Adapters
           end
 
           it { should be_a BunnyAdapter::QueueDestination }
+          its(:name) { should be_a String }
+          its(:name) { should eq(dest_name) }
+
           include_examples "supports #message_count"
 
           it "strips off the type so it isn't set on the destination" do

@@ -39,6 +39,7 @@ module MessageDriver
         def after_initialize
           @adapter.current_context.with_channel do |ch|
             queue = ch.queue(@name, @dest_options)
+            @name = queue.name
             if bindings = @dest_options[:bindings]
               bindings.each do |bnd|
                 raise "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
