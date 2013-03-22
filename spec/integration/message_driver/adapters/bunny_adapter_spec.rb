@@ -68,7 +68,7 @@ module MessageDriver::Adapters
 
       let(:channel) { connection.create_channel }
       let(:tmp_queue_name) { "my_temp_queue" }
-      let!(:tmp_queue) { channel.queue(tmp_queue_name, exclusive: true) }
+      let(:tmp_queue) { channel.queue(tmp_queue_name, exclusive: true) }
     end
 
     describe "#pop_message" do
@@ -127,6 +127,24 @@ module MessageDriver::Adapters
             let(:destination) { result }
           end
         end
+        context "and bindings are provided" do
+          let(:dest_name) { "binding_test_queue" }
+          let(:exchange) { adapter.create_destination("amq.direct", type: :exchange) }
+
+          it "raises an exception if you don't provide a source" do
+            expect {
+              adapter.create_destination("bad_bind_queue", type: :queue, exclusive: true, bindings: [{args: {routing_key: "test_exchange_bind"}}])
+            }.to raise_error(/must provide a source/)
+          end
+
+          it "routes message to the queue through the exchange" do
+            destination = adapter.create_destination(dest_name, type: :queue, exclusive: true, bindings: [{source: "amq.direct", args: {routing_key: "test_queue_bind"}}])
+            exchange.publish("test queue bindings", {}, {routing_key: "test_queue_bind"})
+            message = destination.pop_message
+            expect(message).to_not be_nil
+            expect(message.body).to eq("test queue bindings")
+          end
+        end
       end
 
       context "the type is exchange" do
@@ -170,6 +188,26 @@ module MessageDriver::Adapters
                 expect(msg[1][:delivery_mode]).to eq(1)
               end
             end
+          end
+        end
+
+        context "and bindings are provided" do
+          let(:dest_name) { "binding_exchange_queue" }
+          let(:exchange) { adapter.create_destination("amq.direct", type: :exchange) }
+
+          it "raises an exception if you don't provide a source" do
+            expect {
+              adapter.create_destination("amq.fanout", type: :exchange, bindings: [{args: {routing_key: "test_exchange_bind"}}])
+            }.to raise_error(/must provide a source/)
+          end
+
+          it "routes message to the queue through the exchange" do
+            adapter.create_destination("amq.fanout", type: :exchange, bindings: [{source: "amq.direct", args: {routing_key: "test_exchange_bind"}}])
+            destination = adapter.create_destination(dest_name, type: :queue, exclusive: true, bindings: [{source: "amq.fanout"}])
+            exchange.publish("test exchange bindings", {}, {routing_key: "test_exchange_bind"})
+            message = destination.pop_message
+            expect(message).to_not be_nil
+            expect(message.body).to eq("test exchange bindings")
           end
         end
       end

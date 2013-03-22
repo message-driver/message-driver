@@ -38,7 +38,13 @@ module MessageDriver
       class QueueDestination < Destination
         def after_initialize
           @adapter.current_context.with_channel do |ch|
-            ch.queue(@name, @dest_options)
+            queue = ch.queue(@name, @dest_options)
+            if bindings = @dest_options[:bindings]
+              bindings.each do |bnd|
+                raise "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
+                queue.bind(bnd[:source], bnd[:args]||{})
+              end
+            end
           end
         end
 
@@ -54,6 +60,17 @@ module MessageDriver
       class ExchangeDestination < Destination
         def pop_message(destination, options={})
           raise "You can't pop a message off an exchange"
+        end
+
+        def after_initialize
+          @adapter.current_context.with_channel do |ch|
+            if bindings = @dest_options[:bindings]
+              bindings.each do |bnd|
+                raise "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
+                ch.exchange_bind(bnd[:source], @name, bnd[:args]||{})
+              end
+            end
+          end
         end
       end
 
