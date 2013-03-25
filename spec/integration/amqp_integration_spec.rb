@@ -33,7 +33,7 @@ describe "AMQP Integration", :bunny, type: :integration do
       }.to_not raise_error
     end
 
-    context "when in a transaction", :focus do
+    context "when in a transaction" do
       it "sets the channel_context as rollback-only until the transaction is finished" do
         MessageDriver::Broker.with_transaction do
           expect {
