@@ -25,6 +25,12 @@ Then(/^I expect it to raise "(.*?)"$/) do |error_msg|
   test_runner.raised_error = nil
 end
 
+Then(/^I expect it to raise a (.*?) error$/) do |error_type|
+  expect(test_runner.raised_error).to_not be_nil
+  expect(test_runner.raised_error.class.to_s).to match error_type
+  test_runner.raised_error = nil
+end
+
 Then "I expect to have no errors" do
   expect(test_runner).to have_no_errors
 end

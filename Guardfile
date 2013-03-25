@@ -28,7 +28,7 @@ group 'integration' do
     watch('spec/spec_helper.rb')       { "spec" }
   end
 
-  cucumber_cli = "--no-profile --color --format progress --strict --tag @all_adapters,@#{BrokerConfig.current_adapter}"
+  cucumber_cli = "--no-profile --color --format progress --strict --tag @all_adapters,@#{BrokerConfig.current_adapter} --tag ~@wip"
   guard 'cucumber', change_format: 'pretty', cli: cucumber_cli do
     watch(%r{^features/.+\.feature$})
     watch(%r{^features/support/.+$})          { 'features' }
