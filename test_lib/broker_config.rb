@@ -19,4 +19,8 @@ module BrokerConfig
   def self.current_adapter
     config[:adapter]
   end
+
+  def self.unconfigured_adapters
+    %w(bunny in_memory) - current_adapter
+  end
 end

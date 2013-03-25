@@ -37,7 +37,7 @@ module MessageDriver
 
       class QueueDestination < Destination
         def after_initialize
-          @adapter.current_context.with_channel do |ch|
+          @adapter.current_context.with_channel(false) do |ch|
             queue = ch.queue(@name, @dest_options)
             @name = queue.name
             if bindings = @dest_options[:bindings]
@@ -58,7 +58,7 @@ module MessageDriver
         end
 
         def message_count
-          @adapter.current_context.with_channel do |ch|
+          @adapter.current_context.with_channel(false) do |ch|
             ch.queue(@name, @dest_options.merge(passive: true)).message_count
           end
         end
@@ -70,7 +70,7 @@ module MessageDriver
         end
 
         def after_initialize
-          @adapter.current_context.with_channel do |ch|
+          @adapter.current_context.with_channel(false) do |ch|
             if bindings = @dest_options[:bindings]
               bindings.each do |bnd|
                 raise "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
@@ -91,7 +91,7 @@ module MessageDriver
       end
 
       def publish(body, exchange, routing_key, properties)
-        current_context.with_channel do |ch|
+        current_context.with_channel(true) do |ch|
           ch.basic_publish(body, exchange, routing_key, properties)
         end
       end
@@ -135,13 +135,15 @@ module MessageDriver
       private
 
       class ChannelContext
-        attr_reader :connection, :is_transactional
+        attr_reader :connection, :is_transactional, :transaction_depth
 
         def initialize(connection)
           @connection = connection
           @channel = connection.create_channel
           @transaction_depth = 0
           @is_transactional = false
+          @rollback_only = false
+          @need_reset = false
         end
 
         def with_transaction(&block)
@@ -153,21 +155,60 @@ module MessageDriver
           begin
             @transaction_depth += 1
             yield
-            @channel.tx_commit if @transaction_depth == 1
+            commit_transaction
           rescue
-            @channel.tx_rollback if @transaction_depth == 1
+            rollback_transaction
             raise
           ensure
             @transaction_depth -= 1
           end
         end
 
-        def with_channel
-          result = yield @channel
-          if is_transactional && @transaction_depth < 1
-            @channel.tx_commit
+        def with_channel(require_commit=true)
+          raise MessageDriver::TransactionRollbackOnly if @rollback_only
+          reset_channel if @need_reset
+          begin
+            result = yield @channel
+            commit_transaction(true) if require_commit
+            result
+          rescue Bunny::ChannelLevelException => e
+            @need_reset = true
+            @rollback_only = true if is_transactional
+            if e.kind_of? Bunny::NotFound
+              raise MessageDriver::QueueNotFound.new(e)
+            else
+              raise MessageDriver::WrappedException.new(e)
+            end
           end
-          result
+        end
+
+        private
+
+        def reset_channel
+          unless @channel.open?
+            @channel.open
+            @is_transactional = false
+          end
+          @need_reset = false
+        end
+
+        def commit_transaction(from_channel=false)
+          threshold = from_channel ? 0 : 1
+          if is_transactional && @transaction_depth <= threshold
+            unless @need_reset
+              unless @rollback_only
+                @channel.tx_commit
+              else
+                @channel.tx_rollback
+              end
+            end
+            @rollback_only = false
+          end
+        end
+
+        def rollback_transaction
+          @rollback_only = true
+          commit_transaction
         end
       end
 

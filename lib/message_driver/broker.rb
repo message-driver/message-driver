@@ -17,7 +17,7 @@ module MessageDriver
         @instance.send(m, *args)
       end
 
-      def with_transaction(options, &block)
+      def with_transaction(options={}, &block)
         @instance.with_transaction(options, &block)
       end
 

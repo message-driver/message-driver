@@ -5,10 +5,7 @@ require 'message_driver/adapters/bunny_adapter'
 module MessageDriver::Adapters
   describe BunnyAdapter, :bunny, type: :integration do
 
-    let(:valid_connection_attrs) { {
-      vhost: 'message-driver-test',
-      threaded: false
-    } }
+    let(:valid_connection_attrs) { BrokerConfig.config }
 
     describe "#initialize" do
       context "differing bunny versions" do
