@@ -170,6 +170,7 @@ module MessageDriver::Adapters
               subject.pop_message(dest_name)
             }.to raise_error "You can't pop a message off an exchange"
           end
+
           context "publishing a message" do
             let(:body) { "Testing the QueueDestination" }
             let(:headers) { {"foo" => "bar"} }
@@ -197,6 +198,26 @@ module MessageDriver::Adapters
               end
             end
           end
+        end
+
+        context "declaring an exchange on the broker" do
+          let(:dest_name) { "my.cool.exchange" }
+
+          it "creates the exchange if you include 'declare' in the options" do
+            exchange = adapter.create_destination(dest_name, type: :exchange, declare: {type: :fanout, auto_delete: true})
+            queue = adapter.create_destination("", type: :queue, exclusive: true, bindings: [{source: dest_name}])
+            exchange.publish("test declaring exchange")
+            message = queue.pop_message
+            expect(message).to_not be_nil
+            expect(message.body).to eq("test declaring exchange")
+          end
+
+          it "raises an error if you don't provide a type" do
+            expect {
+              adapter.create_destination(dest_name, type: :exchange, declare: {auto_delete: true})
+            }.to raise_error MessageDriver::Exception, /you must provide a valid exchange type/
+          end
+
         end
 
         context "and bindings are provided" do

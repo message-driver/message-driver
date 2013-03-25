@@ -71,6 +71,11 @@ module MessageDriver
 
         def after_initialize
           @adapter.current_context.with_channel(false) do |ch|
+            if declare = @dest_options[:declare]
+              type = declare.delete(:type)
+              raise MessageDriver::Exception, "you must provide a valid exchange type" unless type
+              ch.exchange_declare(@name, type, declare)
+            end
             if bindings = @dest_options[:bindings]
               bindings.each do |bnd|
                 raise "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
