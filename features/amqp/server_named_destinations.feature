@@ -18,7 +18,7 @@ Feature: Server-Named Destinations
     Then I expect to have no errors
 
   Scenario: sending and receiving messages through a server-named queue
-    Given The following broker configuration:
+    Given the following broker configuration:
     """ruby
     MessageDriver::Broker.define do |b|
       b.destination :my_queue, "my_queue", exclusive: true

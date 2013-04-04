@@ -2,7 +2,7 @@ Given "I am connected to the broker" do
   MessageDriver.configure(BrokerConfig.config)
 end
 
-Given "The following broker configuration:" do |src|
+Given "the following broker configuration:" do |src|
   step "I am connected to the broker"
   test_runner.config_broker(src)
 end

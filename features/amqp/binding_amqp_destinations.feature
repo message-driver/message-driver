@@ -1,7 +1,7 @@
 @bunny
 Feature: Binding amqp destinations to exchanges through the destination API
   Background:
-    Given The following broker configuration:
+    Given the following broker configuration:
     """ruby
     MessageDriver::Broker.define do |b|
       b.destination :direct_exchange, "amq.direct", type: :exchange

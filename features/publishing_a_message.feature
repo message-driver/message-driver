@@ -1,7 +1,7 @@
 @all_adapters
 Feature: Publishing A Message
   Background:
-    Given The following broker configuration:
+    Given the following broker configuration:
     """ruby
     MessageDriver::Broker.define do |b|
       b.destination :my_queue, "my_queue", exclusive: true
