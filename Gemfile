@@ -15,5 +15,6 @@ group :tools do
   group :darwin do
     gem 'ruby_gntp'
     gem 'rb-fsevent'
+    gem 'relish'
   end
 end
