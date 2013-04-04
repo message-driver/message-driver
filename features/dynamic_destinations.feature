@@ -4,6 +4,9 @@ Feature: Dynamic Destinations
   determined at runtime. Dynamic destinations allow you to do with without
   leaking tons of destination definitions.
 
+  Background:
+    Given I am connected to the broker
+
   Scenario: Sending to a dynamic destination
     When I execute the following code:
     """ruby

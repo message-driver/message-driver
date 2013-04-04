@@ -3,6 +3,9 @@ Feature: Declaring AMQP exchanges
   If you want to create an exchange that doesn't exist on the broker, you can do so by adding
   the "declare" option to your destination.
 
+  Background:
+    Given I am connected to the broker
+
   Scenario: Declaring a direct exchange
     When I execute the following code:
     """ruby

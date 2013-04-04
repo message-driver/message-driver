@@ -3,6 +3,9 @@ Feature: Server-Named Destinations
   AMQP brokers allow you to create queues that are named by the server. Here's
   how you do it with message_driver.
 
+  Background:
+    Given I am connected to the broker
+
   Scenario: Creating a server-named queue
     I expect my destination to have the queue name given to it by the server
 
