@@ -37,15 +37,20 @@ module MessageDriver
 
       class QueueDestination < Destination
         def after_initialize
-          @adapter.current_context.with_channel(false) do |ch|
-            queue = ch.queue(@name, @dest_options)
-            @name = queue.name
-            if bindings = @dest_options[:bindings]
-              bindings.each do |bnd|
-                raise "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
-                queue.bind(bnd[:source], bnd[:args]||{})
+          unless @dest_options[:no_declare]
+            @adapter.current_context.with_channel(false) do |ch|
+              queue = ch.queue(@name, @dest_options)
+              @name = queue.name
+              if bindings = @dest_options[:bindings]
+                bindings.each do |bnd|
+                  raise MessageDriver::Exception, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
+                  queue.bind(bnd[:source], bnd[:args]||{})
+                end
               end
             end
+          else
+            raise MessageDriver::Exception, "server-named queues must be declared, but you provided :no_declare => true" if @name.empty?
+            raise MessageDriver::Exception, "queues with bindings must be declared, but you provided :no_declare => true" if @dest_options[:bindings]
           end
         end
 
@@ -66,19 +71,21 @@ module MessageDriver
 
       class ExchangeDestination < Destination
         def pop_message(destination, options={})
-          raise "You can't pop a message off an exchange"
+          raise MessageDriver::Exception, "You can't pop a message off an exchange"
         end
 
         def after_initialize
-          @adapter.current_context.with_channel(false) do |ch|
-            if declare = @dest_options[:declare]
+          if declare = @dest_options[:declare]
+            @adapter.current_context.with_channel(false) do |ch|
               type = declare.delete(:type)
               raise MessageDriver::Exception, "you must provide a valid exchange type" unless type
               ch.exchange_declare(@name, type, declare)
             end
-            if bindings = @dest_options[:bindings]
+          end
+          if bindings = @dest_options[:bindings]
+            @adapter.current_context.with_channel(false) do |ch|
               bindings.each do |bnd|
-                raise "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
+                raise MessageDriver::Exception, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
                 ch.exchange_bind(bnd[:source], @name, bnd[:args]||{})
               end
             end
@@ -86,13 +93,18 @@ module MessageDriver
         end
       end
 
-      attr_reader :connection
-
       def initialize(config)
         validate_bunny_version
 
         @connection = Bunny.new(config)
-        @connection.start
+        #@connection.start unless config[:lazy_connect]
+      end
+
+      def connection(ensure_started=true)
+        if ensure_started && !@connection.open?
+          @connection.start
+        end
+        @connection
       end
 
       def publish(body, exchange, routing_key, properties)
@@ -121,7 +133,7 @@ module MessageDriver
         when :queue, nil
           QueueDestination.new(self, name, dest_options, message_props)
         else
-          raise "invalid destination type #{type}"
+          raise MessageDriver::Exception, "invalid destination type #{type}"
         end
       end
 
@@ -130,7 +142,7 @@ module MessageDriver
       end
 
       def stop
-        connection.close
+        @connection.close if @connection.open?
       end
 
       def current_context
@@ -221,7 +233,7 @@ module MessageDriver
         required = Gem::Requirement.create('~> 0.9.0.pre7')
         current = Gem::Version.create(Bunny::VERSION)
         unless required.satisfied_by? current
-          raise "bunny 0.9.0.pre7 or later is required for the bunny adapter"
+          raise MessageDriver::Exception, "bunny 0.9.0.pre7 or later is required for the bunny adapter"
         end
       end
     end
