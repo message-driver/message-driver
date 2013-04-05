@@ -1,6 +1,10 @@
-# Change Log
+# Changelog
 
-## 0.1.0
+## 0.2.0
+
+no changes yet
+
+## 0.1.0 - 2013-04-05
 
 Initial Release
 
