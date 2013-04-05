@@ -1,5 +1,5 @@
 @bunny
-Feature: Binding amqp destinations to exchanges through the destination API
+Feature: Binding AMQP destinations to exchanges
   Background:
     Given the following broker configuration:
     """ruby

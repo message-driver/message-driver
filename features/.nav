@@ -1,0 +1,12 @@
+- getting_started.md (Getting Started)
+- CHANGELOG.md (Changelog)
+- publishing_a_message.feature
+- publishing_with_transactions.feature
+- dynamic_destinations.feature
+- destination_metadata.feature
+- amqp_specific_features (AMQP-Specific Features):
+  - declaring_amqp_destinations.feature
+  - binding_amqp_destinations.feature
+  - server_named_desitnations.feature
+- error_handling.feature
+- Rails.md

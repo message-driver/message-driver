@@ -1,6 +1,6 @@
 @bunny
 @in_memory
-Feature: You can get metadata about your destinations
+Feature: Destination Metadata
   Background:
     Given the following broker configuration:
     """ruby
