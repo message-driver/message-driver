@@ -18,7 +18,7 @@ Feature: Error Handling
     Given the following broker configuration:
     """ruby
     MessageDriver::Broker.define do |b|
-    b.destination :my_queue, "broker_down_queue", arguments: {:'x-expires' => 10000 }
+      b.destination :my_queue, "broker_down_queue", arguments: {:'x-expires' => 10000 }
     end
     """
 
