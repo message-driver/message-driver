@@ -52,6 +52,15 @@ module MessageDriver::Adapters
 
         expect(adapter.connection(false)).to_not be_open
       end
+
+      it "forces bunny into non-threaded mode" do
+        #FIXME can be changed once ruby-amqp/bunny#112 is fixed
+        adapter = described_class.new(valid_connection_attrs)
+        expect(adapter.connection(false).threaded).to be_false
+
+        adapter = described_class.new(valid_connection_attrs.merge(threaded: true))
+        expect(adapter.connection(false).threaded).to be_false
+      end
     end
 
     shared_context "a connected adapter" do

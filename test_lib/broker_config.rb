@@ -6,8 +6,7 @@ module BrokerConfig
     when 'bunny'
       {
         adapter: :bunny,
-        vhost: 'message-driver-test',
-        threaded: false
+        vhost: 'message-driver-test'
       }
     when 'in_memory'
       {adapter: :in_memory}

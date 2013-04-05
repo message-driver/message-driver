@@ -96,8 +96,7 @@ module MessageDriver
       def initialize(config)
         validate_bunny_version
 
-        @connection = Bunny.new(config)
-        #@connection.start unless config[:lazy_connect]
+        @connection = Bunny.new(config.merge(threaded: false))
       end
 
       def connection(ensure_started=true)
@@ -143,16 +142,20 @@ module MessageDriver
 
       def stop
         @connection.close if @connection.open?
+        @context = nil
       end
 
       def current_context
+        if !@context.nil? && @context.need_new_context?
+          @context = nil
+        end
         @context ||= ChannelContext.new(connection)
       end
 
       private
 
       class ChannelContext
-        attr_reader :connection, :is_transactional, :transaction_depth
+        attr_reader :connection, :transaction_depth
 
         def initialize(connection)
           @connection = connection
@@ -160,11 +163,20 @@ module MessageDriver
           @transaction_depth = 0
           @is_transactional = false
           @rollback_only = false
-          @need_reset = false
+          @need_channel_reset = false
+          @connection_failed = false
+        end
+
+        def is_transactional?
+          @is_transactional
+        end
+
+        def connection_failed?
+          @connection_failed
         end
 
         def with_transaction(&block)
-          if !is_transactional
+          if !is_transactional?
             @channel.tx_select
             @is_transactional = true
           end
@@ -183,19 +195,36 @@ module MessageDriver
 
         def with_channel(require_commit=true)
           raise MessageDriver::TransactionRollbackOnly if @rollback_only
-          reset_channel if @need_reset
+          raise MessageDriver::Exception, "oh shit!" if @connection_failed
+          reset_channel if @need_channel_reset
           begin
             result = yield @channel
             commit_transaction(true) if require_commit
             result
           rescue Bunny::ChannelLevelException => e
-            @need_reset = true
-            @rollback_only = true if is_transactional
+            @need_channel_reset = true
+            @rollback_only = true if is_transactional?
             if e.kind_of? Bunny::NotFound
               raise MessageDriver::QueueNotFound.new(e)
             else
               raise MessageDriver::WrappedException.new(e)
             end
+          rescue Bunny::NetworkErrorWrapper, IOError => e
+            @connection_failed = true
+            @rollback_only = true if is_transactional?
+            raise MessageDriver::ConnectionException.new(e)
+          end
+        end
+
+        def within_transaction?
+          @transaction_depth > 0
+        end
+
+        def need_new_context?
+          if is_transactional?
+            !within_transaction? && connection_failed?
+          else
+            connection_failed?
           end
         end
 
@@ -206,13 +235,13 @@ module MessageDriver
             @channel.open
             @is_transactional = false
           end
-          @need_reset = false
+          @need_channel_reset = false
         end
 
         def commit_transaction(from_channel=false)
           threshold = from_channel ? 0 : 1
-          if is_transactional && @transaction_depth <= threshold
-            unless @need_reset
+          if is_transactional? && @transaction_depth <= threshold && !connection_failed?
+            unless @need_channel_reset
               unless @rollback_only
                 @channel.tx_commit
               else

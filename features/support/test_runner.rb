@@ -13,7 +13,7 @@ class TestRunner
   def run_test_code(src)
     begin
       instance_eval(src)
-    rescue => e
+    rescue Exception => e
       @raised_error = e
     end
   end
