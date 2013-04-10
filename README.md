@@ -2,6 +2,8 @@
 
 Easy message queues for ruby
 
+[![Gem Version](https://badge.fury.io/rb/message-driver.png)](http://badge.fury.io/rb/message-driver)
+
 [![Build Status](https://travis-ci.org/soupmatt/message-driver.png?branch=master)](https://travis-ci.org/soupmatt/message-driver)
 
 [![Dependency Status](https://gemnasium.com/soupmatt/message-driver.png)](https://gemnasium.com/soupmatt/message-driver)
