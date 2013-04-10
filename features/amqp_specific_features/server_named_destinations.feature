@@ -21,7 +21,7 @@ Feature: Server-Named Destinations
     Given the following broker configuration:
     """ruby
     MessageDriver::Broker.define do |b|
-      b.destination :my_queue, "my_queue", exclusive: true
+      b.destination :my_queue, "", exclusive: true
     end
     """
 

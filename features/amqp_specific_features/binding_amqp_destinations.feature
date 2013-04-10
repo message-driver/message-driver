@@ -12,7 +12,7 @@ Feature: Binding AMQP destinations to exchanges
     When I execute the following code:
     """ruby
     MessageDriver::Broker.define do |b|
-      b.destination :my_queue, "my_queue", exclusive: true, bindings: [
+      b.destination :my_queue, "my_bound_queue", exclusive: true, bindings: [
         {source: "amq.direct", args: {routing_key: "test_binding"}},
         {source: "amq.direct", args: {routing_key: "spec_binding"}}
       ]
@@ -37,7 +37,7 @@ Feature: Binding AMQP destinations to exchanges
         {source: "amq.direct", args: {routing_key: "test_binding"}},
         {source: "amq.direct", args: {routing_key: "spec_binding"}}
       ]
-      b.destination :my_queue, "my_queue", exclusive: true, bindings: [{source: "amq.fanout"}]
+      b.destination :my_queue, "my_bound_queue", exclusive: true, bindings: [{source: "amq.fanout"}]
     end
 
     publish(:direct_exchange, "Test Message", {}, {routing_key: "test_binding"})

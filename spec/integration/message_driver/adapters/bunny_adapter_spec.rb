@@ -63,7 +63,7 @@ module MessageDriver::Adapters
       end
     end
 
-    shared_context "a connected adapter" do
+    shared_context "a connected bunny adapter" do
       let(:adapter) { described_class.new(valid_connection_attrs) }
       let(:connection) { adapter.connection }
 
@@ -73,7 +73,7 @@ module MessageDriver::Adapters
     end
 
     shared_context "with a queue" do
-      include_context "a connected adapter"
+      include_context "a connected bunny adapter"
 
       let(:channel) { connection.create_channel }
       let(:tmp_queue_name) { "my_temp_queue" }
@@ -86,7 +86,7 @@ module MessageDriver::Adapters
     end
 
     describe "#create_destination" do
-      include_context "a connected adapter"
+      include_context "a connected bunny adapter"
 
       context "with defaults" do
         context "the resulting destination" do

@@ -3,6 +3,11 @@ source 'https://rubygems.org'
 # Specify your gem's dependencies in message-driver.gemspec
 gemspec
 
+group :development do
+  gem 'bunny', '~> 0.9.0.pre7'
+  gem 'stomp', '~> 1.2.9'
+end
+
 group :tools do
   gem 'guard'
   gem 'guard-bundler'

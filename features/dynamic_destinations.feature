@@ -10,7 +10,7 @@ Feature: Dynamic Destinations
   Scenario: Sending to a dynamic destination
     When I execute the following code:
     """ruby
-    my_new_destination = MessageDriver::Broker.dynamic_destination("temp_queue", exclusive: true)
+    my_new_destination = MessageDriver::Broker.dynamic_destination("temp_queue")
     my_new_destination.publish("Test Message")
     """
 
@@ -26,7 +26,7 @@ Feature: Dynamic Destinations
 
     When I execute the following code:
     """ruby
-    my_new_destination = MessageDriver::Broker.dynamic_destination("temp_queue", exclusive: true)
+    my_new_destination = MessageDriver::Broker.dynamic_destination("temp_queue")
 
     msg1 = my_new_destination.pop_message
     expect(msg1.body).to eq("Test Message 1")

@@ -9,12 +9,11 @@ shared_examples "a destination" do
     end
 
     context "the result" do
-      let!(:message) { destination.pop_message }
-      subject { message }
+      subject(:message) { destination.pop_message }
 
       it { should be_a MessageDriver::Message::Base }
       its(:body) { should eq(body) }
-      its(:headers) { should eq(headers) }
+      its(:headers) { should include(headers) }
       its(:properties) { should_not be_nil }
     end
   end

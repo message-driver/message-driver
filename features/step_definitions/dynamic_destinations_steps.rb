@@ -1,5 +1,5 @@
 Given(/^I have a dynamic destination "(#{STRING_OR_SYM})" with the following messages on it:$/) do |destination, table|
-  dest = MessageDriver::Broker.dynamic_destination(destination, exclusive: true)
+  dest = MessageDriver::Broker.dynamic_destination(destination)
   test_runner.publish_table_to_destination(dest, table)
 end
 

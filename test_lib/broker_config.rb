@@ -10,13 +10,21 @@ module BrokerConfig
       }
     when 'in_memory'
       {adapter: :in_memory}
+    when 'stomp'
+      {
+        adapter: :stomp,
+        vhost: 'message-driver-test',
+        hosts: [{host: 'localhost', login: 'guest', passcode: 'guest'}],
+        reliable: false,
+        max_reconnect_attempts: 1
+      }
     else
       {adapter: :in_memory}
     end
   end
 
   def self.all_adapters
-    %w(bunny in_memory)
+    %w(in_memory bunny stomp)
   end
 
   def self.current_adapter
