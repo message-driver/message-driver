@@ -16,6 +16,7 @@ rvm:
 env:
   - ADAPTER=in_memory
   - ADAPTER=bunny
+  - ADAPTER=stomp
 matrix:
   allow_failures:
     - rvm: ruby-head
