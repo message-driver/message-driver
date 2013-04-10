@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["matt@soupmatt.com"]
   gem.description   = %q{Easy message queues for ruby using AMQ, STOMP and others}
   gem.summary       = %q{Easy message queues for ruby}
-  gem.homepage      = "https://github.com/soupmatt/message_driver"
+  gem.homepage      = "https://github.com/soupmatt/message-driver"
   gem.license       = "MIT"
 
   gem.files         = `git ls-files`.split($/)
