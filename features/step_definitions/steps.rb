@@ -39,3 +39,7 @@ end
 Then "I expect to have no errors" do
   expect(test_runner).to have_no_errors
 end
+
+Before do |current_scenario|
+  test_runner.current_feature_file = current_scenario.feature.file
+end

@@ -5,14 +5,15 @@ class TestRunner
   include RSpec::Matchers
 
   attr_accessor :raised_error
+  attr_accessor :current_feature_file
 
   def config_broker(src)
-    instance_eval(src)
+    instance_eval(src, current_feature_file)
   end
 
   def run_test_code(src)
     begin
-      instance_eval(src)
+      instance_eval(src, current_feature_file)
     rescue Exception => e
       @raised_error = e
     end
