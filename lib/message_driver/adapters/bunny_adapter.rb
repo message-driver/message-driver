@@ -195,7 +195,7 @@ module MessageDriver
 
         def with_channel(require_commit=true)
           raise MessageDriver::TransactionRollbackOnly if @rollback_only
-          raise MessageDriver::Exception, "oh shit!" if @connection_failed
+          raise MessageDriver::Exception, "oh nos!" if @connection_failed
           reset_channel if @need_channel_reset
           begin
             result = yield @channel
@@ -205,14 +205,14 @@ module MessageDriver
             @need_channel_reset = true
             @rollback_only = true if is_transactional?
             if e.kind_of? Bunny::NotFound
-              raise MessageDriver::QueueNotFound.new(e)
+              raise MessageDriver::QueueNotFound.new
             else
-              raise MessageDriver::WrappedException.new(e)
+              raise MessageDriver::Exception.new
             end
           rescue Bunny::NetworkErrorWrapper, IOError => e
             @connection_failed = true
             @rollback_only = true if is_transactional?
-            raise MessageDriver::ConnectionException.new(e)
+            raise MessageDriver::ConnectionException.new
           end
         end
 

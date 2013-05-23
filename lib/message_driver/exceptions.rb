@@ -1,18 +1,13 @@
+require 'nesty'
+
 module MessageDriver
-  class Exception < ::Exception; end
-
-  class WrappedException < Exception
-    attr_reader :other
-
-    def initialize(other, msg=nil)
-      super(msg || other.to_s)
-      @other = other
-    end
+  class Exception < StandardError
+    include Nesty::NestedError
   end
 
-  class QueueNotFound < WrappedException; end
+  class QueueNotFound < Exception; end
 
-  class ConnectionException < WrappedException; end
+  class ConnectionException < Exception; end
 
   class TransactionRollbackOnly < Exception; end
 end
