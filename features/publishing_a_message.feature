@@ -8,7 +8,7 @@ Feature: Publishing A Message
     end
     """
 
-  Scenario: Running within a with_message_transaction block
+  Scenario: Publishing a message
     When I execute the following code:
     """ruby
     publish(:my_queue, "Test Message")
