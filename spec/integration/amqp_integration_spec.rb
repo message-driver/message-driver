@@ -10,9 +10,9 @@ describe "AMQP Integration", :bunny, type: :integration do
     it "raises a MessageDriver::QueueNotFound error" do
       expect {
         MessageDriver::Broker.dynamic_destination(queue_name, passive: true)
-      }.to raise_error(MessageDriver::QueueNotFound, /#{queue_name}/) do |err|
+      }.to raise_error(MessageDriver::QueueNotFound) do |err|
         expect(err.queue_name).to eq(queue_name)
-        expect(err.other).to be_a Bunny::NotFound
+        expect(err.nested).to be_a Bunny::NotFound
       end
     end
   end
@@ -21,7 +21,7 @@ describe "AMQP Integration", :bunny, type: :integration do
     it "raises a MessageDriver::WrappedException error" do
       expect {
         MessageDriver::Broker.dynamic_destination("not.a.queue", passive: true)
-      }.to raise_error(MessageDriver::WrappedException) { |err| err.other.should be_a Bunny::ChannelLevelException }
+      }.to raise_error(MessageDriver::WrappedException) { |err| err.nested.should be_a Bunny::ChannelLevelException }
     end
 
     it "reestablishes the channel transparently" do
@@ -65,7 +65,7 @@ describe "AMQP Integration", :bunny, type: :integration do
       expect {
         dest.publish("Reconnection Test")
       }.to raise_error(MessageDriver::ConnectionException) do |err|
-        expect(err.other).to be_a Bunny::NetworkErrorWrapper
+        expect(err.nested).to be_a Bunny::NetworkErrorWrapper
       end
     end
 

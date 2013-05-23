@@ -1,13 +1,15 @@
 require 'nesty'
 
 module MessageDriver
-  class Exception < StandardError
+  class Exception < StandardError; end
+
+  class WrappedException < Exception
     include Nesty::NestedError
   end
 
-  class QueueNotFound < Exception; end
+  class QueueNotFound < WrappedException; end
 
-  class ConnectionException < Exception; end
+  class ConnectionException < WrappedException; end
 
   class TransactionRollbackOnly < Exception; end
 end
