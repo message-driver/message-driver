@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 gemspec
 
 group :development do
-  gem 'bunny', '~> 0.9.0.pre7'
+  gem 'bunny', '= 0.9.0.pre10'
   gem 'stomp', '~> 1.2.9'
 end
 
