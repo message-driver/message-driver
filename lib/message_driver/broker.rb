@@ -62,7 +62,9 @@ module MessageDriver
     private
 
     def find_destination(destination)
-      @destinations[destination]
+      dest = @destinations[destination]
+      raise MessageDriver::NoSuchDestinationError, "no destination #{destination} has been configured" if dest.nil?
+      dest
     end
 
     def resolve_adapter(adapter, options)

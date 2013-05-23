@@ -12,4 +12,6 @@ module MessageDriver
   class ConnectionException < WrappedException; end
 
   class TransactionRollbackOnly < Exception; end
+
+  class NoSuchDestinationError < Exception; end
 end
