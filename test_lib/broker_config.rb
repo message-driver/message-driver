@@ -34,4 +34,15 @@ module BrokerConfig
   def self.unconfigured_adapters
     all_adapters - current_adapter
   end
+
+  def self.current_adapter_port
+    case current_adapter
+    when :bunny
+      5672
+    when :stomp
+      61613
+    else
+      nil
+    end
+  end
 end

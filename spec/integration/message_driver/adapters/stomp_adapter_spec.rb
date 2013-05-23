@@ -72,10 +72,11 @@ module MessageDriver::Adapters
 
     shared_context "a connected stomp adapter" do
       let(:adapter) { described_class.new(valid_connection_attrs) }
-      let(:connection) { adapter.connection }
 
       after do
-        connection.disconnect
+        adapter.with_connection do |connection|
+          connection.disconnect
+        end
       end
     end
 

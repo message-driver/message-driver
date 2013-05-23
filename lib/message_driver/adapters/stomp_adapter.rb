@@ -34,8 +34,13 @@ module MessageDriver
         @poll_timeout = 1
       end
 
-      def connection
-        @connection ||= open_connection
+      def with_connection
+        begin
+          @connection ||= open_connection
+          yield @connection
+        rescue SystemCallError, IOError => e
+          raise MessageDriver::ConnectionException.new(e)
+        end
       end
 
       def create_destination(name, dest_options={}, message_props={})
@@ -46,24 +51,28 @@ module MessageDriver
       end
 
       def publish(destination, body, headers={}, properties={})
-        connection.publish(destination, body, headers)
+        with_connection do |connection|
+          connection.publish(destination, body, headers)
+        end
       end
 
       def pop_message(destination, options={})
-        sub_id = connection.uuid
-        msg = nil
-        count = 0
-        options[:id] = sub_id #this is a workaround for https://github.com/stompgem/stomp/issues/56
-        connection.subscribe(destination, options, sub_id)
-        while msg.nil? && count < max_poll_count
-          msg = connection.poll
-          if msg.nil?
-            count += 1
-            sleep 0.1
+        with_connection do |connection|
+          sub_id = connection.uuid
+          msg = nil
+          count = 0
+          options[:id] = sub_id #this is a workaround for https://github.com/stompgem/stomp/issues/56
+          connection.subscribe(destination, options, sub_id)
+          while msg.nil? && count < max_poll_count
+            msg = connection.poll
+            if msg.nil?
+              count += 1
+              sleep 0.1
+            end
           end
+          connection.unsubscribe(destination, options, sub_id)
+          Message.new(msg) if msg
         end
-        connection.unsubscribe(destination, options, sub_id)
-        Message.new(msg) if msg
       end
 
       def stop

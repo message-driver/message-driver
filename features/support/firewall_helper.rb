@@ -1,9 +1,13 @@
 module FirewallHelper
 
+  def self.port
+    BrokerConfig.current_adapter_port
+  end
+
   COMMANDS = {
     darwin: {
       setup: [
-        "sudo ipfw add 02070 deny tcp from any to any 5672"
+        "sudo ipfw add 02070 deny tcp from any to any #{port}"
       ],
       teardown: [
         "sudo ipfw delete 02070"
@@ -12,8 +16,8 @@ module FirewallHelper
     linux: {
       setup: [
         "sudo iptables -N block-rabbit",
-        "sudo iptables -A block-rabbit -p tcp --dport 5672 -j DROP",
-        "sudo iptables -A block-rabbit -p tcp --sport 5672 -j DROP",
+        "sudo iptables -A block-rabbit -p tcp --dport #{port} -j DROP",
+        "sudo iptables -A block-rabbit -p tcp --sport #{port} -j DROP",
         "sudo iptables -I INPUT -j block-rabbit",
         "sudo iptables -I OUTPUT -j block-rabbit"
       ],
