@@ -4,7 +4,7 @@ end
 
 Given "the following broker configuration:" do |src|
   step "I am connected to the broker"
-  test_runner.config_broker(src)
+  test_runner.run_config_code(src)
 end
 
 When "I execute the following code:" do |src|

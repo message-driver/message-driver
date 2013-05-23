@@ -7,7 +7,7 @@ class TestRunner
   attr_accessor :raised_error
   attr_accessor :current_feature_file
 
-  def config_broker(src)
+  def run_config_code(src)
     instance_eval(src, current_feature_file)
   end
 
