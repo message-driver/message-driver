@@ -64,11 +64,11 @@ module MessageDriver
 
     describe "#destination" do
       it "returns the destination" do
-        destination = broker.destination("my_queue", exclusive: true)
+        destination = broker.destination(:my_queue, "my_queue", exclusive: true)
         expect(destination).to be_a MessageDriver::Destination::Base
       end
       it "saves the destination" do
-        destination = broker.destination("my_queue", exclusive: true)
+        destination = broker.destination(:my_queue, "my_queue", exclusive: true)
         expect(broker.destinations.values).to include(destination)
       end
     end
@@ -88,18 +88,18 @@ module MessageDriver
     end
 
     describe "#publish" do
-      let(:destination) { broker.destination("my_queue", exclusive: true) }
+      let(:destination) { broker.destination(:my_queue, "my_queue", exclusive: true) }
       let(:body) { "my message" }
       let(:headers) { {foo: :bar} }
       let(:properties) { {bar: :baz} }
 
       it "delegates to the destination" do
         destination.should_receive(:publish).with(body, headers, properties)
-        broker.publish("my_queue", body, headers, properties)
+        broker.publish(:my_queue, body, headers, properties)
       end
 
       context "when the destination can't be found" do
-        let(:bad_dest_name) { "not.a.queue" }
+        let(:bad_dest_name) { :not_a_queue }
         it "raises a MessageDriver:NoSuchDestinationError" do
           expect {
             broker.publish(bad_dest_name, body, headers, properties)
@@ -109,15 +109,15 @@ module MessageDriver
     end
 
     describe "#pop_message" do
-      let(:destination) { broker.destination("my_queue", exclusive: true) }
+      let(:destination) { broker.destination(:my_queue, "my_queue", exclusive: true) }
       let(:options) { {foo: :bar} }
       it "delegates to the destination" do
         destination.should_receive(:pop_message).with(options)
-        broker.pop_message("my_queue", options)
+        broker.pop_message(:my_queue, options)
       end
 
       context "when the destination can't be found" do
-        let(:bad_dest_name) { "not.a.queue" }
+        let(:bad_dest_name) { :not_a_queue }
         it "raises a MessageDriver:NoSuchDestinationError" do
           expect {
             broker.pop_message(bad_dest_name, options)
