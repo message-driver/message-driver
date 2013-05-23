@@ -1,6 +1,6 @@
 require 'message_driver/version'
 
-require 'message_driver/exceptions'
+require 'message_driver/errors'
 require 'message_driver/broker'
 require 'message_driver/message'
 require 'message_driver/destination'

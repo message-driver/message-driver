@@ -43,14 +43,14 @@ module MessageDriver
               @name = queue.name
               if bindings = @dest_options[:bindings]
                 bindings.each do |bnd|
-                  raise MessageDriver::Exception, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
+                  raise MessageDriver::Error, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
                   queue.bind(bnd[:source], bnd[:args]||{})
                 end
               end
             end
           else
-            raise MessageDriver::Exception, "server-named queues must be declared, but you provided :no_declare => true" if @name.empty?
-            raise MessageDriver::Exception, "queues with bindings must be declared, but you provided :no_declare => true" if @dest_options[:bindings]
+            raise MessageDriver::Error, "server-named queues must be declared, but you provided :no_declare => true" if @name.empty?
+            raise MessageDriver::Error, "queues with bindings must be declared, but you provided :no_declare => true" if @dest_options[:bindings]
           end
         end
 
@@ -71,21 +71,21 @@ module MessageDriver
 
       class ExchangeDestination < Destination
         def pop_message(destination, options={})
-          raise MessageDriver::Exception, "You can't pop a message off an exchange"
+          raise MessageDriver::Error, "You can't pop a message off an exchange"
         end
 
         def after_initialize
           if declare = @dest_options[:declare]
             @adapter.current_context.with_channel(false) do |ch|
               type = declare.delete(:type)
-              raise MessageDriver::Exception, "you must provide a valid exchange type" unless type
+              raise MessageDriver::Error, "you must provide a valid exchange type" unless type
               ch.exchange_declare(@name, type, declare)
             end
           end
           if bindings = @dest_options[:bindings]
             @adapter.current_context.with_channel(false) do |ch|
               bindings.each do |bnd|
-                raise MessageDriver::Exception, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
+                raise MessageDriver::Error, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
                 ch.exchange_bind(bnd[:source], @name, bnd[:args]||{})
               end
             end
@@ -132,7 +132,7 @@ module MessageDriver
         when :queue, nil
           QueueDestination.new(self, name, dest_options, message_props)
         else
-          raise MessageDriver::Exception, "invalid destination type #{type}"
+          raise MessageDriver::Error, "invalid destination type #{type}"
         end
       end
 
@@ -195,7 +195,7 @@ module MessageDriver
 
         def with_channel(require_commit=true)
           raise MessageDriver::TransactionRollbackOnly if @rollback_only
-          raise MessageDriver::Exception, "oh nos!" if @connection_failed
+          raise MessageDriver::Error, "oh nos!" if @connection_failed
           reset_channel if @need_channel_reset
           begin
             result = yield @channel
@@ -207,12 +207,12 @@ module MessageDriver
             if e.kind_of? Bunny::NotFound
               raise MessageDriver::QueueNotFound.new
             else
-              raise MessageDriver::Exception.new
+              raise MessageDriver::WrappedError.new
             end
           rescue Bunny::NetworkErrorWrapper, IOError => e
             @connection_failed = true
             @rollback_only = true if is_transactional?
-            raise MessageDriver::ConnectionException.new
+            raise MessageDriver::ConnectionError.new
           end
         end
 
@@ -262,7 +262,7 @@ module MessageDriver
         required = Gem::Requirement.create('~> 0.9.0.pre7')
         current = Gem::Version.create(Bunny::VERSION)
         unless required.satisfied_by? current
-          raise MessageDriver::Exception, "bunny 0.9.0.pre7 or later is required for the bunny adapter"
+          raise MessageDriver::Error, "bunny 0.9.0.pre7 or later is required for the bunny adapter"
         end
       end
     end

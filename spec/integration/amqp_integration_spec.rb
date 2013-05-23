@@ -18,16 +18,16 @@ describe "AMQP Integration", :bunny, type: :integration do
   end
 
   context "when a channel level exception occurs" do
-    it "raises a MessageDriver::WrappedException error" do
+    it "raises a MessageDriver::WrappedError error" do
       expect {
         MessageDriver::Broker.dynamic_destination("not.a.queue", passive: true)
-      }.to raise_error(MessageDriver::WrappedException) { |err| err.nested.should be_a Bunny::ChannelLevelException }
+      }.to raise_error(MessageDriver::WrappedError) { |err| err.nested.should be_a Bunny::ChannelLevelException }
     end
 
     it "reestablishes the channel transparently" do
       expect {
         MessageDriver::Broker.dynamic_destination("not.a.queue", passive: true)
-      }.to raise_error(MessageDriver::WrappedException)
+      }.to raise_error(MessageDriver::WrappedError)
       expect {
         MessageDriver::Broker.dynamic_destination("", exclusive: true)
       }.to_not raise_error
@@ -38,7 +38,7 @@ describe "AMQP Integration", :bunny, type: :integration do
         MessageDriver::Broker.with_transaction do
           expect {
             MessageDriver::Broker.dynamic_destination("not.a.queue", passive: true)
-          }.to raise_error(MessageDriver::WrappedException)
+          }.to raise_error(MessageDriver::WrappedError)
           expect {
             MessageDriver::Broker.dynamic_destination("", exclusive: true)
           }.to raise_error(MessageDriver::TransactionRollbackOnly)
@@ -59,12 +59,12 @@ describe "AMQP Integration", :bunny, type: :integration do
       MessageDriver::Broker.adapter.connection.instance_variable_get(:@transport).close
     end
 
-    it "raises a MessageDriver::ConnectionException" do
+    it "raises a MessageDriver::ConnectionError" do
       dest = MessageDriver::Broker.dynamic_destination("", exclusive: true)
       disrupt_connection
       expect {
         dest.publish("Reconnection Test")
-      }.to raise_error(MessageDriver::ConnectionException) do |err|
+      }.to raise_error(MessageDriver::ConnectionError) do |err|
         expect(err.nested).to be_a Bunny::NetworkErrorWrapper
       end
     end
@@ -77,7 +77,7 @@ describe "AMQP Integration", :bunny, type: :integration do
       disrupt_connection
       expect {
         dest.publish("Reconnection Test 1")
-      }.to raise_error(MessageDriver::ConnectionException)
+      }.to raise_error(MessageDriver::ConnectionError)
       dest = create_destination("seemless.reconnect.queue")
       dest.publish("Reconnection Test 2")
       msg = dest.pop_message
@@ -86,13 +86,13 @@ describe "AMQP Integration", :bunny, type: :integration do
     end
 
     context "when in a transaction" do
-      it "raises a MessageDriver::ConnectionException" do
+      it "raises a MessageDriver::ConnectionError" do
         expect {
           MessageDriver::Broker.with_transaction do
             disrupt_connection
             MessageDriver::Broker.dynamic_destination("", exclusive: true)
           end
-        }.to raise_error(MessageDriver::ConnectionException)
+        }.to raise_error(MessageDriver::ConnectionError)
       end
 
       it "sets the channel_context as rollback-only until the transaction is finished" do
@@ -100,7 +100,7 @@ describe "AMQP Integration", :bunny, type: :integration do
           disrupt_connection
           expect {
             MessageDriver::Broker.dynamic_destination("", exclusive: true)
-          }.to raise_error(MessageDriver::ConnectionException)
+          }.to raise_error(MessageDriver::ConnectionError)
           expect {
             MessageDriver::Broker.dynamic_destination("", exclusive: true)
           }.to raise_error(MessageDriver::TransactionRollbackOnly)

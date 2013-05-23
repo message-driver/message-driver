@@ -31,7 +31,7 @@ Feature: Error Handling
     """ruby
     publish(:my_queue, "Test Message 2")
     """
-    Then I expect it to raise a MessageDriver::ConnectionException error
+    Then I expect it to raise a MessageDriver::ConnectionError error
 
     When the broker comes up
     And I execute the following code:

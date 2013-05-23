@@ -14,7 +14,7 @@ module MessageDriver::Adapters
             stub_const("Bunny::VERSION", version)
             expect {
               described_class.new(valid_connection_attrs)
-            }.to raise_error MessageDriver::Exception, "bunny 0.9.0.pre7 or later is required for the bunny adapter"
+            }.to raise_error MessageDriver::Error, "bunny 0.9.0.pre7 or later is required for the bunny adapter"
           end
         end
         shared_examples "doesn't raise an error" do
@@ -152,7 +152,7 @@ module MessageDriver::Adapters
           it "raises an exception if you don't provide a source" do
             expect {
               adapter.create_destination("bad_bind_queue", type: :queue, exclusive: true, bindings: [{args: {routing_key: "test_exchange_bind"}}])
-            }.to raise_error MessageDriver::Exception, /must provide a source/
+            }.to raise_error MessageDriver::Error, /must provide a source/
           end
 
           it "routes message to the queue through the exchange" do
@@ -175,7 +175,7 @@ module MessageDriver::Adapters
             it "raises an error" do
               expect {
                 adapter.create_destination("", no_declare: true, type: :queue, exclusive: true)
-              }.to raise_error MessageDriver::Exception, "server-named queues must be declared, but you provided :no_declare => true"
+              }.to raise_error MessageDriver::Error, "server-named queues must be declared, but you provided :no_declare => true"
             end
           end
 
@@ -183,7 +183,7 @@ module MessageDriver::Adapters
             it "raises an error" do
               expect {
                 adapter.create_destination("tmp_queue", no_declare: true, bindings: [{source: "amq.fanout"}], type: :queue, exclusive: true)
-              }.to raise_error MessageDriver::Exception, "queues with bindings must be declared, but you provided :no_declare => true"
+              }.to raise_error MessageDriver::Error, "queues with bindings must be declared, but you provided :no_declare => true"
             end
           end
         end
@@ -204,7 +204,7 @@ module MessageDriver::Adapters
           it "raises an error when pop_message is called" do
             expect {
               subject.pop_message(dest_name)
-            }.to raise_error MessageDriver::Exception, "You can't pop a message off an exchange"
+            }.to raise_error MessageDriver::Error, "You can't pop a message off an exchange"
           end
 
           context "publishing a message" do
@@ -252,7 +252,7 @@ module MessageDriver::Adapters
           it "raises an error if you don't provide a type" do
             expect {
               adapter.create_destination(dest_name, type: :exchange, declare: {auto_delete: true})
-            }.to raise_error MessageDriver::Exception, /you must provide a valid exchange type/
+            }.to raise_error MessageDriver::Error, /you must provide a valid exchange type/
           end
 
         end
@@ -264,7 +264,7 @@ module MessageDriver::Adapters
           it "raises an exception if you don't provide a source" do
             expect {
               adapter.create_destination("amq.fanout", type: :exchange, bindings: [{args: {routing_key: "test_exchange_bind"}}])
-            }.to raise_error MessageDriver::Exception, /must provide a source/
+            }.to raise_error MessageDriver::Error, /must provide a source/
           end
 
           it "routes message to the queue through the exchange" do
@@ -293,7 +293,7 @@ module MessageDriver::Adapters
         it "raises in an error" do
           expect {
             adapter.create_destination("my_dest", type: :foo_bar)
-          }.to raise_error MessageDriver::Exception, "invalid destination type #{:foo_bar}"
+          }.to raise_error MessageDriver::Error, "invalid destination type #{:foo_bar}"
         end
       end
     end

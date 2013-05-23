@@ -39,7 +39,7 @@ module MessageDriver
           @connection ||= open_connection
           yield @connection
         rescue SystemCallError, IOError => e
-          raise MessageDriver::ConnectionException.new(e)
+          raise MessageDriver::ConnectionError.new(e)
         end
       end
 
@@ -85,7 +85,7 @@ module MessageDriver
 
       def open_connection
         conn = Stomp::Connection.new(@config)
-        raise MessageDriver::ConnectionException, conn.connection_frame.to_s unless conn.open?
+        raise MessageDriver::ConnectionError, conn.connection_frame.to_s unless conn.open?
         conn
       end
 
@@ -93,7 +93,7 @@ module MessageDriver
         required = Gem::Requirement.create('~> 1.2.9')
         current = Gem::Version.create(Stomp::Version::STRING)
         unless required.satisfied_by? current
-          raise MessageDriver::Exception, "stomp 1.2.9 or a later version of the 1.2.x series is required for the stomp adapter"
+          raise MessageDriver::Error, "stomp 1.2.9 or a later version of the 1.2.x series is required for the stomp adapter"
         end
       end
 
