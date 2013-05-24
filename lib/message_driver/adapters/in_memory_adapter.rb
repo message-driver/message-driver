@@ -15,7 +15,7 @@ module MessageDriver
       class Destination < MessageDriver::Destination::Base
 
         def consumer
-          @consumers[name]
+          @adapter.consumer_for(name)
         end
 
         def message_count
@@ -24,6 +24,13 @@ module MessageDriver
 
         def pop_message(options={})
           message_queue.shift
+        end
+
+        def subscribe(&consumer)
+          @adapter.set_consumer_for(name, &consumer)
+          until (msg = pop_message).nil?
+            yield msg
+          end
         end
 
         def publish(body, headers={}, properties={})
@@ -36,13 +43,8 @@ module MessageDriver
         end
 
         private
-        def after_initialize
-          @message_store = dest_options.delete(:message_store)
-          @consumers = dest_options.delete(:consumers)
-        end
-
         def message_queue
-          @message_store[name]
+          @adapter.message_queue_for(name)
         end
       end
 
@@ -65,16 +67,12 @@ module MessageDriver
       end
 
       def create_destination(name, dest_options={}, message_props={})
-        destination = Destination.new(self, name, dest_options.merge(message_store: @message_store, consumers: @consumers), message_props)
+        destination = Destination.new(self, name, dest_options, message_props)
         @destinations[name] = destination
       end
 
       def subscribe(destination_name, &consumer)
-        destination = destination(destination_name)
-        @consumers[destination_name] = consumer
-        until (msg = destination.pop_message).nil?
-          yield msg
-        end
+        destination(destination_name).subscribe(&consumer)
       end
 
       def reset_after_tests
@@ -84,16 +82,24 @@ module MessageDriver
         @consumers.clear
       end
 
+      def message_queue_for(name)
+        @message_store[name]
+      end
+
+      def consumer_for(name)
+        @consumers[name]
+      end
+
+      def set_consumer_for(name, &consumer)
+        @consumers[name] = consumer
+      end
+
       private
 
       def destination(destination_name)
         destination = @destinations[destination_name]
         raise MessageDriver::NoSuchDestinationError, "destination #{destination_name} couldn't be found" if destination.nil?
         destination
-      end
-
-      def consumer(destination_name)
-        @consumers[destination_name]
       end
     end
   end

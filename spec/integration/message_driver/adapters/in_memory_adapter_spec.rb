@@ -15,14 +15,6 @@ module MessageDriver::Adapters
 
         it { should be_a InMemoryAdapter::Destination }
 
-        it "does expose the message_store in the dest_options" do
-          expect(destination.dest_options).to_not have_key(:message_store)
-        end
-
-        it "does expose the consumers in the dest_options" do
-          expect(destination.dest_options).to_not have_key(:consumers)
-        end
-
         include_examples "supports #message_count"
       end
 
