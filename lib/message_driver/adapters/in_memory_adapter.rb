@@ -13,45 +13,81 @@ module MessageDriver
       end
 
       class Destination < MessageDriver::Destination::Base
-        def initialize(adapter, name, dest_options, message_props, message_store)
-          super(adapter, name, dest_options, message_props)
-          @message_store = message_store
-        end
+
+        attr_accessor :consumer
+
         def message_count
-          @message_store[@name].size
+          message_queue.size
+        end
+
+        def pop_message(options={})
+          message_queue.shift
+        end
+
+        def publish(body, headers={}, properties={})
+          msg = Message.new(body, headers, properties)
+          if @consumer.nil?
+            message_queue << msg
+          else
+            @consumer.call(msg)
+          end
+        end
+
+        def subscribe(&consumer)
+          @consumer = consumer
+          until (msg = pop_message).nil?
+            yield msg
+          end
+        end
+
+        private
+        def after_initialize
+          @message_store = dest_options.delete(:message_store)
+        end
+
+        def message_queue
+          @message_store[name]
         end
       end
 
       def initialize(config={})
-        #does nothing
+        @destinations = {}
+        @message_store = Hash.new { |h,k| h[k] = [] }
       end
 
       def publish(destination, body, headers={}, properties={})
-        message_store[destination] << Message.new(body, headers, properties)
+        destination(destination).publish(body, headers, properties)
       end
 
       def pop_message(destination, options={})
-        message_store[destination].shift
+        destination(destination).pop_message(options)
       end
 
       def stop
-        message_store.clear
+        reset_after_tests
       end
 
       def create_destination(name, dest_options={}, message_props={})
-        Destination.new(self, name, dest_options, message_props, message_store)
+        destination = Destination.new(self, name, dest_options.merge(message_store: @message_store), message_props)
+        @destinations[name] = destination
+      end
+
+      def subscribe(destination_name, &consumer)
+        destination(destination_name).subscribe(&consumer)
       end
 
       def reset_after_tests
-        message_store.each do |destination, message_array|
-          message_array.replace([])
+        @message_store.keys.each do |k|
+          @message_store[k] = []
         end
       end
 
       private
 
-      def message_store
-        @message_store ||= Hash.new { |h,k| h[k] = [] }
+      def destination(destination_name)
+        destination = @destinations[destination_name]
+        raise MessageDriver::NoSuchDestinationError, "destination #{destination_name} couldn't be found" if destination.nil?
+        destination
       end
     end
   end

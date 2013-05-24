@@ -13,6 +13,10 @@ module MessageDriver
         raise "Must be implemented in subclass"
       end
 
+      def subscribe(name, &consumer)
+        raise "Must be implemented in subclass"
+      end
+
       def stop
         raise "Must be implemented in subclass"
       end

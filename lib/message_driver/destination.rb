@@ -19,6 +19,10 @@ module MessageDriver
         @adapter.pop_message(@name, options)
       end
 
+      def subscribe(&consumer)
+        @adapter.subscribe(@name, &consumer)
+      end
+
       def after_initialize
         #does nothing, feel free to override as needed
       end

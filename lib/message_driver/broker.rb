@@ -4,7 +4,7 @@ module MessageDriver
   class Broker
     extend Forwardable
 
-    attr_reader :adapter, :configuration, :destinations
+    attr_reader :adapter, :configuration, :destinations, :consumers
 
     def_delegators :@adapter, :stop
 
@@ -13,12 +13,8 @@ module MessageDriver
         @instance = new(options)
       end
 
-      def method_missing(m, *args)
-        @instance.send(m, *args)
-      end
-
-      def with_transaction(options={}, &block)
-        @instance.with_transaction(options, &block)
+      def method_missing(m, *args, &block)
+        @instance.send(m, *args, &block)
       end
 
       def instance
@@ -34,6 +30,7 @@ module MessageDriver
       @adapter = resolve_adapter(options[:adapter], options)
       @configuration = options
       @destinations = {}
+      @consumers = {}
     end
 
     def publish(destination, body, headers={}, properties={})
@@ -55,16 +52,31 @@ module MessageDriver
       @destinations[key] = dest
     end
 
+    def consumer(key, &block)
+      raise MessageDriver::Error, "you must provide a block" unless block_given?
+      @consumers[key] = block
+    end
+
+    def subscribe(destination_name, consumer_name)
+      destination = find_destination(destination_name)
+      consumer =  find_consumer(consumer_name)
+      destination.subscribe(&consumer)
+    end
+
     def with_transaction(options={}, &block)
       adapter.with_transaction(options, &block)
     end
 
     private
 
-    def find_destination(destination)
-      dest = @destinations[destination]
-      raise MessageDriver::NoSuchDestinationError, "no destination #{destination} has been configured" if dest.nil?
-      dest
+    def find_destination(destination_name)
+      destination = @destinations[destination_name]
+      raise MessageDriver::NoSuchDestinationError, "no destination #{destination_name} has been configured" if destination.nil?
+      destination
+    end
+
+    def find_consumer(consumer_name)
+      @consumers[consumer_name]
     end
 
     def resolve_adapter(adapter, options)

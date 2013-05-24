@@ -73,6 +73,45 @@ module MessageDriver
       end
     end
 
+    describe "#consumer" do
+      let(:consumer_stub) { lambda do |m| end }
+      it "saves the provided consumer" do
+        broker.consumer(:my_consumer, &consumer_stub)
+        expect(broker.consumers[:my_consumer]).to be(consumer_stub)
+      end
+
+      context "when no consumer is provided" do
+        it "raises an error" do
+          expect {
+            broker.consumer(:my_consumer)
+          }.to raise_error(MessageDriver::Error, "you must provide a block")
+        end
+      end
+    end
+
+    describe "#subscribe" do
+      let(:destination) { broker.destination(:my_queue, "my_queue", exclusive: true) }
+      let(:consumer_stub) { lambda do |m| end }
+      before do
+        broker.consumer(:my_consumer, &consumer_stub)
+      end
+      it "it delegates to the destination" do
+        destination.should_receive(:subscribe) do |&block|
+          expect(block).to be(consumer_stub)
+        end
+        broker.subscribe(:my_queue, :my_consumer)
+      end
+
+      context "when the destination can't be found" do
+        let(:bad_dest_name) { :not_a_queue }
+        it "raises a MessageDriver:NoSuchDestinationError" do
+          expect {
+            broker.subscribe(bad_dest_name, :my_consumer)
+          }.to raise_error(MessageDriver::NoSuchDestinationError, /#{bad_dest_name}/)
+        end
+      end
+    end
+
     describe "#dynamic_destination" do
       it "returns the destination" do
         destination = broker.dynamic_destination("my_queue", exclusive: true)
