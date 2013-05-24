@@ -3,7 +3,7 @@ require 'spec_helper'
 require 'message_driver/adapters/in_memory_adapter'
 
 module MessageDriver::Adapters
-  describe InMemoryAdapter do
+  describe InMemoryAdapter, :in_memory, type: :integration do
     let(:adapter) { described_class.new }
 
     describe "#create_destination" do
