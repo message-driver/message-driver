@@ -10,7 +10,7 @@ Feature: Message Consumers
     And I have a message processor
     """ruby
     MessageDriver::Broker.consumer(:my_consumer) do |message|
-      publish(:dest_queue, message.body)
+      MessageDriver::Broker.publish(:dest_queue, message.body)
     end
     """
     And I subscribe to :source_queue with :my_consumer
