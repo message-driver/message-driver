@@ -2,18 +2,18 @@
 Feature: Message Consumers
   Background:
     Given I am connected to the broker
-
-  Scenario: Consuming Messages
     Given I have a destination :dest_queue
     And I have a destination :source_queue
 
-    And I have a message processor
+    And I have a message consumer
     """ruby
     MessageDriver::Broker.consumer(:my_consumer) do |message|
       MessageDriver::Broker.publish(:dest_queue, message.body)
     end
     """
-    And I subscribe to :source_queue with :my_consumer
+
+  Scenario: Consuming Messages
+    Given I subscribe to :source_queue with :my_consumer
 
     When I send the following messages to :source_queue
       | body           |
@@ -25,3 +25,31 @@ Feature: Message Consumers
       | body           |
       | Test Message 1 |
       | Test Message 2 |
+
+  Scenario: Ending a subscription
+    When I execute the following code
+    """ruby
+    @subscription = MessageDriver::Broker.subscribe(:source_queue, :my_consumer)
+    """
+
+    When I send the following messages to :source_queue
+      | body           |
+      | Test Message 1 |
+      | Test Message 2 |
+    And I execute the following code
+    """ruby
+    @subscription.unsubscribe
+    """
+    When I send the following messages to :source_queue
+      | body           |
+      | Test Message 3 |
+      | Test Message 4 |
+
+    Then I expect to find the following 2 messages on :dest_queue
+      | body           |
+      | Test Message 1 |
+      | Test Message 2 |
+    And I expect to find the following 2 messages on :source_queue
+      | body           |
+      | Test Message 3 |
+      | Test Message 4 |

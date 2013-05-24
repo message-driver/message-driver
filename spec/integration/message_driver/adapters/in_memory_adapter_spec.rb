@@ -58,57 +58,6 @@ module MessageDriver::Adapters
       end
     end
 
-    describe "#subscribe" do
-      let(:message1) { "message 1" }
-      let(:message2) { "message 2" }
-      let(:destination) { adapter.create_destination(:my_queue) }
-      let(:messages) { [] }
-      let(:consumer) do
-        lambda do |msg|
-          messages << msg
-        end
-      end
-
-      it "sets the consumer on the destination" do
-        adapter.subscribe(destination.name, &consumer)
-        expect(destination.consumer).to be(consumer)
-      end
-
-      context "when there are already messages in the destination" do
-        before do
-          destination.publish(message1)
-          destination.publish(message2)
-        end
-
-        it "plays the messages into the consumer" do
-          adapter.subscribe(destination.name, &consumer)
-          expect(messages).to have(2).items
-          expect(messages[0].body).to eq(message1)
-          expect(messages[1].body).to eq(message2)
-        end
-
-        it "removes the messages from the queue" do
-          expect {
-            adapter.subscribe(destination.name, &consumer)
-          }.to change{destination.message_count}.from(2).to(0)
-        end
-      end
-
-      context "when a message is published to the destination" do
-        before do
-          adapter.subscribe(destination.name, &consumer)
-        end
-        it "plays the messages into the consumer instead of putting them on the queue" do
-          expect {
-            expect {
-              destination.publish(message1)
-            }.to change{messages.length}.from(0).to(1)
-          }.to_not change{destination.message_count}
-          expect(messages[0].body).to eq(message1)
-        end
-      end
-    end
-
     describe "accessing the same queue from two destinations" do
       let(:queue_name) { "my_queue" }
       let(:dest1) { adapter.create_destination(queue_name) }
@@ -149,6 +98,69 @@ module MessageDriver::Adapters
           expect {
             dest1.pop_message
           }.to change{dest2.message_count}.from(1).to(0)
+        end
+      end
+    end
+
+    describe "#subscribe" do
+      let(:message1) { "message 1" }
+      let(:message2) { "message 2" }
+      let(:destination) { adapter.create_destination(:my_queue) }
+      let(:messages) { [] }
+
+      let(:subscription_type) { MessageDriver::Adapters::InMemoryAdapter::Subscription }
+      it_behaves_like "subscription is supported"
+
+      let(:consumer) do
+        lambda do |msg|
+          messages << msg
+        end
+      end
+
+      context "when there are already messages in the destination" do
+        before do
+          destination.publish(message1)
+          destination.publish(message2)
+        end
+
+        it "plays the messages into the consumer" do
+          adapter.subscribe(destination.name, &consumer)
+          expect(messages).to have(2).items
+          expect(messages[0].body).to eq(message1)
+          expect(messages[1].body).to eq(message2)
+        end
+
+        it "removes the messages from the queue" do
+          expect {
+            adapter.subscribe(destination.name, &consumer)
+          }.to change{destination.message_count}.from(2).to(0)
+        end
+      end
+
+      context "when a message is published to the destination" do
+        before do
+          adapter.subscribe(destination.name, &consumer)
+        end
+
+        it "consumer the message into the consumer instead of putting them on the queue" do
+          expect {
+            expect {
+              destination.publish(message1)
+            }.to change{messages.length}.from(0).to(1)
+          }.to_not change{destination.message_count}
+          expect(messages[0].body).to eq(message1)
+        end
+      end
+
+      context "the subscription" do
+        subject(:subscription) { adapter.subscribe(destination.name, &consumer) }
+        describe "#unsubscribe" do
+          it "makes it so messages don't go to the consumer any more" do
+            subscription.unsubscribe
+            expect {
+              destination.publish("should not be consumed")
+            }.to_not change{messages.size}
+          end
         end
       end
     end

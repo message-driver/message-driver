@@ -12,10 +12,16 @@ module MessageDriver
 
       end
 
+      class Subscription < MessageDriver::Subscription::Base
+        def unsubscribe
+          adapter.remove_consumer_for(destination.name)
+        end
+      end
+
       class Destination < MessageDriver::Destination::Base
 
         def consumer
-          @adapter.consumer_for(name)
+          adapter.consumer_for(name)
         end
 
         def message_count
@@ -27,10 +33,11 @@ module MessageDriver
         end
 
         def subscribe(&consumer)
-          @adapter.set_consumer_for(name, &consumer)
+          adapter.set_consumer_for(name, &consumer)
           until (msg = pop_message).nil?
             yield msg
           end
+          Subscription.new(adapter, self, consumer)
         end
 
         def publish(body, headers={}, properties={})
@@ -44,7 +51,7 @@ module MessageDriver
 
         private
         def message_queue
-          @adapter.message_queue_for(name)
+          adapter.message_queue_for(name)
         end
       end
 
@@ -92,6 +99,10 @@ module MessageDriver
 
       def set_consumer_for(name, &consumer)
         @consumers[name] = consumer
+      end
+
+      def remove_consumer_for(name)
+        @consumers.delete(name)
       end
 
       private

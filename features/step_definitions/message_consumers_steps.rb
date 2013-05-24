@@ -1,4 +1,4 @@
-Given "I have a message processor" do |src|
+Given "I have a message consumer" do |src|
   test_runner.run_config_code(src)
 end
 
