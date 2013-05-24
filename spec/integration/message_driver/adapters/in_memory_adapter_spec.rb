@@ -19,6 +19,10 @@ module MessageDriver::Adapters
           expect(destination.dest_options).to_not have_key(:message_store)
         end
 
+        it "does expose the consumers in the dest_options" do
+          expect(destination.dest_options).to_not have_key(:consumers)
+        end
+
         include_examples "supports #message_count"
       end
 
@@ -33,12 +37,6 @@ module MessageDriver::Adapters
     end
 
     describe "#reset_after_tests" do
-      #make some destinations
-      # throw some messages on it
-      # assert the messages are in the destinations
-      # empty the queues on each destination via method
-      # assert destinations are empty
-
       it "empties all the destination queues" do
         destinations = (1..3).map(&adapter.method(:create_destination))
         destinations.each do |destination|
@@ -50,6 +48,21 @@ module MessageDriver::Adapters
         destinations.each do |destination|
           expect(destination.message_count).to eq(0)
         end
+      end
+
+      it "removes any existing subscriptions" do
+        destinations = (1..3).map(&adapter.method(:create_destination))
+        consumer = lambda do |m| end
+        destinations.each do |destination|
+          destination.subscribe(&consumer)
+        end
+
+        adapter.reset_after_tests
+
+        destinations.each do |destination|
+          expect(destination.consumer).to be_nil
+        end
+
       end
     end
 
@@ -63,6 +76,12 @@ module MessageDriver::Adapters
           messages << msg
         end
       end
+
+      it "sets the consumer on the destination" do
+        adapter.subscribe(destination.name, &consumer)
+        expect(destination.consumer).to be(consumer)
+      end
+
       context "when there are already messages in the destination" do
         before do
           destination.publish(message1)
@@ -102,6 +121,16 @@ module MessageDriver::Adapters
       let(:queue_name) { "my_queue" }
       let(:dest1) { adapter.create_destination(queue_name) }
       let(:dest2) { adapter.create_destination(queue_name) }
+
+      context "when I have a consumer on one destination" do
+        let(:consumer) { lambda do |m| end }
+        before do
+          dest1.subscribe(&consumer)
+        end
+        it "is the same consumer on the other destination" do
+          expect(dest2.consumer).to be(consumer)
+        end
+      end
 
       context "when I publish a message to one destination" do
         it "changes the message_count on the other" do

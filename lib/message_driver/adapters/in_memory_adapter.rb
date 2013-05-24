@@ -14,7 +14,9 @@ module MessageDriver
 
       class Destination < MessageDriver::Destination::Base
 
-        attr_accessor :consumer
+        def consumer
+          @consumers[name]
+        end
 
         def message_count
           message_queue.size
@@ -26,23 +28,17 @@ module MessageDriver
 
         def publish(body, headers={}, properties={})
           msg = Message.new(body, headers, properties)
-          if @consumer.nil?
+          if consumer.nil?
             message_queue << msg
           else
-            @consumer.call(msg)
-          end
-        end
-
-        def subscribe(&consumer)
-          @consumer = consumer
-          until (msg = pop_message).nil?
-            yield msg
+            consumer.call(msg)
           end
         end
 
         private
         def after_initialize
           @message_store = dest_options.delete(:message_store)
+          @consumers = dest_options.delete(:consumers)
         end
 
         def message_queue
@@ -53,6 +49,7 @@ module MessageDriver
       def initialize(config={})
         @destinations = {}
         @message_store = Hash.new { |h,k| h[k] = [] }
+        @consumers = Hash.new
       end
 
       def publish(destination, body, headers={}, properties={})
@@ -68,18 +65,23 @@ module MessageDriver
       end
 
       def create_destination(name, dest_options={}, message_props={})
-        destination = Destination.new(self, name, dest_options.merge(message_store: @message_store), message_props)
+        destination = Destination.new(self, name, dest_options.merge(message_store: @message_store, consumers: @consumers), message_props)
         @destinations[name] = destination
       end
 
       def subscribe(destination_name, &consumer)
-        destination(destination_name).subscribe(&consumer)
+        destination = destination(destination_name)
+        @consumers[destination_name] = consumer
+        until (msg = destination.pop_message).nil?
+          yield msg
+        end
       end
 
       def reset_after_tests
         @message_store.keys.each do |k|
           @message_store[k] = []
         end
+        @consumers.clear
       end
 
       private
@@ -88,6 +90,10 @@ module MessageDriver
         destination = @destinations[destination_name]
         raise MessageDriver::NoSuchDestinationError, "destination #{destination_name} couldn't be found" if destination.nil?
         destination
+      end
+
+      def consumer(destination_name)
+        @consumers[destination_name]
       end
     end
   end
