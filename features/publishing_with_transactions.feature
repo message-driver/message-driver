@@ -1,7 +1,7 @@
 @bunny
 Feature: Publishing a Message within a Transaction
   Background:
-    Given the following broker configuration:
+    Given the following broker configuration
     """ruby
     MessageDriver::Broker.define do |b|
       b.destination :my_queue, "my_queue"
@@ -9,7 +9,7 @@ Feature: Publishing a Message within a Transaction
     """
 
   Scenario: The block completes successfully
-    When I execute the following code:
+    When I execute the following code
     """ruby
     with_message_transaction do
       publish(:my_queue, "Transacted Message 1")
@@ -17,13 +17,13 @@ Feature: Publishing a Message within a Transaction
     end
     """
 
-    Then I expect to find 2 messages on :my_queue with:
+    Then I expect to find the following 2 messages on :my_queue
       | body                 |
       | Transacted Message 1 |
       | Transacted Message 2 |
 
   Scenario: An error is raised inside the block
-    When I execute the following code:
+    When I execute the following code
     """ruby
     with_message_transaction do
       publish(:my_queue, "Transacted Message 1")

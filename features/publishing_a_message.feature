@@ -1,7 +1,7 @@
 @all_adapters
 Feature: Publishing A Message
   Background:
-    Given the following broker configuration:
+    Given the following broker configuration
     """ruby
     MessageDriver::Broker.define do |b|
       b.destination :my_queue, "my_queue"
@@ -9,11 +9,11 @@ Feature: Publishing A Message
     """
 
   Scenario: Publishing a message
-    When I execute the following code:
+    When I execute the following code
     """ruby
     publish(:my_queue, "Test Message")
     """
 
-    Then I expect to find 1 message on :my_queue with:
+    Then I expect to find the following message on :my_queue
       | body         |
       | Test Message |

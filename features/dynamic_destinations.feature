@@ -8,23 +8,23 @@ Feature: Dynamic Destinations
     Given I am connected to the broker
 
   Scenario: Sending to a dynamic destination
-    When I execute the following code:
+    When I execute the following code
     """ruby
     my_new_destination = MessageDriver::Broker.dynamic_destination("temp_queue")
     my_new_destination.publish("Test Message")
     """
 
-    Then I expect to find 1 message on the dynamic destination "temp_queue" with:
+    Then I expect to find 1 message on the dynamic destination "temp_queue" with
       | body         |
       | Test Message |
 
   Scenario: Poping messages off a dynamic destination
-    Given I have a dynamic destination "temp_queue" with the following messages on it:
+    Given I have a dynamic destination "temp_queue" with the following messages on it
       | body           |
       | Test Message 1 |
       | Test Message 2 |
 
-    When I execute the following code:
+    When I execute the following code
     """ruby
     my_new_destination = MessageDriver::Broker.dynamic_destination("temp_queue")
 

@@ -7,7 +7,7 @@ Feature: Declaring AMQP exchanges
     Given I am connected to the broker
 
   Scenario: Declaring a direct exchange
-    When I execute the following code:
+    When I execute the following code
     """ruby
     MessageDriver::Broker.define do |b|
       b.destination :my_exchange, "my_exchange", type: :exchange, declare: {type: :direct, auto_delete: true}
@@ -17,6 +17,6 @@ Feature: Declaring AMQP exchanges
     publish(:my_exchange, "Test My New Exchange", routing_key: "my_queue")
     """
 
-    Then I expect to find 1 message on :my_queue with:
+    Then I expect to find the following message on :my_queue
       | body                 |
       | Test My New Exchange |

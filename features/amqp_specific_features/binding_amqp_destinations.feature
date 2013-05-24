@@ -1,7 +1,7 @@
 @bunny
 Feature: Binding AMQP destinations to exchanges
   Background:
-    Given the following broker configuration:
+    Given the following broker configuration
     """ruby
     MessageDriver::Broker.define do |b|
       b.destination :direct_exchange, "amq.direct", type: :exchange
@@ -9,7 +9,7 @@ Feature: Binding AMQP destinations to exchanges
     """
 
   Scenario: Binding a queue to an exchange
-    When I execute the following code:
+    When I execute the following code
     """ruby
     MessageDriver::Broker.define do |b|
       b.destination :my_queue, "my_bound_queue", exclusive: true, bindings: [
@@ -22,7 +22,7 @@ Feature: Binding AMQP destinations to exchanges
     publish(:direct_exchange, "Spec Message", {}, {routing_key: "spec_binding"})
     """
 
-    Then I expect to find 2 messages on :my_queue with:
+    Then I expect to find the following 2 messages on :my_queue
       | body         |
       | Test Message |
       | Spec Message |
@@ -30,7 +30,7 @@ Feature: Binding AMQP destinations to exchanges
   Scenario: Binding an exchange to an exchange
     RabbitMQ's AMQP 0.9 extenstions support binding exchanges to exchanges
 
-    When I execute the following code:
+    When I execute the following code
     """ruby
     MessageDriver::Broker.define do |b|
       b.destination :fanout, "amq.fanout", type: :exchange, bindings: [
@@ -44,7 +44,7 @@ Feature: Binding AMQP destinations to exchanges
     publish(:direct_exchange, "Spec Message", {}, {routing_key: "spec_binding"})
     """
 
-    Then I expect to find 2 messages on :my_queue with:
+    Then I expect to find the following 2 messages on :my_queue
       | body         |
       | Test Message |
       | Spec Message |

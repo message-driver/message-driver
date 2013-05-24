@@ -2,7 +2,7 @@
 @in_memory
 Feature: Destination Metadata
   Background:
-    Given the following broker configuration:
+    Given the following broker configuration
     """ruby
     MessageDriver::Broker.define do |b|
       b.destination :my_queue, "my_queue"
@@ -10,7 +10,7 @@ Feature: Destination Metadata
     """
 
   Scenario: Checking the message count when the queue is empty
-    When I execute the following code:
+    When I execute the following code
     """ruby
     destination = MessageDriver::Broker.find_destination(:my_queue)
     expect(destination.message_count).to eq(0)
@@ -21,7 +21,7 @@ Feature: Destination Metadata
 
   @no_travis
   Scenario: Checking the message count when the queue has messages
-    When I execute the following code:
+    When I execute the following code
     """ruby
     publish(:my_queue, "test message 1")
     publish(:my_queue, "test message 2")

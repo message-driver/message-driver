@@ -2,12 +2,24 @@ Given "I am connected to the broker" do
   MessageDriver.configure(BrokerConfig.config)
 end
 
-Given "the following broker configuration:" do |src|
+Given "the following broker configuration" do |src|
   step "I am connected to the broker"
   test_runner.run_config_code(src)
 end
 
-When "I execute the following code:" do |src|
+Given(/^I have a destination (#{STRING_OR_SYM})$/) do |destination|
+  MessageDriver::Broker.define do |b|
+    b.destination(destination.to_sym, destination.to_s)
+  end
+end
+
+When(/^I send the following messages to (#{STRING_OR_SYM})$/) do |destination, table|
+  table.hashes.each do |msg|
+    publish(destination, msg[:body])
+  end
+end
+
+When "I execute the following code" do |src|
   test_runner.run_test_code(src)
 end
 
@@ -17,11 +29,16 @@ Then(/^I expect to find (#{NUMBER}) messages? on (#{STRING_OR_SYM})$/) do |count
   expect(messages).to have(count).items
 end
 
-Then(/^I expect to find (#{NUMBER}) messages? on (#{STRING_OR_SYM}) with:$/) do |count, destination, table|
+Then(/^I expect to find the following (#{NUMBER}) messages? on (#{STRING_OR_SYM})$/) do |count, destination, table|
   expect(test_runner).to have_no_errors
   messages = test_runner.fetch_messages(destination)
   expect(messages).to have(count).items
   expect(messages).to match_message_table(table)
+end
+
+Then(/^I expect to find the following message on (#{STRING_OR_SYM})$/) do |destination, table|
+  dest = destination.kind_of?(Symbol) ? destination.inspect : destination.to_s
+  step "I expect to find the following 1 message on #{dest}", table
 end
 
 Then(/^I expect it to raise "(.*?)"$/) do |error_msg|
