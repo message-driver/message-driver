@@ -1,7 +1,7 @@
 shared_examples "subscription is supported" do
 
   it "sets the consumer on the destination" do
-    adapter.subscribe(destination.name, &consumer)
+    destination.subscribe(&consumer)
     expect(destination.consumer).to be(consumer)
   end
 

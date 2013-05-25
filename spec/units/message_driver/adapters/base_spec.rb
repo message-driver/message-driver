@@ -25,15 +25,6 @@ module MessageDriver::Adapters
       end
     end
 
-    describe "#subscribe" do
-      let(:consumer_stub) { lambda do |m| end }
-      it "raises an error" do
-        expect {
-          subject.subscribe(:destination, &consumer_stub)
-        }.to raise_error "Must be implemented in subclass"
-      end
-    end
-
     describe "#stop" do
       it "raises an error" do
         expect {

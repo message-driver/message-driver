@@ -78,10 +78,6 @@ module MessageDriver
         @destinations[name] = destination
       end
 
-      def subscribe(destination_name, &consumer)
-        destination(destination_name).subscribe(&consumer)
-      end
-
       def reset_after_tests
         @message_store.keys.each do |k|
           @message_store[k] = []

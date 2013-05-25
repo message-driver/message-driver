@@ -102,7 +102,7 @@ module MessageDriver::Adapters
       end
     end
 
-    describe "#subscribe" do
+    describe "subscribing a consumer" do
       let(:message1) { "message 1" }
       let(:message2) { "message 2" }
       let(:destination) { adapter.create_destination(:my_queue) }
@@ -124,7 +124,7 @@ module MessageDriver::Adapters
         end
 
         it "plays the messages into the consumer" do
-          adapter.subscribe(destination.name, &consumer)
+          destination.subscribe(&consumer)
           expect(messages).to have(2).items
           expect(messages[0].body).to eq(message1)
           expect(messages[1].body).to eq(message2)
@@ -132,14 +132,14 @@ module MessageDriver::Adapters
 
         it "removes the messages from the queue" do
           expect {
-            adapter.subscribe(destination.name, &consumer)
+            destination.subscribe(&consumer)
           }.to change{destination.message_count}.from(2).to(0)
         end
       end
 
       context "when a message is published to the destination" do
         before do
-          adapter.subscribe(destination.name, &consumer)
+          destination.subscribe(&consumer)
         end
 
         it "consumer the message into the consumer instead of putting them on the queue" do
@@ -153,7 +153,7 @@ module MessageDriver::Adapters
       end
 
       context "the subscription" do
-        subject(:subscription) { adapter.subscribe(destination.name, &consumer) }
+        subject(:subscription) { destination.subscribe(&consumer) }
         describe "#unsubscribe" do
           it "makes it so messages don't go to the consumer any more" do
             subscription.unsubscribe
