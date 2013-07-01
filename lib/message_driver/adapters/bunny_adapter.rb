@@ -96,7 +96,7 @@ module MessageDriver
       def initialize(config)
         validate_bunny_version
 
-        @connection = Bunny.new(config.merge(threaded: false))
+        @connection = Bunny.new(config.merge(automatically_recover: false))
       end
 
       def connection(ensure_started=true)
@@ -209,7 +209,7 @@ module MessageDriver
             else
               raise MessageDriver::WrappedError.new
             end
-          rescue Bunny::NetworkErrorWrapper, IOError => e
+          rescue Bunny::NetworkErrorWrapper, Bunny::NetworkFailure, IOError => e
             @connection_failed = true
             @rollback_only = true if is_transactional?
             raise MessageDriver::ConnectionError.new

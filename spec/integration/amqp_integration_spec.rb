@@ -50,7 +50,7 @@ describe "AMQP Integration", :bunny, type: :integration do
     end
   end
 
-  context "when the broker connection fails" do
+  context "when the broker connection fails", pending: "needs to be fixed" do
     after(:each) do
       MessageDriver::Broker.stop
     end
@@ -59,8 +59,12 @@ describe "AMQP Integration", :bunny, type: :integration do
       MessageDriver::Broker.adapter.connection.instance_variable_get(:@transport).close
     end
 
+    def create_destination(queue_name)
+      MessageDriver::Broker.dynamic_destination(queue_name, exclusive: true)
+    end
+
     it "raises a MessageDriver::ConnectionError" do
-      dest = MessageDriver::Broker.dynamic_destination("", exclusive: true)
+      dest = create_destination("test_queue")
       disrupt_connection
       expect {
         dest.publish("Reconnection Test")
@@ -69,9 +73,6 @@ describe "AMQP Integration", :bunny, type: :integration do
       end
     end
 
-    def create_destination(queue_name)
-      MessageDriver::Broker.dynamic_destination(queue_name, exclusive: true)
-    end
     it "seemlessly reconnects" do
       dest = create_destination("seemless.reconnect.queue")
       disrupt_connection

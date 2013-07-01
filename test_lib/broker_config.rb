@@ -32,7 +32,7 @@ module BrokerConfig
   end
 
   def self.unconfigured_adapters
-    all_adapters - current_adapter
+    all_adapters - [current_adapter]
   end
 
   def self.current_adapter_port

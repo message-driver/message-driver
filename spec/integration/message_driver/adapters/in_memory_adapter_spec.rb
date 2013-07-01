@@ -103,66 +103,10 @@ module MessageDriver::Adapters
     end
 
     describe "subscribing a consumer" do
-      let(:message1) { "message 1" }
-      let(:message2) { "message 2" }
       let(:destination) { adapter.create_destination(:my_queue) }
-      let(:messages) { [] }
 
       let(:subscription_type) { MessageDriver::Adapters::InMemoryAdapter::Subscription }
       it_behaves_like "subscription is supported"
-
-      let(:consumer) do
-        lambda do |msg|
-          messages << msg
-        end
-      end
-
-      context "when there are already messages in the destination" do
-        before do
-          destination.publish(message1)
-          destination.publish(message2)
-        end
-
-        it "plays the messages into the consumer" do
-          destination.subscribe(&consumer)
-          expect(messages).to have(2).items
-          expect(messages[0].body).to eq(message1)
-          expect(messages[1].body).to eq(message2)
-        end
-
-        it "removes the messages from the queue" do
-          expect {
-            destination.subscribe(&consumer)
-          }.to change{destination.message_count}.from(2).to(0)
-        end
-      end
-
-      context "when a message is published to the destination" do
-        before do
-          destination.subscribe(&consumer)
-        end
-
-        it "consumer the message into the consumer instead of putting them on the queue" do
-          expect {
-            expect {
-              destination.publish(message1)
-            }.to change{messages.length}.from(0).to(1)
-          }.to_not change{destination.message_count}
-          expect(messages[0].body).to eq(message1)
-        end
-      end
-
-      context "the subscription" do
-        subject(:subscription) { destination.subscribe(&consumer) }
-        describe "#unsubscribe" do
-          it "makes it so messages don't go to the consumer any more" do
-            subscription.unsubscribe
-            expect {
-              destination.publish("should not be consumed")
-            }.to_not change{messages.size}
-          end
-        end
-      end
     end
   end
 end

@@ -19,16 +19,16 @@ module MessageDriver
         @adapter.pop_message(@name, options)
       end
 
-      def subscribe(&consumer)
-        @adapter.subscribe(@name, &consumer)
-      end
-
       def after_initialize
         #does nothing, feel free to override as needed
       end
 
       def message_count
         raise "#message_count is not supported by #{self.class}"
+      end
+
+      def subscribe(&consumer)
+        raise "#subscribe is not supported by #{self.class}"
       end
     end
   end

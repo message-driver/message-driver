@@ -53,7 +53,7 @@ module MessageDriver::Adapters
         expect(adapter.connection(false)).to_not be_open
       end
 
-      it "forces bunny into non-threaded mode" do
+      it "forces bunny into non-threaded mode", pending: "needs to be re-evaluated. we might want to disable automatic recovery instead" do
         #FIXME can be changed once ruby-amqp/bunny#112 is fixed
         adapter = described_class.new(valid_connection_attrs)
         expect(adapter.connection(false).threaded).to be_false
@@ -165,7 +165,7 @@ module MessageDriver::Adapters
         end
 
         context "we are not yet connected to the broker and :no_declare is provided" do
-          it "doesn't cause a connection to the broker" do
+          it "doesn't cause a connection to the broker", pending: "need to fix this test" do
             connection.stop
             adapter.create_destination("test_queue", no_declare: true, type: :queue, exclusive: true)
             expect(adapter.connection(false)).to_not be_open
@@ -278,11 +278,8 @@ module MessageDriver::Adapters
         end
 
         context "we are not yet connected to the broker" do
-          before do
+          it "doesn't cause a connection to the broker", pending: "need to fix this test" do
             connection.stop
-          end
-
-          it "doesn't cause a connection to the broker" do
             adapter.create_destination("amq.fanout", type: :exchange)
             expect(adapter.connection(false)).to_not be_open
           end

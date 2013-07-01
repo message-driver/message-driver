@@ -7,5 +7,6 @@ module MessageDriver::Destination
     it "needs some real tests"
 
     include_examples "doesn't support #message_count"
+    include_examples "doesn't support #subscribe"
   end
 end

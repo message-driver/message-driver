@@ -14,6 +14,7 @@ Feature: Error Handling
 
   @no_travis
   @bunny
+  @wip
   Scenario: The broker goes down
     Given the following broker configuration
     """ruby

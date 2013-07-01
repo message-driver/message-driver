@@ -13,7 +13,10 @@ RSpec.configure do |c|
 
   c.filter_run_excluding :no_travis if ENV['TRAVIS']=='true' && ENV['ADAPTER']=='bunny'
   if c.inclusion_filter[:all_adapters] == true
-    c.filter_run BrokerConfig.current_adapter
+    BrokerConfig.unconfigured_adapters.each do |a|
+      c.filter_run_excluding a
+    end
+    c.filter_run_including BrokerConfig.current_adapter
   else
     c.run_all_when_everything_filtered = true
   end
