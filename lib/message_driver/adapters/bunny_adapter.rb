@@ -141,6 +141,7 @@ module MessageDriver
       end
 
       def stop
+        super
         @connection.close if @connection.open?
         @context = nil
       end

@@ -10,14 +10,14 @@ module MessageDriver::Adapters
     subject { TestAdapter.new({}) }
 
     describe "#new_context" do
-      it "raises an error" do
+      it "raises an error", pending: "eventual behavior" do
         expect {
           subject.new_context
         }.to raise_error "Must be implemented in subclass"
       end
     end
 
-    describe "#stop" do
+    describe "#stop", pending: "maybe we don't want to do this" do
       it "raises an error" do
         expect {
           subject.stop
@@ -30,6 +30,14 @@ module MessageDriver::Adapters
     class TestContext < described_class
     end
     subject { TestContext.new }
+
+    describe "#with_transaction" do
+      it "raises an error", pending: "eventual behavior" do
+        expect {
+          subject.with_transaction
+        }.to raise_error "Must be implemented in subclass"
+      end
+    end
 
     describe "#create_destination" do
       it "raises an error", pending: "eventual behavior" do
@@ -51,6 +59,14 @@ module MessageDriver::Adapters
       it "raises an error", pending: "eventual behavior" do
         expect {
           subject.pop_message(:destination)
+        }.to raise_error "Must be implemented in subclass"
+      end
+    end
+
+    describe "#subscribe" do
+      it "raises an error", pending: "eventual behavior" do
+        expect {
+          subject.subscribe(:destination, :consumer)
         }.to raise_error "Must be implemented in subclass"
       end
     end

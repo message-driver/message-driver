@@ -1,8 +1,11 @@
 require 'spec_helper'
 
 describe "AMQP Integration", :bunny, type: :integration do
-  before do
+  before(:each) do
     MessageDriver.configure BrokerConfig.config
+  end
+  after(:each) do
+    MessageDriver::Broker.stop
   end
 
   context "when a queue can't be found" do
@@ -51,9 +54,6 @@ describe "AMQP Integration", :bunny, type: :integration do
   end
 
   context "when the broker connection fails", pending: "needs to be fixed" do
-    after(:each) do
-      MessageDriver::Broker.stop
-    end
     def disrupt_connection
       #yes, this is very implementation specific
       MessageDriver::Broker.adapter.connection.instance_variable_get(:@transport).close
@@ -135,7 +135,7 @@ describe "AMQP Integration", :bunny, type: :integration do
       }.to raise_error "unhandled error"
       expect(destination.pop_message).to be_nil
 
-      MessageDriver::Client.with_message_transaction do
+        MessageDriver::Client.with_message_transaction do
         destination.publish("Test Message 2")
       end
 

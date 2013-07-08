@@ -13,6 +13,8 @@ module MessageDriver
       MessageDriver.configure(adapter: adapter)
     end
 
+    let(:adapter_context) { subject.current_adapter_context }
+
     shared_examples "a Client" do
       describe "#publish" do
         let(:destination) { Broker.destination(:my_queue, "my_queue", exclusive: true) }
@@ -87,7 +89,13 @@ module MessageDriver
       end
 
       describe "#with_message_transaction" do
-        it "delegates to the adapter context"
+        it "delegates to the adapter context" do
+          expected = lambda do; end
+          adapter_context.should_receive(:with_transaction) do |&actual|
+            expect(actual).to be(expected)
+          end
+          subject.with_message_transaction(&expected)
+        end
       end
 
       describe "#subscribe" do

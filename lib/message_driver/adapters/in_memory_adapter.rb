@@ -101,6 +101,10 @@ module MessageDriver
         @consumers.delete(name)
       end
 
+      def with_transaction(options={})
+        yield
+      end
+
       private
 
       def destination(destination_name)

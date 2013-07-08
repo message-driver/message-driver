@@ -76,6 +76,7 @@ module MessageDriver
       end
 
       def stop
+        super
         if @connection
           @connection.disconnect
         end

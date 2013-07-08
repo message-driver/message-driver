@@ -4,24 +4,36 @@ module MessageDriver
 
     def publish(destination, body, headers={}, properties={})
       dest = find_destination(destination)
-      dest.publish(body, headers, properties)
+      current_adapter_context.publish(dest, body, headers, properties)
     end
 
     def pop_message(destination, options={})
       dest = find_destination(destination)
-      dest.pop_message(options)
+      current_adapter_context.pop_message(dest, options)
     end
 
     def subscribe(destination_name, consumer_name)
       destination = find_destination(destination_name)
       consumer =  find_consumer(consumer_name)
-      destination.subscribe(&consumer)
+      current_adapter_context.subscribe(destination, consumer)
     end
 
     def with_message_transaction(options={}, &block)
-      adapter.with_transaction(options, &block)
+      current_adapter_context.with_transaction(options, &block)
     end
-    alias :with_transaction :with_message_transaction
+
+    def current_adapter_context
+      ctx = Thread.current[:adapter_context]
+      if ctx.nil? || !ctx.valid?
+        ctx = Broker.adapter.new_context
+        Thread.current[:adapter_context] = ctx
+      end
+      ctx
+    end
+
+    def current_adapter_context=(adapter_context)
+      Thread.current[:adapter_context] = adapter_context
+    end
 
     private
     def find_destination(destination)
