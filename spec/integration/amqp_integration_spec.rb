@@ -35,7 +35,7 @@ describe "AMQP Integration", :bunny, type: :integration do
 
     context "when in a transaction" do
       it "sets the channel_context as rollback-only until the transaction is finished" do
-        MessageDriver::Broker.with_transaction do
+        MessageDriver::Client.with_message_transaction do
           expect {
             MessageDriver::Broker.dynamic_destination("not.a.queue", passive: true)
           }.to raise_error(MessageDriver::WrappedError)
@@ -89,7 +89,7 @@ describe "AMQP Integration", :bunny, type: :integration do
     context "when in a transaction" do
       it "raises a MessageDriver::ConnectionError" do
         expect {
-          MessageDriver::Broker.with_transaction do
+          MessageDriver::Client.with_message_transaction do
             disrupt_connection
             MessageDriver::Broker.dynamic_destination("", exclusive: true)
           end
@@ -97,7 +97,7 @@ describe "AMQP Integration", :bunny, type: :integration do
       end
 
       it "sets the channel_context as rollback-only until the transaction is finished" do
-        MessageDriver::Broker.with_transaction do
+        MessageDriver::Client.with_message_transaction do
           disrupt_connection
           expect {
             MessageDriver::Broker.dynamic_destination("", exclusive: true)
@@ -118,7 +118,7 @@ describe "AMQP Integration", :bunny, type: :integration do
 
     it "rolls back the transaction" do
       expect {
-        MessageDriver::Broker.with_transaction do
+        MessageDriver::Client.with_message_transaction do
           destination.publish("Test Message")
           raise "unhandled error"
         end
@@ -128,14 +128,14 @@ describe "AMQP Integration", :bunny, type: :integration do
 
     it "allows the next transaction to continue" do
       expect {
-        MessageDriver::Broker.with_transaction do
+        MessageDriver::Client.with_message_transaction do
           destination.publish("Test Message 1")
           raise "unhandled error"
         end
       }.to raise_error "unhandled error"
       expect(destination.pop_message).to be_nil
 
-      MessageDriver::Broker.with_transaction do
+      MessageDriver::Client.with_message_transaction do
         destination.publish("Test Message 2")
       end
 

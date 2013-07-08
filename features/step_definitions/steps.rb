@@ -15,7 +15,7 @@ end
 
 When(/^I send the following messages to (#{STRING_OR_SYM})$/) do |destination, table|
   table.hashes.each do |msg|
-    MessageDriver::Broker.publish(destination, msg[:body])
+    MessageDriver::Client.publish(destination, msg[:body])
   end
 end
 

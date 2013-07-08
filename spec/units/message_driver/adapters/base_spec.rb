@@ -32,7 +32,7 @@ module MessageDriver::Adapters
     subject { TestContext.new }
 
     describe "#create_destination" do
-      it "raises an error" do
+      it "raises an error", pending: "eventual behavior" do
         expect {
           subject.create_destination("foo")
         }.to raise_error "Must be implemented in subclass"
@@ -40,7 +40,7 @@ module MessageDriver::Adapters
     end
 
     describe "#publish" do
-      it "raises an error" do
+      it "raises an error", pending: "eventual behavior" do
         expect {
           subject.publish(:destination, {foo: "bar"})
         }.to raise_error "Must be implemented in subclass"
@@ -48,7 +48,7 @@ module MessageDriver::Adapters
     end
 
     describe "#pop_message" do
-      it "raises an error" do
+      it "raises an error", pending: "eventual behavior" do
         expect {
           subject.pop_message(:destination)
         }.to raise_error "Must be implemented in subclass"

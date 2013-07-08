@@ -8,7 +8,7 @@ Feature: Message Consumers
     And I have a message consumer
     """ruby
     MessageDriver::Broker.consumer(:my_consumer) do |message|
-      MessageDriver::Broker.publish(:dest_queue, message.body)
+      MessageDriver::Client.publish(:dest_queue, message.body)
     end
     """
 
@@ -29,7 +29,7 @@ Feature: Message Consumers
   Scenario: Ending a subscription
     When I execute the following code
     """ruby
-    @subscription = MessageDriver::Broker.subscribe(:source_queue, :my_consumer)
+    @subscription = MessageDriver::Client.subscribe(:source_queue, :my_consumer)
     """
 
     When I send the following messages to :source_queue

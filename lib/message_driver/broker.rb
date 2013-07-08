@@ -33,16 +33,6 @@ module MessageDriver
       @consumers = {}
     end
 
-    def publish(destination, body, headers={}, properties={})
-      dest = find_destination(destination)
-      dest.publish(body, headers, properties)
-    end
-
-    def pop_message(destination, options={})
-      dest = find_destination(destination)
-      dest.pop_message(options)
-    end
-
     def dynamic_destination(dest_name, dest_options={}, message_props={})
       adapter.create_destination(dest_name, dest_options, message_props)
     end
@@ -57,18 +47,6 @@ module MessageDriver
       @consumers[key] = block
     end
 
-    def subscribe(destination_name, consumer_name)
-      destination = find_destination(destination_name)
-      consumer =  find_consumer(consumer_name)
-      destination.subscribe(&consumer)
-    end
-
-    def with_transaction(options={}, &block)
-      adapter.with_transaction(options, &block)
-    end
-
-    private
-
     def find_destination(destination_name)
       destination = @destinations[destination_name]
       raise MessageDriver::NoSuchDestinationError, "no destination #{destination_name} has been configured" if destination.nil?
@@ -76,8 +54,12 @@ module MessageDriver
     end
 
     def find_consumer(consumer_name)
-      @consumers[consumer_name]
+      consumer = @consumers[consumer_name]
+      raise MessageDriver::NoSuchConsumerError, "no consumer #{consumer_name} has been configured" if consumer.nil?
+      consumer
     end
+
+    private
 
     def resolve_adapter(adapter, options)
       case adapter

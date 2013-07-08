@@ -3,5 +3,5 @@ Given "I have a message consumer" do |src|
 end
 
 Given(/^I subscribe to (#{STRING_OR_SYM}) with (#{STRING_OR_SYM})$/) do |destination, consumer|
-  MessageDriver::Broker.subscribe(destination, consumer)
+  MessageDriver::Client.subscribe(destination, consumer)
 end
