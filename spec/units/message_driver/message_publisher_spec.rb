@@ -37,7 +37,7 @@ module MessageDriver
 
     describe "#pop_message" do
       let(:destination) { "my_queue" }
-      let(:expected) { stub(MessageDriver::Message) }
+      let(:expected) { double(MessageDriver::Message) }
 
       it "requires the destination and returns the message" do
         Broker.instance.should_receive(:pop_message).with(destination, {}).and_return(expected)

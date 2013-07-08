@@ -8,7 +8,7 @@ module MessageDriver
     describe ".configure" do
       it "calls new, passing in the options and saves the instance" do
         options = {foo: :bar}
-        result = stub(described_class)
+        result = double(described_class)
         described_class.should_receive(:new).with(options).and_return(result)
 
         described_class.configure(options)
@@ -74,10 +74,10 @@ module MessageDriver
     end
 
     describe "#consumer" do
-      let(:consumer_stub) { lambda do |m| end }
+      let(:consumer_double) { lambda do |m| end }
       it "saves the provided consumer" do
-        broker.consumer(:my_consumer, &consumer_stub)
-        expect(broker.consumers[:my_consumer]).to be(consumer_stub)
+        broker.consumer(:my_consumer, &consumer_double)
+        expect(broker.consumers[:my_consumer]).to be(consumer_double)
       end
 
       context "when no consumer is provided" do
@@ -91,13 +91,13 @@ module MessageDriver
 
     describe "#subscribe" do
       let(:destination) { broker.destination(:my_queue, "my_queue", exclusive: true) }
-      let(:consumer_stub) { lambda do |m| end }
+      let(:consumer_double) { lambda do |m| end }
       before do
-        broker.consumer(:my_consumer, &consumer_stub)
+        broker.consumer(:my_consumer, &consumer_double)
       end
       it "it delegates to the destination" do
         destination.should_receive(:subscribe) do |&block|
-          expect(block).to be(consumer_stub)
+          expect(block).to be(consumer_double)
         end
         broker.subscribe(:my_queue, :my_consumer)
       end

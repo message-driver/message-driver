@@ -2,9 +2,9 @@ require 'spec_helper'
 
 module MessageDriver::Subscription
   describe Base do
-    let(:adapter) { stub(MessageDriver::Adapters::Base) }
-    let(:destination) { stub(MessageDriver::Destination::Base) }
-    let(:consumer) { stub("a consumer") }
+    let(:adapter) { double(MessageDriver::Adapters::Base) }
+    let(:destination) { double(MessageDriver::Destination::Base) }
+    let(:consumer) { double("a consumer") }
     subject(:subscription) { Base.new(adapter, destination, consumer) }
 
     it "sets it's adapter, destination and consumer on instansiation" do
