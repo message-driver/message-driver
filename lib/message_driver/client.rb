@@ -1,5 +1,7 @@
 module MessageDriver
-  module MessagePublisher
+  module Client
+    extend self
+
     def publish(destination, body, headers={}, properties={})
       Broker.publish(destination, body, headers, properties)
     end

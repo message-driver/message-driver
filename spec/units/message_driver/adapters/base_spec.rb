@@ -9,6 +9,36 @@ module MessageDriver::Adapters
     end
     subject { TestAdapter.new({}) }
 
+    describe "#new_context" do
+      it "raises an error" do
+        expect {
+          subject.new_context
+        }.to raise_error "Must be implemented in subclass"
+      end
+    end
+
+    describe "#stop" do
+      it "raises an error" do
+        expect {
+          subject.stop
+        }.to raise_error "Must be implemented in subclass"
+      end
+    end
+  end
+
+  describe ContextBase do
+    class TestContext < described_class
+    end
+    subject { TestContext.new }
+
+    describe "#create_destination" do
+      it "raises an error" do
+        expect {
+          subject.create_destination("foo")
+        }.to raise_error "Must be implemented in subclass"
+      end
+    end
+
     describe "#publish" do
       it "raises an error" do
         expect {
@@ -25,20 +55,5 @@ module MessageDriver::Adapters
       end
     end
 
-    describe "#stop" do
-      it "raises an error" do
-        expect {
-          subject.stop
-        }.to raise_error "Must be implemented in subclass"
-      end
-    end
-
-    describe "#create_destination" do
-      it "raises an error" do
-        expect {
-          subject.create_destination("foo")
-        }.to raise_error "Must be implemented in subclass"
-      end
-    end
   end
 end

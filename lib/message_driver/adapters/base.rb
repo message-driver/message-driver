@@ -5,6 +5,20 @@ module MessageDriver
         raise "Must be implemented in subclass"
       end
 
+      def new_context
+        raise "Must be implemented in subclass"
+      end
+
+      def stop
+        raise "Must be implemented in subclass"
+      end
+
+      def with_transaction(options={}, &block)
+        yield
+      end
+    end
+
+    class ContextBase
       def publish(destination, body, headers={}, properties={})
         raise "Must be implemented in subclass"
       end
@@ -13,16 +27,8 @@ module MessageDriver
         raise "Must be implemented in subclass"
       end
 
-      def stop
-        raise "Must be implemented in subclass"
-      end
-
       def create_destination(name, dest_options={}, message_props={})
         raise "Must be implemented in subclass"
-      end
-
-      def with_transaction(options={}, &block)
-        yield
       end
     end
   end

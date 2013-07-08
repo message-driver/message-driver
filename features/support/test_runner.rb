@@ -1,7 +1,7 @@
 require 'message_driver'
 
 class TestRunner
-  include MessageDriver::MessagePublisher
+  include MessageDriver::Client
   include RSpec::Matchers
 
   attr_accessor :raised_error
