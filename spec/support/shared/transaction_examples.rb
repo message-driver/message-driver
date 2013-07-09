@@ -17,7 +17,20 @@ shared_examples "supports transactions" do
   it { should respond_to :commit_transaction }
   it { should respond_to :rollback_transaction }
 
-  it "raises a MessageDriver::TransactionError error if you begin two transactions"
-  it "raises a MessageDriver::TransactionError error if you commit outside of a transaction"
-  it "raises a MessageDriver::TransactionError error if you rollback outside of a transaction"
+  it "raises a MessageDriver::TransactionError error if you begin two transactions" do
+    subject.begin_transaction
+    expect {
+      subject.begin_transaction
+    }.to raise_error MessageDriver::TransactionError
+  end
+  it "raises a MessageDriver::TransactionError error if you commit outside of a transaction" do
+    expect {
+      subject.commit_transaction
+    }.to raise_error MessageDriver::TransactionError
+  end
+  it "raises a MessageDriver::TransactionError error if you rollback outside of a transaction" do
+    expect {
+      subject.rollback_transaction
+    }.to raise_error MessageDriver::TransactionError
+  end
 end
