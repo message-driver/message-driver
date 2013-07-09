@@ -18,6 +18,7 @@ module MessageDriver::Adapters
       subject(:adapter_context) { adapter.new_context }
 
       include_examples "doesn't support transactions"
+      include_examples "doesn't support client acks"
       it_behaves_like "an adapter context"
     end
 

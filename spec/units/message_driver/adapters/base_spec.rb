@@ -31,6 +31,7 @@ module MessageDriver::Adapters
       subject(:adapter_context) { TestContext.new(adapter) }
 
       include_examples "doesn't support transactions"
+      include_examples "doesn't support client acks"
 
       describe "#create_destination" do
         it "raises an error" do

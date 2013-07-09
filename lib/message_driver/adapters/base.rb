@@ -43,10 +43,6 @@ module MessageDriver
         raise "Must be implemented in subclass"
       end
 
-      def create_destination(name, dest_options={}, message_props={})
-        raise "Must be implemented in subclass"
-      end
-
       def valid?
         @valid
       end
@@ -56,6 +52,10 @@ module MessageDriver
       end
 
       def supports_transactions?
+        false
+      end
+
+      def supports_client_acks?
         false
       end
     end

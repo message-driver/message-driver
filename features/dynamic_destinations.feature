@@ -1,6 +1,6 @@
 @all_adapters
 Feature: Dynamic Destinations
-  Sometime you want to connect to a queue that has some of it's characteristics
+  Sometimes you want to connect to a queue that has some of it's characteristics
   determined at runtime. Dynamic destinations allow you to do with without
   leaking tons of destination definitions.
 
