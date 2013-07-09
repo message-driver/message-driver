@@ -12,7 +12,6 @@ rvm:
   - 1.9.3
   - 2.0.0
   - jruby-19mode
-  - ruby-head
   - jruby-head
   - rbx-19mode
 env:
@@ -21,7 +20,6 @@ env:
   - ADAPTER=stomp
 matrix:
   allow_failures:
-    - rvm: ruby-head
     - rvm: jruby-head
     - rvm: rbx-19mode
     - rvm: jruby-19mode
