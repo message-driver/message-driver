@@ -111,9 +111,7 @@ module MessageDriver::Adapters
 
           it { should be_a StompAdapter::Destination }
 
-          pending do
-            it_behaves_like "a destination"
-          end
+          it_behaves_like "a destination"
           include_examples "doesn't support #message_count"
 
           describe "pop_message" do

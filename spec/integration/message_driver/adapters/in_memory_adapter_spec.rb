@@ -25,13 +25,11 @@ module MessageDriver::Adapters
 
     describe "#create_destination" do
       describe "the resulting destination" do
-        let!(:destination) { adapter.create_destination("my_test_dest") }
-        it_behaves_like "a destination"
-
-        subject { destination }
+        subject(:destination) { adapter.create_destination("my_test_dest") }
 
         it { should be_a InMemoryAdapter::Destination }
 
+        it_behaves_like "a destination"
         include_examples "supports #message_count"
       end
 
