@@ -52,11 +52,13 @@ shared_examples "subscriptions are supported" do |subscription_type|
       end
 
       it "plays the messages into the consumer" do
-        subscription
-        sleep 0.1
-        expect(messages).to have(2).items
-        expect(messages[0].body).to eq(message1)
-        expect(messages[1].body).to eq(message2)
+        expect {
+          subscription
+          pause_if_needed
+        }.to change{messages.size}.from(0).to(2)
+        bodies = messages.map(&:body)
+        expect(bodies).to include(message1)
+        expect(bodies).to include(message2)
       end
 
       it "removes the messages from the queue" do
@@ -75,7 +77,7 @@ shared_examples "subscriptions are supported" do |subscription_type|
         expect {
           expect {
             subject.publish(destination, message1)
-            sleep 0.1
+            pause_if_needed
           }.to change{messages.length}.from(0).to(1)
         }.to_not change{destination.message_count}
         expect(messages[0].body).to eq(message1)
@@ -92,10 +94,6 @@ shared_examples "subscriptions are supported" do |subscription_type|
       its(:consumer) { should be consumer }
 
       describe "#unsubscribe" do
-        it "unsets the consumer on the destination" do
-          subscription.unsubscribe
-          expect(destination.consumer).to be_nil
-        end
         it "makes it so messages don't go to the consumer any more" do
           subscription.unsubscribe
           expect {

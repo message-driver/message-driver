@@ -43,19 +43,26 @@ module MessageDriver
         def after_initialize(adapter_context)
           unless @dest_options[:no_declare]
             adapter_context.with_channel(false) do |ch|
-              queue = ch.queue(@name, @dest_options)
-              @name = queue.name
-              if bindings = @dest_options[:bindings]
-                bindings.each do |bnd|
-                  raise MessageDriver::Error, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
-                  queue.bind(bnd[:source], bnd[:args]||{})
-                end
-              end
+              bunny_queue(ch, true)
             end
           else
             raise MessageDriver::Error, "server-named queues must be declared, but you provided :no_declare => true" if @name.empty?
             raise MessageDriver::Error, "queues with bindings must be declared, but you provided :no_declare => true" if @dest_options[:bindings]
           end
+        end
+
+        def bunny_queue(channel, initialize=false)
+          queue = channel.queue(@name, @dest_options)
+          if initialize
+            @name = queue.name
+            if bindings = @dest_options[:bindings]
+              bindings.each do |bnd|
+                raise MessageDriver::Error, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
+                queue.bind(bnd[:source], bnd[:args]||{})
+              end
+            end
+          end
+          queue
         end
 
         def exchange_name
@@ -93,6 +100,25 @@ module MessageDriver
         end
       end
 
+      class Subscription < Subscription::Base
+        def start(adapter_context)
+          raise MessageDriver::Error, "subscriptions are only supported with QueueDestinations" unless destination.is_a? QueueDestination
+          adapter_context.with_channel(false) do |ch|
+            queue = destination.bunny_queue(ch)
+            @bunny_consumer = queue.subscribe({ack: false}) do |delivery_info, properties, payload|
+              consumer.call adapter_context.args_to_message(delivery_info, properties, payload)
+            end
+          end
+        end
+
+        def unsubscribe
+          unless @bunny_consumer.nil?
+            @bunny_consumer.cancel
+            @bunny_consumer = nil
+          end
+        end
+      end
+
       def initialize(config)
         validate_bunny_version
 
@@ -119,6 +145,7 @@ module MessageDriver
         def initialize(adapter)
           super
           @channel = nil
+          @subscriptions = []
           @is_transactional = false
           @rollback_only = false
           @need_channel_reset = false
@@ -200,7 +227,7 @@ module MessageDriver
             if message.nil? || message[0].nil?
               nil
             else
-              Message.new(*message)
+              args_to_message(*message)
             end
           end
         end
@@ -222,9 +249,22 @@ module MessageDriver
           end
         end
 
+        def supports_subscriptions?
+          true
+        end
+
+        def subscribe(destination, options={}, &consumer)
+          sub = Subscription.new(adapter, destination, consumer)
+          sub.start(self)
+          @subscriptions << sub
+          sub
+        end
+
         def invalidate
           super
           unless @channel.nil?
+            @subscriptions.each { |s| s.unsubscribe }
+            @subscriptions.clear
             @channel.close if @channel.open?
           end
         end
@@ -259,6 +299,10 @@ module MessageDriver
 
         def valid?
           super && !connection_failed?
+        end
+
+        def args_to_message(delivery_info, properties, payload)
+          Message.new(delivery_info, properties, payload)
         end
 
         private

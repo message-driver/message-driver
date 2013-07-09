@@ -103,7 +103,7 @@ module MessageDriver::Adapters
       it_behaves_like "an adapter context"
       it_behaves_like "transactions are supported"
       it_behaves_like "client acks are supported"
-      it_behaves_like "subscriptions are not supported"
+      it_behaves_like "subscriptions are supported", BunnyAdapter::Subscription
 
       describe "#pop_message" do
         include_context "with a queue"
@@ -326,6 +326,20 @@ module MessageDriver::Adapters
             expect {
               adapter_context.create_destination("my_dest", type: :foo_bar)
             }.to raise_error MessageDriver::Error, "invalid destination type #{:foo_bar}"
+          end
+        end
+      end
+
+      describe "#subscribe" do
+        context "the destination is an ExchangeDestination" do
+          let(:dest_name) { "my_dest" }
+          let(:destination) { adapter_context.create_destination(dest_name, type: :exchange) }
+          let(:consumer) { lambda do |m|; end }
+
+          it "raises an error" do
+            expect {
+              adapter_context.subscribe(destination, &consumer)
+            }.to raise_error MessageDriver::Error, /QueueDestination/
           end
         end
       end

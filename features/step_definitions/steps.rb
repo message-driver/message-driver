@@ -13,6 +13,12 @@ Given(/^I have a destination (#{STRING_OR_SYM})$/) do |destination|
   end
 end
 
+Given(/^I have a destination (#{STRING_OR_SYM}) with no messages on it$/) do |destination|
+  dest = destination.kind_of?(Symbol) ? destination.inspect : destination.to_s
+  step "I have a destination #{dest}"
+  test_runner.fetch_messages(destination)
+end
+
 Given(/^I have the following messages? on (#{STRING_OR_SYM})$/) do |destination, table|
   test_runner.fetch_messages(destination)
   dest = destination.kind_of?(Symbol) ? destination.inspect : destination.to_s
@@ -31,6 +37,13 @@ end
 
 When "I reset the context" do
   MessageDriver::Client.current_adapter_context.invalidate
+end
+
+When "I allow for processing" do
+  case BrokerConfig.current_adapter
+  when :bunny
+    sleep 0.1
+  end
 end
 
 Then(/^I expect to find (#{NUMBER}) messages? on (#{STRING_OR_SYM})$/) do |count, destination|
