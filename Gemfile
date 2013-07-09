@@ -5,7 +5,7 @@ gemspec
 
 group :development do
   gem 'bunny', '~> 0.9.0.rc2'
-  gem 'stomp', '~> 1.2.9'
+  gem 'stomp', '~> 1.2.10'
 end
 
 group :tools do

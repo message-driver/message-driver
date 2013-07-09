@@ -16,7 +16,7 @@ module MessageDriver::Adapters
             stub_const("Stomp::Version::STRING", version)
             expect {
               described_class.new(connection_attrs)
-            }.to raise_error MessageDriver::Error, "stomp 1.2.9 or a later version of the 1.2.x series is required for the stomp adapter"
+            }.to raise_error MessageDriver::Error, "stomp 1.2.10 or a later version of the 1.2.x series is required for the stomp adapter"
           end
         end
         shared_examples "doesn't raise a stomp error" do
@@ -28,13 +28,13 @@ module MessageDriver::Adapters
             }.to_not raise_error
           end
         end
-        %w(1.1.0 1.2.8 1.3.0).each do |v|
+        %w(1.1.0 1.2.9 1.3.0).each do |v|
           context "stomp version #{v}" do
             let(:version) { v }
             include_examples "raises a stomp error"
           end
         end
-        %w(1.2.9 1.2.11).each do |v|
+        %w(1.2.10 1.2.11).each do |v|
           context "stomp version #{v}" do
             let(:version) { v }
             include_examples "doesn't raise a stomp error"
