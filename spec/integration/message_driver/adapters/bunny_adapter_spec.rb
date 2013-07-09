@@ -101,6 +101,7 @@ module MessageDriver::Adapters
       subject(:adapter_context) { adapter.new_context }
 
       include_examples "supports transactions"
+      include_examples "supports client acks"
 
       describe "#pop_message" do
         include_context "with a queue"

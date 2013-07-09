@@ -15,5 +15,41 @@ module MessageDriver::Message
         its(:properties) { should eq(properties) }
       end
     end
+
+    subject(:message) { described_class.new("body", {}, {}) }
+
+    describe "#ack" do
+      let(:options) { {foo: :bar} }
+
+      before do
+        MessageDriver::Client.stub(:ack_message)
+      end
+      it "passes itself to Client.ack_message" do
+        subject.ack
+        expect(MessageDriver::Client).to have_received(:ack_message).with(subject, {})
+      end
+
+      it "passes the options to Client.ack_message" do
+        subject.ack(options)
+        expect(MessageDriver::Client).to have_received(:ack_message).with(subject, options)
+      end
+    end
+
+    describe "#nack" do
+      let(:options) { {foo: :bar} }
+
+      before do
+        MessageDriver::Client.stub(:nack_message)
+      end
+      it "passes itself to Client.nack_message" do
+        subject.nack
+        expect(MessageDriver::Client).to have_received(:nack_message).with(subject, {})
+      end
+
+      it "passes the options to Client.nack_message" do
+        subject.nack(options)
+        expect(MessageDriver::Client).to have_received(:nack_message).with(subject, options)
+      end
+    end
   end
 end

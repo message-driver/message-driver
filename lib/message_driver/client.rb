@@ -22,6 +22,24 @@ module MessageDriver
       current_adapter_context.create_destination(dest_name, dest_options, message_props)
     end
 
+    def ack_message(message, options={})
+      ctx = current_adapter_context
+      if ctx.supports_client_acks?
+        ctx.ack_message(message, options)
+      else
+        #TODO log a warning
+      end
+    end
+
+    def nack_message(message, options={})
+      ctx = current_adapter_context
+      if ctx.supports_client_acks?
+        ctx.nack_message(message, options)
+      else
+        #TODO log a warning
+      end
+    end
+
     def with_message_transaction(options={}, &block)
       transaction_depth = Thread.current[:_message_driver_transaction_depth] || 0
       transaction_depth += 1

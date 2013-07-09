@@ -1,8 +1,14 @@
 # Changelog
 
-## 0.2.0
+## 0.2.0 - Not yet released
 
-no changes yet
+* Features
+    * Message Consumers
+        * Bunny and InMemory adapters
+    * Client Acks
+        * Bunny adapter
+* Adapters
+    * begin work on Stomp 1.1/1.2 adapter
 
 ## 0.1.0 - 2013-04-05
 

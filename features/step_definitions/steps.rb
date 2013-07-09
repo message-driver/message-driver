@@ -13,7 +13,13 @@ Given(/^I have a destination (#{STRING_OR_SYM})$/) do |destination|
   end
 end
 
-When(/^I send the following messages to (#{STRING_OR_SYM})$/) do |destination, table|
+Given(/^I have the following messages? on (#{STRING_OR_SYM})$/) do |destination, table|
+  test_runner.fetch_messages(destination)
+  dest = destination.kind_of?(Symbol) ? destination.inspect : destination.to_s
+  step "I send the following messages to #{dest}", table
+end
+
+When(/^I send the following messages? to (#{STRING_OR_SYM})$/) do |destination, table|
   table.hashes.each do |msg|
     MessageDriver::Client.publish(destination, msg[:body])
   end
@@ -21,6 +27,10 @@ end
 
 When "I execute the following code" do |src|
   test_runner.run_test_code(src)
+end
+
+When "I reset the context" do
+  MessageDriver::Client.current_adapter_context.invalidate
 end
 
 Then(/^I expect to find (#{NUMBER}) messages? on (#{STRING_OR_SYM})$/) do |count, destination|

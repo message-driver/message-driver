@@ -31,7 +31,7 @@ class TestRunner
       end until msg.nil?
       result
     else
-      raise "didn't understand destination #{destination}"
+      raise "didn't understand destination #{destination.inspect}"
     end
   end
 

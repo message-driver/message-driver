@@ -17,6 +17,10 @@ module MessageDriver
           super(payload, properties[:headers]||{}, properties)
           @delivery_info = delivery_info
         end
+
+        def delivery_tag
+          delivery_info.delivery_tag
+        end
       end
 
       class Destination < MessageDriver::Destination::Base
@@ -122,10 +126,6 @@ module MessageDriver
           @in_transaction = false
         end
 
-        def supports_transactions?
-          true
-        end
-
         def create_destination(name, dest_options={}, message_props={})
           dest = case type = dest_options.delete(:type)
           when :exchange
@@ -139,16 +139,8 @@ module MessageDriver
           dest
         end
 
-        def is_transactional?
-          @is_transactional
-        end
-
-        def in_transaction
-          @in_transaction
-        end
-
-        def connection_failed?
-          @connection_failed
+        def supports_transactions?
+          true
         end
 
         def begin_transaction(options={})
@@ -162,8 +154,8 @@ module MessageDriver
           @in_transaction = true
         end
 
-        def commit_transaction
-          raise MessageDriver::TransactionError, "you can't finish the transaction unless you already in one!" unless @in_transaction
+        def commit_transaction(channel_commit=false)
+          raise MessageDriver::TransactionError, "you can't finish the transaction unless you already in one!" unless @in_transaction || channel_commit
           begin
             if is_transactional? && !connection_failed? && !@need_channel_reset
               if @rollback_only
@@ -183,6 +175,14 @@ module MessageDriver
           commit_transaction
         end
 
+        def is_transactional?
+          @is_transactional
+        end
+
+        def in_transaction
+          @in_transaction
+        end
+
         def publish(destination, body, headers={}, properties={})
           exchange, routing_key, props = *destination.publish_params(headers, properties)
           with_channel(true) do |ch|
@@ -196,12 +196,29 @@ module MessageDriver
           with_channel(false) do |ch|
             queue = ch.queue(destination.name, passive: true)
 
-            message = queue.pop
+            message = queue.pop(ack: !!options[:client_ack])
             if message.nil? || message[0].nil?
               nil
             else
               Message.new(*message)
             end
+          end
+        end
+
+        def supports_client_acks?
+          true
+        end
+
+        def ack_message(message, options={})
+          with_channel(true) do |ch|
+            ch.ack(message.delivery_tag)
+          end
+        end
+
+        def nack_message(message, options={})
+          requeue = options[:requeue].kind_of?(FalseClass) ? false : true
+          with_channel(true) do |ch|
+            ch.reject(message.delivery_tag, requeue)
           end
         end
 
@@ -223,7 +240,7 @@ module MessageDriver
           reset_channel if @need_channel_reset
           begin
             result = yield @channel
-            commit_transaction if require_commit && is_transactional? && !in_transaction
+            commit_transaction(true) if require_commit && is_transactional? && !in_transaction
             result
           rescue Bunny::ChannelLevelException => e
             @need_channel_reset = true
@@ -240,10 +257,13 @@ module MessageDriver
           end
         end
 
+        def connection_failed?
+          @connection_failed
+        end
+
         def valid?
           super && !connection_failed?
         end
-        alias :need_new_context? :valid?
 
         private
 

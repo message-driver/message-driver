@@ -8,6 +8,14 @@ module MessageDriver
         @headers = headers
         @properties = properties
       end
+
+      def ack(options={})
+        Client.ack_message(self, options)
+      end
+
+      def nack(options={})
+        Client.nack_message(self, options)
+      end
     end
   end
 end
