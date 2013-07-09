@@ -8,11 +8,11 @@ module MessageDriver
       end
 
       def new_context
-        ContextBase.new(self)
+        raise "Must be implemented in subclass"
       end
 
       def stop
-        contexts.each { |ctx| ctx.valid = false } if contexts
+        contexts.each { |ctx| ctx.invalidate } if contexts
       end
     end
 
@@ -27,49 +27,36 @@ module MessageDriver
         @valid = true
       end
 
-      #def publish(destination, body, headers={}, properties={})
-        #raise "Must be implemented in subclass"
-      #end
-
-      #def pop_message(destination, options={})
-        #raise "Must be implemented in subclass"
-      #end
-
-      #def subscribe(destination, consumer)
-        #raise "Must be implemented in subclass"
-      #end
-
-      #def create_destination(name, dest_options={}, message_props={})
-        #raise "Must be implemented in subclass"
-      #end
-
-      #def with_transaction(options={}, &block)
-        #raise "Must be implemented in subclass"
-      #end
-
-      def valid?
-        @valid
-      end
-
-      #temporary implementations for while we are refactoring
       def publish(destination, body, headers={}, properties={})
-        destination.publish(body, headers, properties)
+        raise "Must be implemented in subclass"
       end
 
       def pop_message(destination, options={})
-        destination.pop_message(options)
+        raise "Must be implemented in subclass"
       end
 
       def subscribe(destination, consumer)
-        destination.subscribe(&consumer)
+        raise "Must be implemented in subclass"
       end
 
       def create_destination(name, dest_options={}, message_props={})
         raise "Must be implemented in subclass"
       end
 
-      def with_transaction(options={}, &block)
-        adapter.with_transaction(options, &block)
+      def create_destination(name, dest_options={}, message_props={})
+        raise "Must be implemented in subclass"
+      end
+
+      def valid?
+        @valid
+      end
+
+      def invalidate
+        @valid = false
+      end
+
+      def supports_transactions?
+        false
       end
     end
   end

@@ -73,41 +73,59 @@ module MessageDriver::Adapters
     shared_context "a connected stomp adapter" do
       let(:adapter) { described_class.new(valid_connection_attrs) }
 
+      before do
+        MessageDriver::Broker.configure(adapter: adapter)
+      end
+
       after do
-        adapter.with_connection do |connection|
-          connection.disconnect
-        end
+        adapter.stop
       end
     end
 
-    describe "#create_destination" do
+    describe "#new_context" do
       include_context "a connected stomp adapter"
 
-      context "the resulting destination" do
-        let(:dest_name) { "/queue/stomp_destination_spec" }
-        subject(:destination) { adapter.create_destination(dest_name) }
+      it "returns a StompAdapter::StompContext" do
+        expect(adapter.new_context).to be_a StompAdapter::StompContext
+      end
+    end
 
-        it_behaves_like "a destination"
-        include_examples "doesn't support #message_count"
+    describe StompAdapter::StompContext do
+      include_context "a connected stomp adapter"
+      subject(:adapter_context) { adapter.new_context }
 
-        describe "pop_message" do
-          context "when there is a message on the queue" do
-            let(:body) { "Testing stomp pop_message" }
-            before do
-              destination.publish(body)
+      include_examples "doesn't support transactions"
+
+      describe "#create_destination" do
+
+        context "the resulting destination" do
+          let(:dest_name) { "/queue/stomp_destination_spec" }
+          subject(:destination) { adapter_context.create_destination(dest_name) }
+
+          it { should be_a StompAdapter::Destination }
+
+          #it_behaves_like "a destination"
+          include_examples "doesn't support #message_count"
+
+          describe "pop_message" do
+            context "when there is a message on the queue" do
+              let(:body) { "Testing stomp pop_message" }
+              before do
+                destination.publish(body)
+              end
+
+              it "returns the message" do
+                msg = destination.pop_message
+                expect(msg).to be_a MessageDriver::Adapters::StompAdapter::Message
+                expect(msg.body).to eq(body)
+              end
             end
 
-            it "returns the message" do
-              msg = destination.pop_message
-              expect(msg).to be_a MessageDriver::Adapters::StompAdapter::Message
-              expect(msg.body).to eq(body)
-            end
-          end
-
-          context "when the queue is empty" do
-            it "returns nil" do
-              msg = destination.pop_message
-              expect(msg).to be_nil
+            context "when the queue is empty" do
+              it "returns nil" do
+                msg = destination.pop_message
+                expect(msg).to be_nil
+              end
             end
           end
         end

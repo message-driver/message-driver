@@ -4,7 +4,19 @@ require 'message_driver/adapters/in_memory_adapter'
 
 module MessageDriver::Adapters
   describe InMemoryAdapter, :in_memory, type: :integration do
-    let(:adapter) { described_class.new }
+    subject(:adapter) { described_class.new }
+
+    describe "#new_context" do
+      it "returns a InMemoryAdapter::InMemoryContext" do
+        expect(subject.new_context).to be_a InMemoryAdapter::InMemoryContext
+      end
+    end
+
+    describe InMemoryAdapter::InMemoryContext do
+      subject(:adapter_context) { adapter.new_context }
+
+      include_examples "doesn't support transactions"
+    end
 
     describe "#create_destination" do
       describe "the resulting destination" do

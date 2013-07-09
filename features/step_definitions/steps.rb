@@ -9,7 +9,7 @@ end
 
 Given(/^I have a destination (#{STRING_OR_SYM})$/) do |destination|
   MessageDriver::Broker.define do |b|
-    b.destination(destination.to_sym, destination.to_s)
+    b.destination(destination, destination.to_s)
   end
 end
 

@@ -3,7 +3,10 @@ require 'message_driver/adapters/in_memory_adapter'
 
 module MessageDriver
   describe Broker do
-    subject(:broker) { described_class.new(adapter: :in_memory) }
+    before do
+      described_class.configure(adapter: :in_memory)
+    end
+    subject(:broker) { described_class.instance }
 
     describe ".configure" do
       it "calls new, passing in the options and saves the instance" do

@@ -1,3 +1,5 @@
+require 'forwardable'
+
 module MessageDriver
   class Broker
     def in_memory_adapter
@@ -9,7 +11,6 @@ module MessageDriver
     class InMemoryAdapter < Base
 
       class Message < MessageDriver::Message::Base
-
       end
 
       class Subscription < MessageDriver::Subscription::Base
@@ -61,21 +62,36 @@ module MessageDriver
         @consumers = Hash.new
       end
 
-      def publish(destination, body, headers={}, properties={})
-        destination(destination).publish(body, headers, properties)
-      end
-
-      def pop_message(destination, options={})
-        destination(destination).pop_message(options)
-      end
-
-      def stop
-        reset_after_tests
+      def new_context
+        InMemoryContext.new(self)
       end
 
       def create_destination(name, dest_options={}, message_props={})
         destination = Destination.new(self, name, dest_options, message_props)
         @destinations[name] = destination
+      end
+
+      class InMemoryContext < ContextBase
+        extend Forwardable
+
+        def_delegators :adapter, :create_destination
+
+        def publish(destination, body, headers={}, properties={})
+          destination.publish(body, headers, properties)
+        end
+
+        def pop_message(destination, options={})
+          destination.pop_message(options)
+        end
+
+        def subscribe(destination, &consumer)
+          destination.subscribe(&consumer)
+        end
+      end
+
+      def stop
+        super
+        reset_after_tests
       end
 
       def reset_after_tests
@@ -99,18 +115,6 @@ module MessageDriver
 
       def remove_consumer_for(name)
         @consumers.delete(name)
-      end
-
-      def with_transaction(options={})
-        yield
-      end
-
-      private
-
-      def destination(destination_name)
-        destination = @destinations[destination_name]
-        raise MessageDriver::NoSuchDestinationError, "destination #{destination_name} couldn't be found" if destination.nil?
-        destination
       end
     end
   end

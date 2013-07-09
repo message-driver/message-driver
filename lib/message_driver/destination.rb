@@ -8,18 +8,17 @@ module MessageDriver
         @name = name
         @dest_options = dest_options
         @message_props = message_props
-        after_initialize
       end
 
       def publish(body, headers={}, properties={})
-        @adapter.publish(@name, body, headers, @message_props.merge(properties))
+        Client.publish(self, body, headers, properties)
       end
 
       def pop_message(options={})
-        @adapter.pop_message(@name, options)
+        Client.pop_message(self, options)
       end
 
-      def after_initialize
+      def after_initialize(adapter_context)
         #does nothing, feel free to override as needed
       end
 

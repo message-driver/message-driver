@@ -34,11 +34,11 @@ module MessageDriver
     end
 
     def dynamic_destination(dest_name, dest_options={}, message_props={})
-      adapter.create_destination(dest_name, dest_options, message_props)
+      Client.dynamic_destination(dest_name, dest_options, message_props)
     end
 
     def destination(key, dest_name, dest_options={}, message_props={})
-      dest = dynamic_destination(dest_name, dest_options, message_props)
+      dest = Client.dynamic_destination(dest_name, dest_options, message_props)
       @destinations[key] = dest
     end
 

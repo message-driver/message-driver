@@ -15,11 +15,39 @@ module MessageDriver
     def subscribe(destination_name, consumer_name)
       destination = find_destination(destination_name)
       consumer =  find_consumer(consumer_name)
-      current_adapter_context.subscribe(destination, consumer)
+      current_adapter_context.subscribe(destination, &consumer)
+    end
+
+    def dynamic_destination(dest_name, dest_options={}, message_props={})
+      current_adapter_context.create_destination(dest_name, dest_options, message_props)
     end
 
     def with_message_transaction(options={}, &block)
-      current_adapter_context.with_transaction(options, &block)
+      transaction_depth = Thread.current[:_message_driver_transaction_depth] || 0
+      transaction_depth += 1
+      Thread.current[:_message_driver_transaction_depth] = transaction_depth
+      ctx = current_adapter_context
+      begin
+        if transaction_depth == 1 && ctx.supports_transactions?
+          ctx.begin_transaction(options)
+          begin
+            yield
+            ctx.commit_transaction
+          rescue
+            begin
+              ctx.rollback_transaction
+            rescue
+              #TODO log exception from rollback
+            end
+            raise
+          end
+        else
+          yield
+        end
+      ensure
+        transaction_depth -= 1
+        Thread.current[:_message_driver_transaction_depth] = transaction_depth
+      end
     end
 
     def current_adapter_context
@@ -29,10 +57,6 @@ module MessageDriver
         Thread.current[:adapter_context] = ctx
       end
       ctx
-    end
-
-    def current_adapter_context=(adapter_context)
-      Thread.current[:adapter_context] = adapter_context
     end
 
     private
@@ -46,12 +70,7 @@ module MessageDriver
     end
 
     def find_consumer(consumer)
-      case consumer
-      when Adapters::Base
-        consumer
-      else
-        Broker.find_consumer(consumer)
-      end
+      Broker.find_consumer(consumer)
     end
 
     def adapter

@@ -135,7 +135,7 @@ describe "AMQP Integration", :bunny, type: :integration do
       }.to raise_error "unhandled error"
       expect(destination.pop_message).to be_nil
 
-        MessageDriver::Client.with_message_transaction do
+      MessageDriver::Client.with_message_transaction do
         destination.publish("Test Message 2")
       end
 
