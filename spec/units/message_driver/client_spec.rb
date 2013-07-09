@@ -275,14 +275,22 @@ module MessageDriver
         end
 
         it "delegates to the adapter_context" do
-          adapter_context.should_receive(:subscribe).with(destination) do |&blk|
+          adapter_context.should_receive(:subscribe).with(destination, {}) do |&blk|
             expect(blk).to be(consumer_double)
           end
           subject.subscribe(destination, :my_consumer)
         end
 
+        it "passes the options through" do
+          options = {foo: :bar}
+          adapter_context.should_receive(:subscribe).with(destination, options) do |&blk|
+            expect(blk).to be(consumer_double)
+          end
+          subject.subscribe(destination, options, :my_consumer)
+        end
+
         it "looks up the destination" do
-          adapter_context.should_receive(:subscribe).with(destination) do |&blk|
+          adapter_context.should_receive(:subscribe).with(destination, {}) do |&blk|
             expect(blk).to be(consumer_double)
           end
           subject.subscribe(:my_queue, :my_consumer)

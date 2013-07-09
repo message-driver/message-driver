@@ -1,4 +1,4 @@
-shared_examples "doesn't support transactions" do
+shared_examples "transactions are not supported" do
   describe "#supports_transactions?" do
     it "returns false" do
       expect(subject.supports_transactions?).to eq(false)
@@ -6,7 +6,7 @@ shared_examples "doesn't support transactions" do
   end
 end
 
-shared_examples "supports transactions" do
+shared_examples "transactions are supported" do
   describe "#supports_transactions?" do
     it "returns true" do
       expect(subject.supports_transactions?).to eq(true)

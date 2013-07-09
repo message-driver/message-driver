@@ -84,8 +84,12 @@ module MessageDriver
           destination.pop_message(options)
         end
 
-        def subscribe(destination, &consumer)
+        def subscribe(destination, options={}, &consumer)
           destination.subscribe(&consumer)
+        end
+
+        def supports_subscriptions?
+          true
         end
       end
 

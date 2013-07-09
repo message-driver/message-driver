@@ -1,6 +1,8 @@
 shared_examples "an adapter context" do
+  it { should be_a MessageDriver::Adapters::ContextBase }
+
   it "is initially valid" do
-    expect(subject).to be_valid
+    should be_valid
   end
 
   describe "#invalidate" do

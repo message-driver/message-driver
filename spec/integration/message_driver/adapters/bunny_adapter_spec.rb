@@ -100,15 +100,16 @@ module MessageDriver::Adapters
       include_context "a connected bunny adapter"
       subject(:adapter_context) { adapter.new_context }
 
-      include_examples "supports transactions"
-      include_examples "supports client acks"
+      it_behaves_like "an adapter context"
+      it_behaves_like "transactions are supported"
+      it_behaves_like "client acks are supported"
+      it_behaves_like "subscriptions are not supported"
 
       describe "#pop_message" do
         include_context "with a queue"
         it "needs some real tests"
       end
 
-      it_behaves_like "an adapter context"
 
       describe "#invalidate" do
         it "closes the channel" do

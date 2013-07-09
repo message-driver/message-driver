@@ -22,7 +22,6 @@ module MessageDriver::Adapters
           subject.stop
         }.to raise_error "Must be implemented in subclass"
       end
-      it "marks the adapter contexts as being invalid"
     end
 
     describe ContextBase do
@@ -30,8 +29,10 @@ module MessageDriver::Adapters
       end
       subject(:adapter_context) { TestContext.new(adapter) }
 
-      include_examples "doesn't support transactions"
-      include_examples "doesn't support client acks"
+      it_behaves_like "an adapter context"
+      it_behaves_like "transactions are not supported"
+      it_behaves_like "client acks are not supported"
+      it_behaves_like "subscriptions are not supported"
 
       describe "#create_destination" do
         it "raises an error" do
@@ -53,14 +54,6 @@ module MessageDriver::Adapters
         it "raises an error" do
           expect {
             subject.pop_message(:destination)
-          }.to raise_error "Must be implemented in subclass"
-        end
-      end
-
-      describe "#subscribe" do
-        it "raises an error" do
-          expect {
-            subject.subscribe(:destination, :consumer)
           }.to raise_error "Must be implemented in subclass"
         end
       end

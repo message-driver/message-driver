@@ -7,6 +7,14 @@ module MessageDriver::Destination
     it "needs some real tests"
 
     include_examples "doesn't support #message_count"
-    include_examples "doesn't support #subscribe"
+
+    describe "#subscribe" do
+      it "raises an error" do
+        expect {
+          consumer = lambda do |m| end
+          destination.subscribe(&consumer)
+        }.to raise_error "#subscribe is not supported by #{destination.class}"
+      end
+    end
   end
 end

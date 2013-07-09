@@ -98,9 +98,10 @@ module MessageDriver::Adapters
       include_context "a connected stomp adapter"
       subject(:adapter_context) { adapter.new_context }
 
-      include_examples "doesn't support transactions"
-      include_examples "doesn't support client acks"
       it_behaves_like "an adapter context"
+      it_behaves_like "transactions are not supported"
+      it_behaves_like "client acks are not supported"
+      it_behaves_like "subscriptions are not supported"
 
       describe "#create_destination" do
 
@@ -110,7 +111,9 @@ module MessageDriver::Adapters
 
           it { should be_a StompAdapter::Destination }
 
-          #it_behaves_like "a destination"
+          pending do
+            it_behaves_like "a destination"
+          end
           include_examples "doesn't support #message_count"
 
           describe "pop_message" do

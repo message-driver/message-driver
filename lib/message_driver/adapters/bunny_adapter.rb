@@ -229,10 +229,6 @@ module MessageDriver
           end
         end
 
-        def subscribe(destination, consumer)
-          destination.subscribe(&consumer)
-        end
-
         def with_channel(require_commit=true)
           raise MessageDriver::TransactionRollbackOnly if @rollback_only
           raise MessageDriver::Error, "oh nos!" if @connection_failed

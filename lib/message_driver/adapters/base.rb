@@ -35,8 +35,8 @@ module MessageDriver
         raise "Must be implemented in subclass"
       end
 
-      def subscribe(destination, consumer)
-        raise "Must be implemented in subclass"
+      def subscribe(destination, options={}, &consumer)
+        raise "#subscribe is not supported by #{adapter.class}"
       end
 
       def create_destination(name, dest_options={}, message_props={})
@@ -56,6 +56,10 @@ module MessageDriver
       end
 
       def supports_client_acks?
+        false
+      end
+
+      def supports_subscriptions?
         false
       end
     end

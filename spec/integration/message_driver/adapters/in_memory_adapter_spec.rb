@@ -17,9 +17,10 @@ module MessageDriver::Adapters
     describe InMemoryAdapter::InMemoryContext do
       subject(:adapter_context) { adapter.new_context }
 
-      include_examples "doesn't support transactions"
-      include_examples "doesn't support client acks"
       it_behaves_like "an adapter context"
+      it_behaves_like "transactions are not supported"
+      it_behaves_like "client acks are not supported"
+      it_behaves_like "subscriptions are supported", InMemoryAdapter::Subscription
     end
 
     describe "#create_destination" do
@@ -122,7 +123,6 @@ module MessageDriver::Adapters
       let(:destination) { adapter.create_destination(:my_queue) }
 
       let(:subscription_type) { MessageDriver::Adapters::InMemoryAdapter::Subscription }
-      it_behaves_like "subscription is supported"
     end
   end
 end
