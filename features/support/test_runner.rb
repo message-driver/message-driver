@@ -24,6 +24,7 @@ class TestRunner
     when String, Symbol
       fetch_messages(MessageDriver::Broker.find_destination(destination))
     when MessageDriver::Destination::Base
+      pause_if_travis
       result = []
       begin
         msg = destination.pop_message
@@ -39,6 +40,10 @@ class TestRunner
     table.hashes.each do |msg|
       destination.publish(msg[:body], msg[:headers]||{}, msg[:properties]||{})
     end
+  end
+
+  def pause_if_travis(seconds=0.1)
+    sleep seconds if ENV['TRAVIS'] == 'true'
   end
 end
 
