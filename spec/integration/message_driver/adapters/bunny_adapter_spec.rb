@@ -103,6 +103,18 @@ module MessageDriver::Adapters
         it "needs some real tests"
       end
 
+      it_behaves_like "an adapter context"
+
+      describe "#invalidate" do
+        it "closes the channel" do
+          subject.with_channel(false) do |ch|
+            expect(ch).to be_open
+          end
+          subject.invalidate
+          expect(subject.instance_variable_get(:@channel)).to be_closed
+        end
+      end
+
       describe "#create_destination" do
 
         context "with defaults" do

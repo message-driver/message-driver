@@ -205,6 +205,13 @@ module MessageDriver
           end
         end
 
+        def invalidate
+          super
+          unless @channel.nil?
+            @channel.close if @channel.open?
+          end
+        end
+
         def subscribe(destination, consumer)
           destination.subscribe(&consumer)
         end
