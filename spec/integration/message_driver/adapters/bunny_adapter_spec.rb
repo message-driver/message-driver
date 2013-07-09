@@ -84,6 +84,10 @@ module MessageDriver::Adapters
       let(:tmp_queue) { channel.queue(tmp_queue_name, exclusive: true) }
     end
 
+    it_behaves_like "an adapter" do
+      include_context "a connected bunny adapter"
+    end
+
     describe "#new_context" do
       include_context "a connected bunny adapter"
 

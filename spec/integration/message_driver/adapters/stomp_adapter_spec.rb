@@ -71,7 +71,7 @@ module MessageDriver::Adapters
     end
 
     shared_context "a connected stomp adapter" do
-      let(:adapter) { described_class.new(valid_connection_attrs) }
+      subject(:adapter) { described_class.new(valid_connection_attrs) }
 
       before do
         MessageDriver::Broker.configure(adapter: adapter)
@@ -80,6 +80,10 @@ module MessageDriver::Adapters
       after do
         adapter.stop
       end
+    end
+
+    it_behaves_like "an adapter" do
+      include_context "a connected stomp adapter"
     end
 
     describe "#new_context" do

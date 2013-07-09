@@ -12,6 +12,8 @@ module MessageDriver::Adapters
       end
     end
 
+    it_behaves_like "an adapter"
+
     describe InMemoryAdapter::InMemoryContext do
       subject(:adapter_context) { adapter.new_context }
 
