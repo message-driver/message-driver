@@ -6,6 +6,10 @@
 - destination_metadata.feature
 - client_acks.feature
 - message_consumers.feature
+- message_consumers
+  - auto_ack_consumers.feature
+  - manual_ack_consumers.feature
+  - transactional_ack_consumers.feature
 - amqp_specific_features (AMQP-Specific Features):
   - declaring_amqp_destinations.feature
   - binding_amqp_destinations.feature
