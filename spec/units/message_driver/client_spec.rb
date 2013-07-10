@@ -286,7 +286,7 @@ module MessageDriver
           adapter_context.should_receive(:subscribe).with(destination, options) do |&blk|
             expect(blk).to be(consumer_double)
           end
-          subject.subscribe(destination, options, :my_consumer)
+          subject.subscribe(destination, :my_consumer, options)
         end
 
         it "looks up the destination" do

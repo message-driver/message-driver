@@ -12,7 +12,7 @@ module MessageDriver
       current_adapter_context.pop_message(dest, options)
     end
 
-    def subscribe(destination_name, options={}, consumer_name)
+    def subscribe(destination_name, consumer_name, options={})
       destination = find_destination(destination_name)
       consumer =  find_consumer(consumer_name)
       current_adapter_context.subscribe(destination, options, &consumer)
