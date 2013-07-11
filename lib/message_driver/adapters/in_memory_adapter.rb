@@ -15,14 +15,24 @@ module MessageDriver
 
       class Subscription < MessageDriver::Subscription::Base
         def unsubscribe
-          adapter.remove_consumer_for(destination.name)
+          adapter.remove_subscription_for(destination.name)
+        end
+
+        def deliver_message(message)
+          begin
+            consumer.call(message)
+          rescue => e
+            unless options[:error_handler].nil?
+              options[:error_handler].call(e, message)
+            end
+          end
         end
       end
 
       class Destination < MessageDriver::Destination::Base
 
-        def consumer
-          adapter.consumer_for(name)
+        def subscription
+          adapter.subscription_for(name)
         end
 
         def message_count
@@ -33,20 +43,22 @@ module MessageDriver
           message_queue.shift
         end
 
-        def subscribe(&consumer)
-          adapter.set_consumer_for(name, &consumer)
+        def subscribe(options={}, &consumer)
+          subscription = Subscription.new(adapter, self, consumer, options)
+          adapter.set_subscription_for(name, subscription)
           until (msg = pop_message).nil?
-            yield msg
+            subscription.deliver_message(msg)
           end
-          Subscription.new(adapter, self, consumer)
+          subscription
         end
 
         def publish(body, headers={}, properties={})
           msg = Message.new(body, headers, properties)
-          if consumer.nil?
+          sub = subscription
+          if sub.nil?
             message_queue << msg
           else
-            consumer.call(msg)
+            sub.deliver_message(msg)
           end
         end
 
@@ -59,10 +71,10 @@ module MessageDriver
       def initialize(config={})
         @destinations = {}
         @message_store = Hash.new { |h,k| h[k] = [] }
-        @consumers = Hash.new
+        @subscriptions = Hash.new
       end
 
-      def new_context
+      def build_context
         InMemoryContext.new(self)
       end
 
@@ -85,7 +97,7 @@ module MessageDriver
         end
 
         def subscribe(destination, options={}, &consumer)
-          destination.subscribe(&consumer)
+          destination.subscribe(options, &consumer)
         end
 
         def supports_subscriptions?
@@ -102,23 +114,23 @@ module MessageDriver
         @message_store.keys.each do |k|
           @message_store[k] = []
         end
-        @consumers.clear
+        @subscriptions.clear
       end
 
       def message_queue_for(name)
         @message_store[name]
       end
 
-      def consumer_for(name)
-        @consumers[name]
+      def subscription_for(name)
+        @subscriptions[name]
       end
 
-      def set_consumer_for(name, &consumer)
-        @consumers[name] = consumer
+      def set_subscription_for(name, subscription)
+        @subscriptions[name] = subscription
       end
 
-      def remove_consumer_for(name)
-        @consumers.delete(name)
+      def remove_subscription_for(name)
+        @subscriptions.delete(name)
       end
     end
   end

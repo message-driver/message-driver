@@ -1,3 +1,5 @@
+require 'forwardable'
+
 module MessageDriver
   module Client
     extend self
@@ -41,43 +43,76 @@ module MessageDriver
     end
 
     def with_message_transaction(options={}, &block)
-      transaction_depth = Thread.current[:_message_driver_transaction_depth] || 0
-      transaction_depth += 1
-      Thread.current[:_message_driver_transaction_depth] = transaction_depth
-      ctx = current_adapter_context
+      wrapper = fetch_context_wrapper
+      wrapper.increment_transaction_depth
       begin
-        if transaction_depth == 1 && ctx.supports_transactions?
-          ctx.begin_transaction(options)
+        if wrapper.transaction_depth == 1 && wrapper.ctx.supports_transactions?
+          wrapper.ctx.begin_transaction(options)
           begin
             yield
-            ctx.commit_transaction
+            wrapper.ctx.commit_transaction
           rescue
             begin
-              ctx.rollback_transaction
+              wrapper.ctx.rollback_transaction
             rescue
               #TODO log exception from rollback
             end
             raise
           end
         else
+          #TODO log warning about not supporting transactions?
           yield
         end
       ensure
-        transaction_depth -= 1
-        Thread.current[:_message_driver_transaction_depth] = transaction_depth
+        wrapper.decrement_transaction_depth
       end
     end
 
-    def current_adapter_context
-      ctx = Thread.current[:adapter_context]
-      if ctx.nil? || !ctx.valid?
-        ctx = Broker.adapter.new_context
-        Thread.current[:adapter_context] = ctx
+    def current_adapter_context(initialize=true)
+      ctx = fetch_context_wrapper(initialize)
+      ctx.nil? ? nil : ctx.ctx
+    end
+
+    def with_adapter_context(adapter_context, &block)
+      old_ctx, Thread.current[:adapter_context] = fetch_context_wrapper(false), build_context_wrapper(adapter_context)
+      begin
+        yield
+      ensure
+        set_context_wrapper(old_ctx)
       end
-      ctx
+    end
+
+    def clear_context
+      wrapper = fetch_context_wrapper(false)
+      unless wrapper.nil?
+        wrapper.invalidate
+        set_context_wrapper(nil)
+      end
     end
 
     private
+
+    def fetch_context_wrapper(initialize=true)
+      wrapper = Thread.current[:adapter_context]
+      if wrapper.nil? || !wrapper.valid?
+        if initialize
+          wrapper = build_context_wrapper
+        else
+          wrapper = nil
+        end
+        Thread.current[:adapter_context] = wrapper
+      end
+      wrapper
+    end
+
+    def set_context_wrapper(wrapper)
+      Thread.current[:adapter_context] = wrapper
+    end
+
+    def build_context_wrapper(ctx=Broker.adapter.new_context)
+      ContextWrapper.new(ctx)
+    end
+
     def find_destination(destination)
       case destination
       when Destination::Base
@@ -94,5 +129,28 @@ module MessageDriver
     def adapter
       Broker.adapter
     end
+
+    class ContextWrapper
+      extend Forwardable
+
+      def_delegators :@ctx, :valid?, :invalidate
+
+      attr_reader :ctx
+      attr_reader :transaction_depth
+
+      def initialize(ctx)
+        @ctx = ctx
+        @transaction_depth = 0
+      end
+
+      def increment_transaction_depth
+        @transaction_depth += 1
+      end
+
+      def decrement_transaction_depth
+        @transaction_depth -= 1
+      end
+    end
   end
+
 end

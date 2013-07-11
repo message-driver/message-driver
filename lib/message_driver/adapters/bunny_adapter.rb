@@ -78,6 +78,12 @@ module MessageDriver
             ch.queue(@name, @dest_options.merge(passive: true)).message_count
           end
         end
+
+        def purge
+          Client.current_adapter_context.with_channel(false) do |ch|
+            bunny_queue(ch).purge
+          end
+        end
       end
 
       class ExchangeDestination < Destination
@@ -101,12 +107,41 @@ module MessageDriver
       end
 
       class Subscription < Subscription::Base
-        def start(adapter_context)
+        def start(options)
           raise MessageDriver::Error, "subscriptions are only supported with QueueDestinations" unless destination.is_a? QueueDestination
-          adapter_context.with_channel(false) do |ch|
-            queue = destination.bunny_queue(ch)
-            @bunny_consumer = queue.subscribe({ack: false}) do |delivery_info, properties, payload|
-              consumer.call adapter_context.args_to_message(delivery_info, properties, payload)
+          @sub_ctx = adapter.new_subscription_context(self)
+          @error_handler = options[:error_handler]
+          queue = destination.bunny_queue(@sub_ctx.channel)
+          ack_mode = case options[:ack]
+                     when :auto, nil
+                       :auto
+                     when :manual
+                       :manual
+                     when :transactional
+                       :transactional
+                     else
+                       raise MessageDriver::Error, "unrecognized :ack option #{options[:ack]}"
+                     end
+          @bunny_consumer = queue.subscribe({manual_ack: true}) do |delivery_info, properties, payload|
+            message = @sub_ctx.args_to_message(delivery_info, properties, payload)
+            Client.with_adapter_context(@sub_ctx) do
+              begin
+                case ack_mode
+                when :auto
+                  consumer.call(message)
+                  @sub_ctx.ack_message(message)
+                when :manual
+                  consumer.call(message)
+                when :transactional
+                  Client.with_message_transaction do
+                    @sub_ctx.ack_message(message)
+                    consumer.call(message)
+                  end
+                end
+              rescue => e
+                begin; @sub_ctx.nack_message(message, requeue: true) if ack_mode == :auto rescue nil; end
+                @error_handler.call(e, message) unless @error_handler.nil?
+              end
             end
           end
         end
@@ -115,6 +150,10 @@ module MessageDriver
           unless @bunny_consumer.nil?
             @bunny_consumer.cancel
             @bunny_consumer = nil
+          end
+          unless @sub_ctx.nil?
+            @sub_ctx.invalidate(true)
+            @sub_ctx = nil
           end
         end
       end
@@ -137,15 +176,22 @@ module MessageDriver
         @connection.close if @connection.open?
       end
 
-      def new_context
+      def build_context
         BunnyContext.new(self)
       end
 
+      def new_subscription_context(subscription)
+        ctx = new_context
+        ctx.channel = connection.create_channel
+        ctx.subscription = subscription
+        ctx
+      end
+
       class BunnyContext < ContextBase
+        attr_accessor :channel, :subscription
+
         def initialize(adapter)
-          super
-          @channel = nil
-          @subscriptions = []
+          super(adapter)
           @is_transactional = false
           @rollback_only = false
           @need_channel_reset = false
@@ -171,7 +217,7 @@ module MessageDriver
         end
 
         def begin_transaction(options={})
-          raise MessageDriver::TransactionError, "you can't begin another transaction, you are already in one!" if @in_transaction
+          raise MessageDriver::TransactionError, "you can't begin another transaction, you are already in one!" if in_transaction?
           unless is_transactional?
             with_channel(false) do |ch|
               ch.tx_select
@@ -182,7 +228,7 @@ module MessageDriver
         end
 
         def commit_transaction(channel_commit=false)
-          raise MessageDriver::TransactionError, "you can't finish the transaction unless you already in one!" unless @in_transaction || channel_commit
+          raise MessageDriver::TransactionError, "you can't finish the transaction unless you already in one!" if !in_transaction? && !channel_commit
           begin
             if is_transactional? && !connection_failed? && !@need_channel_reset
               if @rollback_only
@@ -206,7 +252,7 @@ module MessageDriver
           @is_transactional
         end
 
-        def in_transaction
+        def in_transaction?
           @in_transaction
         end
 
@@ -255,16 +301,16 @@ module MessageDriver
 
         def subscribe(destination, options={}, &consumer)
           sub = Subscription.new(adapter, destination, consumer)
-          sub.start(self)
-          @subscriptions << sub
+          sub.start(options)
           sub
         end
 
-        def invalidate
-          super
+        def invalidate(in_unsubscribe=false)
+          super()
+          unless @subscription.nil? || in_unsubscribe
+            @subscription.unsubscribe
+          end
           unless @channel.nil?
-            @subscriptions.each { |s| s.unsubscribe }
-            @subscriptions.clear
             @channel.close if @channel.open?
           end
         end
@@ -276,7 +322,7 @@ module MessageDriver
           reset_channel if @need_channel_reset
           begin
             result = yield @channel
-            commit_transaction(true) if require_commit && is_transactional? && !in_transaction
+            commit_transaction(true) if require_commit && is_transactional? && !in_transaction?
             result
           rescue Bunny::ChannelLevelException => e
             @need_channel_reset = true
@@ -311,7 +357,7 @@ module MessageDriver
           unless @channel.open?
             @channel.open
             @is_transactional = false
-            @rollback_only = true if @in_transaction
+            @rollback_only = true if in_transaction?
           end
           @need_channel_reset = false
         end

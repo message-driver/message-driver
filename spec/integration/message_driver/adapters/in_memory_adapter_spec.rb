@@ -67,7 +67,7 @@ module MessageDriver::Adapters
         adapter.reset_after_tests
 
         destinations.each do |destination|
-          expect(destination.consumer).to be_nil
+          expect(destination.subscription).to be_nil
         end
 
       end
@@ -84,7 +84,7 @@ module MessageDriver::Adapters
           dest1.subscribe(&consumer)
         end
         it "is the same consumer on the other destination" do
-          expect(dest2.consumer).to be(consumer)
+          expect(dest2.subscription.consumer).to be(consumer)
         end
       end
 

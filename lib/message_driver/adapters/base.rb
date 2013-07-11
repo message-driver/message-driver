@@ -8,6 +8,13 @@ module MessageDriver
       end
 
       def new_context
+        @contexts ||= []
+        ctx = build_context
+        contexts << ctx
+        ctx
+      end
+
+      def build_context
         raise "Must be implemented in subclass"
       end
 
@@ -22,8 +29,6 @@ module MessageDriver
 
       def initialize(adapter)
         @adapter = adapter
-        @adapter.contexts ||= []
-        @adapter.contexts << self
         @valid = true
       end
 

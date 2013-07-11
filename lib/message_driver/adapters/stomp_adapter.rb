@@ -87,7 +87,7 @@ module MessageDriver
         end
       end
 
-      def new_context
+      def build_context
         StompContext.new(self)
       end
 

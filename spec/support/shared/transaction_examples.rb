@@ -16,6 +16,13 @@ shared_examples "transactions are supported" do
   it { should respond_to :begin_transaction }
   it { should respond_to :commit_transaction }
   it { should respond_to :rollback_transaction }
+  it { should respond_to :in_transaction? }
+
+  describe "#in_transaction?" do
+    it "returns false if you aren't in a transaction" do
+      expect(subject.in_transaction?).to eq(false)
+    end
+  end
 
   it "raises a MessageDriver::TransactionError error if you begin two transactions" do
     subject.begin_transaction

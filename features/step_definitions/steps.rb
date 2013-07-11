@@ -16,11 +16,11 @@ end
 Given(/^I have a destination (#{STRING_OR_SYM}) with no messages on it$/) do |destination|
   dest = destination.kind_of?(Symbol) ? destination.inspect : destination.to_s
   step "I have a destination #{dest}"
-  test_runner.fetch_messages(destination)
+  test_runner.purge_destination(destination)
 end
 
 Given(/^I have the following messages? on (#{STRING_OR_SYM})$/) do |destination, table|
-  test_runner.fetch_messages(destination)
+  test_runner.purge_destination(destination)
   dest = destination.kind_of?(Symbol) ? destination.inspect : destination.to_s
   step "I send the following messages to #{dest}", table
 end
@@ -49,7 +49,7 @@ end
 Then(/^I expect to find (#{NUMBER}) messages? on (#{STRING_OR_SYM})$/) do |count, destination|
   expect(test_runner).to have_no_errors
   messages = test_runner.fetch_messages(destination)
-  expect(messages).to have(count).items
+  expect(messages).to have(count).items, "expected #{count} messages, but got these instead: #{messages.map(&:body)}"
 end
 
 Then(/^I expect to find the following (#{NUMBER}) messages? on (#{STRING_OR_SYM})$/) do |count, destination, table|

@@ -19,18 +19,32 @@ class TestRunner
     end
   end
 
-  def fetch_messages(destination)
+  def fetch_messages(destination_name)
+    destination = fetch_destination(destination_name)
+    pause_if_travis
+    result = []
+    begin
+      msg = destination.pop_message
+      result << msg unless msg.nil?
+    end until msg.nil?
+    result
+  end
+
+  def purge_destination(destination_name)
+    destination = fetch_destination(destination_name)
+    if destination.respond_to? :purge
+      destination.purge
+    else
+      fetch_messages(destination)
+    end
+  end
+
+  def fetch_destination(destination)
     case destination
     when String, Symbol
-      fetch_messages(MessageDriver::Broker.find_destination(destination))
+      MessageDriver::Broker.find_destination(destination)
     when MessageDriver::Destination::Base
-      pause_if_travis
-      result = []
-      begin
-        msg = destination.pop_message
-        result << msg unless msg.nil?
-      end until msg.nil?
-      result
+      destination
     else
       raise "didn't understand destination #{destination.inspect}"
     end

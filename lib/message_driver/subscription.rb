@@ -1,12 +1,13 @@
 module MessageDriver
   module Subscription
     class Base
-      attr_reader :adapter, :destination, :consumer
+      attr_reader :adapter, :destination, :consumer, :options
 
-      def initialize(adapter, destination, consumer)
+      def initialize(adapter, destination, consumer, options={})
         @adapter = adapter
         @destination = destination
         @consumer = consumer
+        @options = options
       end
 
       def unsubscribe

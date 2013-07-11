@@ -23,7 +23,7 @@ shared_examples "subscriptions are supported" do |subscription_type|
     end
   end
 
-  let(:destination) { adapter_context.create_destination(:source_queue) }
+  let(:destination) { adapter_context.create_destination("subscriptions_example_queue") }
 
   let(:message1) { "message 1" }
   let(:message2) { "message 2" }
@@ -41,8 +41,33 @@ shared_examples "subscriptions are supported" do |subscription_type|
   end
 
   describe "#subscribe" do
+    before do
+      if destination.respond_to? :purge
+        destination.purge
+      end
+    end
+
     it "returns a MessageDriver::Subscription::Base" do
       expect(subscription).to be_a MessageDriver::Subscription::Base
+    end
+
+    context "the subscription" do
+      subject { subscription }
+
+      it { should be_a MessageDriver::Subscription::Base }
+      it { should be_a subscription_type }
+      its(:adapter) { should be adapter }
+      its(:destination) { should be destination }
+      its(:consumer) { should be consumer }
+
+      describe "#unsubscribe" do
+        it "makes it so messages don't go to the consumer any more" do
+          subscription.unsubscribe
+          expect {
+            destination.publish("should not be consumed")
+          }.to_not change{messages.size}
+        end
+      end
     end
 
     context "when there are already messages in the destination" do
@@ -84,21 +109,33 @@ shared_examples "subscriptions are supported" do |subscription_type|
       end
     end
 
-    context "the subscription" do
-      subject { subscription }
+    context "when the consumer raises an error" do
+      let(:error) { RuntimeError.new("oh nos!") }
+      let(:consumer) do
+        lambda do |msg|
+          raise error
+        end
+      end
 
-      it { should be_a MessageDriver::Subscription::Base }
-      it { should be_a subscription_type }
-      its(:adapter) { should be adapter }
-      its(:destination) { should be destination }
-      its(:consumer) { should be consumer }
+      before do
+        destination.publish(message1)
+        destination.publish(message2)
+      end
 
-      describe "#unsubscribe" do
-        it "makes it so messages don't go to the consumer any more" do
-          subscription.unsubscribe
-          expect {
-            destination.publish("should not be consumed")
-          }.to_not change{messages.size}
+      it "keeps processing the messages" do
+        expect {
+          subscription
+        }.to change{destination.message_count}.from(2).to(0)
+      end
+
+      context "an error_handler is provided" do
+        let(:error_handler) { double(:error_handler, call: nil) }
+        let(:subscription) { adapter_context.subscribe(destination, error_handler: error_handler, &consumer) }
+
+        it "passes the errors and the messages to the error handler" do
+          subscription
+          pause_if_needed
+          expect(error_handler).to have_received(:call).with(error, kind_of(MessageDriver::Message::Base)).at_least(2).times
         end
       end
     end
