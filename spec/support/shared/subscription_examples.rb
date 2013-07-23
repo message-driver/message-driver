@@ -34,17 +34,16 @@ shared_examples "subscriptions are supported" do |subscription_type|
     end
   end
 
-  let(:subscription) { adapter_context.subscribe(destination, &consumer) }
-
-  after do
-    subscription.unsubscribe
-  end
-
   describe "#subscribe" do
     before do
       if destination.respond_to? :purge
         destination.purge
       end
+    end
+
+    let(:subscription) { adapter_context.subscribe(destination, &consumer) }
+    after do
+      subscription.unsubscribe
     end
 
     it "returns a MessageDriver::Subscription::Base" do

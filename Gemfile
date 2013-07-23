@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 gemspec
 
 group :development do
-  gem 'bunny', '~> 0.9.0.rc2'
+  gem 'bunny', '~> 0.9.2', git: "git@github.com:soupmatt/bunny.git", branch: :'fix-issue-153'
   gem 'stomp', '~> 1.2.10'
 end
 

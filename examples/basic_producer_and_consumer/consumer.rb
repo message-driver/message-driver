@@ -2,8 +2,6 @@ require_relative "./common"
 
 LOG.info("starting consumer")
 
-Thread.abort_on_exception = true
-
 end_thread = Thread.new do
   Thread.stop
   LOG.info("stopping consumer")

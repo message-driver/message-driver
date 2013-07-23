@@ -111,36 +111,44 @@ module MessageDriver
           raise MessageDriver::Error, "subscriptions are only supported with QueueDestinations" unless destination.is_a? QueueDestination
           @sub_ctx = adapter.new_subscription_context(self)
           @error_handler = options[:error_handler]
-          queue = destination.bunny_queue(@sub_ctx.channel)
-          ack_mode = case options[:ack]
-                     when :auto, nil
-                       :auto
-                     when :manual
-                       :manual
-                     when :transactional
-                       :transactional
-                     else
-                       raise MessageDriver::Error, "unrecognized :ack option #{options[:ack]}"
-                     end
-          @bunny_consumer = queue.subscribe({manual_ack: true}) do |delivery_info, properties, payload|
-            message = @sub_ctx.args_to_message(delivery_info, properties, payload)
-            Client.with_adapter_context(@sub_ctx) do
-              begin
-                case ack_mode
-                when :auto
-                  consumer.call(message)
-                  @sub_ctx.ack_message(message)
-                when :manual
-                  consumer.call(message)
-                when :transactional
-                  Client.with_message_transaction do
-                    @sub_ctx.ack_message(message)
+          @sub_ctx.with_channel do |ch|
+            queue = destination.bunny_queue(@sub_ctx.channel)
+            ack_mode = case options[:ack]
+                       when :auto, nil
+                         :auto
+                       when :manual
+                         :manual
+                       when :transactional
+                         :transactional
+                       else
+                         raise MessageDriver::Error, "unrecognized :ack option #{options[:ack]}"
+                       end
+            @bunny_consumer = queue.subscribe(options.merge(manual_ack: true)) do |delivery_info, properties, payload|
+              message = @sub_ctx.args_to_message(delivery_info, properties, payload)
+              Client.with_adapter_context(@sub_ctx) do
+                begin
+                  case ack_mode
+                  when :auto
                     consumer.call(message)
+                    @sub_ctx.ack_message(message)
+                  when :manual
+                    consumer.call(message)
+                  when :transactional
+                    Client.with_message_transaction do
+                      @sub_ctx.ack_message(message)
+                      consumer.call(message)
+                    end
                   end
+                rescue => e
+                  if @sub_ctx.valid? && ack_mode == :auto
+                    begin
+                      @sub_ctx.nack_message(message, requeue: true)
+                    rescue
+                      #TODO log failure
+                    end
+                  end
+                  @error_handler.call(e, message) unless @error_handler.nil?
                 end
-              rescue => e
-                begin; @sub_ctx.nack_message(message, requeue: true) if ack_mode == :auto rescue nil; end
-                @error_handler.call(e, message) unless @error_handler.nil?
               end
             end
           end
@@ -160,20 +168,33 @@ module MessageDriver
 
       def initialize(config)
         validate_bunny_version
-
-        @connection = Bunny.new(config.merge(automatically_recover: false))
+        @config = config
       end
 
       def connection(ensure_started=true)
+        @connection ||= Bunny.new(@config)
         if ensure_started && !@connection.open?
           @connection.start
         end
         @connection
       end
 
+      def handle_connection_failure(e)
+        #TODO log that connection failure occured
+        @contexts.each do |ctx|
+          ctx.handle_connection_failure
+        end
+        #@connection.close
+      end
+
       def stop
-        super
-        @connection.close if @connection.open?
+        begin
+          super
+          @connection.close if !@connection.nil? && @connection.open?
+        rescue Bunny::NetworkFailure
+          handle_connection_failure
+          #TODO log error
+        end
       end
 
       def build_context
@@ -195,7 +216,6 @@ module MessageDriver
           @is_transactional = false
           @rollback_only = false
           @need_channel_reset = false
-          @connection_failed = false
           @in_transaction = false
         end
 
@@ -230,7 +250,7 @@ module MessageDriver
         def commit_transaction(channel_commit=false)
           raise MessageDriver::TransactionError, "you can't finish the transaction unless you already in one!" if !in_transaction? && !channel_commit
           begin
-            if is_transactional? && !connection_failed? && !@need_channel_reset
+            if is_transactional? && valid? && !@need_channel_reset
               if @rollback_only
                 @channel.tx_rollback
               else
@@ -317,7 +337,7 @@ module MessageDriver
 
         def with_channel(require_commit=true)
           raise MessageDriver::TransactionRollbackOnly if @rollback_only
-          raise MessageDriver::Error, "oh nos!" if @connection_failed
+          raise MessageDriver::Error, "oh nos!" if !valid?
           @channel = adapter.connection.create_channel if @channel.nil?
           reset_channel if @need_channel_reset
           begin
@@ -326,25 +346,22 @@ module MessageDriver
             result
           rescue Bunny::ChannelLevelException => e
             @need_channel_reset = true
-            @rollback_only = true if is_transactional?
+            @rollback_only = true if in_transaction?
             if e.kind_of? Bunny::NotFound
               raise MessageDriver::QueueNotFound.new
             else
               raise MessageDriver::WrappedError.new
             end
           rescue Bunny::NetworkErrorWrapper, Bunny::NetworkFailure, IOError => e
-            @connection_failed = true
-            @rollback_only = true if is_transactional?
-            raise MessageDriver::ConnectionError.new
+            adapter.handle_connection_failure(e)
+            @rollback_only = true if in_transaction?
+            raise MessageDriver::ConnectionError.new(e.to_s, e)
           end
         end
 
-        def connection_failed?
-          @connection_failed
-        end
-
-        def valid?
-          super && !connection_failed?
+        def handle_connection_failure
+          @valid = false
+          @channel.maybe_kill_consumer_work_pool! unless @channel.nil?
         end
 
         def args_to_message(delivery_info, properties, payload)

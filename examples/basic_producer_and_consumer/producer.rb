@@ -16,7 +16,14 @@ counter = 0
 while !stopping do
   10.times do
     counter += 1
-    MessageDriver::Client.publish(:basic_consumer_producer, "message #{counter}")
+    begin
+      MessageDriver::Client.publish(:basic_consumer_producer, "message #{counter}")
+    rescue Bunny::ConnectionClosedError => e
+      LOG.info("The connection is closed! #{e}")
+      sleep 1
+      LOG.info("retrying...")
+      retry
+    end
   end
   LOG.info("sent 10 more messages for a total of #{counter}")
   sleep 1
