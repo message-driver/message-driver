@@ -2,5 +2,5 @@ source "https://rubygems.org"
 
 gem "message-driver", path: "../.."
 
-gem 'bunny', '~> 0.9.2', git: "git@github.com:soupmatt/bunny.git", branch: :'fix-issue-153'
+gem 'bunny', '~> 0.9.2', git: "git://github.com/soupmatt/bunny.git", branch: :'fix-issue-153'
 #gem 'bunny', '~> 0.9.2'
