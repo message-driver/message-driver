@@ -88,6 +88,7 @@ shared_examples "subscriptions are supported" do |subscription_type|
       it "removes the messages from the queue" do
         expect {
           subscription
+          pause_if_needed
         }.to change{destination.message_count}.from(2).to(0)
       end
     end
@@ -124,6 +125,7 @@ shared_examples "subscriptions are supported" do |subscription_type|
       it "keeps processing the messages" do
         expect {
           subscription
+          pause_if_needed
         }.to change{destination.message_count}.from(2).to(0)
       end
 
