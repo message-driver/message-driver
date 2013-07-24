@@ -16,6 +16,11 @@ Add this line to your application's Gemfile:
 
     gem 'message-driver'
 
+You'll also want to add a driver gem:
+
+    gem 'bunny'
+    gem 'stomp'
+
 And then execute:
 
     $ bundle
@@ -24,9 +29,11 @@ Or install it yourself as:
 
     $ gem install message-driver
 
-## Usage
+## Documentation
 
-TODO: Write usage instructions here
+You can find the main documentation here: https://www.relishapp.com/message-driver/message-driver
+
+You can also take a look at the [examples](/examples)
 
 ## Contributing
 
