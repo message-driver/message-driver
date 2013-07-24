@@ -19,7 +19,7 @@ Feature: Destination Metadata
     Then I expect to have no errors
     And I expect to find no messages on :my_queue
 
-  @no_travis
+  @no_ci
   Scenario: Checking the message count when the queue has messages
     When I execute the following code
     """ruby

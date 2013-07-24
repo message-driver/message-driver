@@ -21,7 +21,7 @@ class TestRunner
 
   def fetch_messages(destination_name)
     destination = fetch_destination(destination_name)
-    pause_if_travis
+    pause_if_ci
     result = []
     begin
       msg = destination.pop_message
@@ -56,8 +56,8 @@ class TestRunner
     end
   end
 
-  def pause_if_travis(seconds=0.1)
-    sleep seconds if ENV['TRAVIS'] == 'true'
+  def pause_if_ci(seconds=0.1)
+    sleep seconds if ENV['CI'] == 'true'
   end
 end
 

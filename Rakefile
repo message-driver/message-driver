@@ -18,7 +18,7 @@ namespace :spec do
   end
 
   cucumber_opts = "--format progress --tag @all_adapters,@#{BrokerConfig.current_adapter} --tag ~@wip"
-  cucumber_opts += " --tag ~@no_travis" if ENV['TRAVIS']=='true' && ENV['ADAPTER']=='bunny'
+  cucumber_opts += " --tag ~@no_ci" if ENV['CI']=='true' && ENV['ADAPTER']=='bunny'
   Cucumber::Rake::Task.new(:features) do |t|
     t.cucumber_opts = cucumber_opts
   end

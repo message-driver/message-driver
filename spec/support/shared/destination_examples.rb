@@ -30,8 +30,7 @@ shared_examples "doesn't support #message_count" do
 end
 
 shared_examples "supports #message_count" do
-  #FIXME this example fails on travis with the bunny adapter :(
-  it "reports it's message_count", :no_travis do
+  it "reports it's message_count", :no_ci do
     expect {
       destination.publish("msg1")
       destination.publish("msg2")

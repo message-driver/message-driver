@@ -85,7 +85,7 @@ shared_examples "subscriptions are supported" do |subscription_type|
         expect(bodies).to include(message2)
       end
 
-      it "removes the messages from the queue", :no_travis do
+      it "removes the messages from the queue", :no_ci do
         expect {
           subscription
           pause_if_needed
@@ -122,7 +122,7 @@ shared_examples "subscriptions are supported" do |subscription_type|
         destination.publish(message2)
       end
 
-      it "keeps processing the messages", :no_travis do
+      it "keeps processing the messages", :no_ci do
         expect {
           subscription
           pause_if_needed
