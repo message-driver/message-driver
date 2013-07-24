@@ -1,6 +1,6 @@
 module Utils
   def pause_if_needed(seconds=0.1)
-    seconds = seconds * 5 if ENV['TRAVIS'] == 'true'
+    seconds *= 10 if ENV['TRAVIS'] == 'true'
     case BrokerConfig.current_adapter
     when :bunny
       sleep seconds
