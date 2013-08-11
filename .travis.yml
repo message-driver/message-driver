@@ -17,9 +17,12 @@ rvm:
 env:
   - ADAPTER=in_memory
   - ADAPTER=bunny:~> 0.9.8
+  - ADAPTER=bunny:~> 0.10.2
+  - ADAPTER=bunny:~> 1.0.0.pre3
   - ADAPTER=stomp
 matrix:
   allow_failures:
+    - env: ADAPTER=bunny:~> 1.0.0.pre3
     - rvm: jruby-head
     - rvm: rbx-19mode
     - rvm: jruby-19mode

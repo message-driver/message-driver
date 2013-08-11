@@ -32,7 +32,7 @@ module MessageDriver::Adapters
             include_examples "raises an error"
           end
         end
-        %w(0.9.3 0.9.4).each do |v|
+        %w(0.9.3 0.9.4 0.10.0 1.0.0.pre1).each do |v|
           context "bunny version #{v}" do
             let(:version) { v }
             include_examples "doesn't raise an error"
