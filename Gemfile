@@ -21,11 +21,16 @@ end
 
 require File.expand_path("../test_lib/broker_config", __FILE__)
 
-adapter = BrokerConfig.current_adapter
+adapter = BrokerConfig.current_adapter.to_s
 version = BrokerConfig.adapter_version
 
 case adapter
-when :in_memory
+when 'in_memory'
 else
-  gem adapter.to_s, version
+  case version
+  when nil
+    gem adapter
+  else
+    gem adapter.to_s, "~> #{version}"
+  end
 end
