@@ -34,6 +34,7 @@ shared_examples "supports #message_count" do
     expect {
       destination.publish("msg1")
       destination.publish("msg2")
+      pause_if_needed
     }.to change{destination.message_count}.by(2)
   end
 end

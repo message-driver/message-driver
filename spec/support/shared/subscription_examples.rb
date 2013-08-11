@@ -86,6 +86,7 @@ shared_examples "subscriptions are supported" do |subscription_type|
       end
 
       it "removes the messages from the queue", :no_ci do
+        pause_if_needed
         expect {
           subscription
           pause_if_needed
@@ -123,6 +124,7 @@ shared_examples "subscriptions are supported" do |subscription_type|
       end
 
       it "keeps processing the messages", :no_ci do
+        pause_if_needed
         expect {
           subscription
           pause_if_needed
