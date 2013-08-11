@@ -18,7 +18,7 @@ while !stopping do
     counter += 1
     begin
       MessageDriver::Client.publish(:basic_consumer_producer, "message #{counter}")
-    rescue Bunny::ConnectionClosedError => e
+    rescue MessageDriver::ConnectionError => e
       LOG.info("The connection is closed! #{e}")
       sleep 1
       LOG.info("retrying...")

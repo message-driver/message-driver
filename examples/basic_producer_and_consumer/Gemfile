@@ -2,4 +2,4 @@ source "https://rubygems.org"
 
 gem "message-driver", path: "../.."
 
-gem 'bunny', '~> 0.9.3'
+gem 'bunny'
