@@ -9,6 +9,7 @@ module MessageDriver
 
   module Adapters
     class BunnyAdapter < Base
+      NETWORK_ERRORS = [Bunny::TCPConnectionFailed, Bunny::ConnectionLevelException, Bunny::NetworkErrorWrapper, Bunny::NetworkFailure, IOError].freeze
 
       class Message < MessageDriver::Message::Base
         attr_reader :delivery_info
@@ -174,7 +175,11 @@ module MessageDriver
       def connection(ensure_started=true)
         @connection ||= Bunny.new(@config)
         if ensure_started && !@connection.open?
-          @connection.start
+          begin
+            @connection.start
+          rescue *NETWORK_ERRORS => e
+            raise MessageDriver::ConnectionError.new(e.to_s, e)
+          end
         end
         @connection
       end
@@ -184,14 +189,18 @@ module MessageDriver
         @contexts.each do |ctx|
           ctx.handle_connection_failure
         end
-        #@connection.close
+        begin
+          @connection.close if @connection.open?
+        rescue
+          #TODO log if an error occurs
+        end
       end
 
       def stop
         begin
           super
           @connection.close if !@connection.nil? && @connection.open?
-        rescue Bunny::NetworkFailure
+        rescue *NETWORK_ERRORS
           handle_connection_failure
           #TODO log error
         end
@@ -352,7 +361,7 @@ module MessageDriver
             else
               raise MessageDriver::WrappedError.new
             end
-          rescue Bunny::NetworkErrorWrapper, Bunny::NetworkFailure, IOError => e
+          rescue *NETWORK_ERRORS => e
             adapter.handle_connection_failure(e)
             @rollback_only = true if in_transaction?
             raise MessageDriver::ConnectionError.new(e.to_s, e)
