@@ -16,7 +16,7 @@ rvm:
   - rbx-19mode
 env:
   - ADAPTER=in_memory
-  - ADAPTER=bunny
+  - ADAPTER=bunny:~> 0.9.8
   - ADAPTER=stomp
 matrix:
   allow_failures:

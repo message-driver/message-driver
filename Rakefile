@@ -1,9 +1,12 @@
+require 'rubygems'
+require 'bundler/setup'
+
 require 'bundler/gem_tasks'
 
 require 'rspec/core/rake_task'
 require 'cucumber/rake/task'
 
-require File.join(File.dirname(__FILE__), 'test_lib', 'broker_config')
+#require File.join(File.dirname(__FILE__), 'test_lib', 'broker_config')
 
 namespace :spec do
   desc "Run unit specs"
@@ -14,7 +17,7 @@ namespace :spec do
   desc "Run the integration specs"
   RSpec::Core::RakeTask.new(:integrations) do |t|
     t.rspec_opts = "--tag all_adapters"
-    t.pattern = "./spec/integration{,/*/**}/*_spec.rb"
+    t.pattern = "./spec/integration/#{BrokerConfig.current_adapter}{,/*/**}/*_spec.rb"
   end
 
   cucumber_opts = "--format progress --tag @all_adapters,@#{BrokerConfig.current_adapter} --tag ~@wip"
