@@ -11,7 +11,7 @@ RSpec.configure do |c|
 
   c.reporter.message("Acceptance Tests running with broker config: #{BrokerConfig.config}")
 
-  #c.filter_run_excluding :no_ci if ENV['CI']=='true' && ENV['ADAPTER'] && ENV['ADAPTER'].starts_with?('bunny')
+  c.filter_run_excluding :no_ci if ENV['CI']=='true' && ENV['ADAPTER'] && ENV['ADAPTER'].starts_with?('bunny')
   if c.inclusion_filter[:all_adapters] == true
     BrokerConfig.unconfigured_adapters.each do |a|
       c.filter_run_excluding a
