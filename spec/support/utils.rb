@@ -1,8 +1,9 @@
 module Utils
   def pause_if_needed(seconds=0.1)
-    seconds *= 50 if ENV['CI'] == 'true'
+    seconds *= 10 if ENV['CI'] == 'true'
     case BrokerConfig.current_adapter
-    when :bunny
+    when :in_memory
+    else
       sleep seconds
     end
   end

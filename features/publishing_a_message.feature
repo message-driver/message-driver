@@ -1,19 +1,15 @@
 @all_adapters
 Feature: Publishing A Message
   Background:
-    Given the following broker configuration
-    """ruby
-    MessageDriver::Broker.define do |b|
-      b.destination :my_queue, "my_queue"
-    end
-    """
+    Given I am connected to the broker
+    And I have a destination :publish_test with no messages on it
 
   Scenario: Publishing a message
     When I execute the following code
     """ruby
-    publish(:my_queue, "Test Message")
+    publish(:publish_test, "Test Message")
     """
 
-    Then I expect to find the following message on :my_queue
+    Then I expect to find the following message on :publish_test
       | body         |
       | Test Message |

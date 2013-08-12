@@ -20,5 +20,6 @@ end
 When "I let the subscription process" do
   step "I allow for processing"
   step "I cancel the subscription"
+  step "I allow for processing"
   expect(test_runner).to have_no_errors
 end

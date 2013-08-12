@@ -21,7 +21,7 @@ class TestRunner
 
   def fetch_messages(destination_name)
     destination = fetch_destination(destination_name)
-    pause_if_ci
+    pause_if_needed
     result = []
     begin
       msg = destination.pop_message
@@ -56,8 +56,13 @@ class TestRunner
     end
   end
 
-  def pause_if_ci(seconds=0.1)
-    sleep seconds if ENV['CI'] == 'true'
+  def pause_if_needed(seconds=0.1)
+    seconds *= 10 if ENV['CI'] == 'true'
+    case BrokerConfig.current_adapter
+    when :in_memory
+    else
+      sleep seconds
+    end
   end
 end
 

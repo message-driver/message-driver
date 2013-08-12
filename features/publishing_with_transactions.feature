@@ -1,23 +1,19 @@
 @bunny
 Feature: Publishing a Message within a Transaction
   Background:
-    Given the following broker configuration
-    """ruby
-    MessageDriver::Broker.define do |b|
-      b.destination :my_queue, "my_queue"
-    end
-    """
+    Given I am connected to the broker
+    And I have a destination :publish_transaction with no messages on it
 
   Scenario: The block completes successfully
     When I execute the following code
     """ruby
     with_message_transaction do
-      publish(:my_queue, "Transacted Message 1")
-      publish(:my_queue, "Transacted Message 2")
+      publish(:publish_transaction, "Transacted Message 1")
+      publish(:publish_transaction, "Transacted Message 2")
     end
     """
 
-    Then I expect to find the following 2 messages on :my_queue
+    Then I expect to find the following 2 messages on :publish_transaction
       | body                 |
       | Transacted Message 1 |
       | Transacted Message 2 |
@@ -26,11 +22,11 @@ Feature: Publishing a Message within a Transaction
     When I execute the following code
     """ruby
     with_message_transaction do
-      publish(:my_queue, "Transacted Message 1")
+      publish(:publish_transaction, "Transacted Message 1")
       raise "an error that causes a rollback"
-      publish(:my_queue, "Transacted Message 2")
+      publish(:publish_transaction, "Transacted Message 2")
     end
     """
 
     Then I expect it to raise "an error that causes a rollback"
-    And I expect to find no messages on :my_queue
+    And I expect to find no messages on :publish_transaction

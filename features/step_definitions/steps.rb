@@ -40,10 +40,7 @@ When "I reset the context" do
 end
 
 When "I allow for processing" do
-  case BrokerConfig.current_adapter
-  when :bunny
-    sleep 0.1
-  end
+  test_runner.pause_if_needed
 end
 
 Then(/^I expect to find (#{NUMBER}) messages? on (#{STRING_OR_SYM})$/) do |count, destination|
