@@ -2,12 +2,8 @@
 @in_memory
 Feature: Destination Metadata
   Background:
-    Given the following broker configuration
-    """ruby
-    MessageDriver::Broker.define do |b|
-      b.destination :my_queue, "my_queue"
-    end
-    """
+    Given I am connected to the broker
+    And I have a destination :my_queue with no messages on it
 
   Scenario: Checking the message count when the queue is empty
     When I execute the following code
@@ -19,12 +15,14 @@ Feature: Destination Metadata
     Then I expect to have no errors
     And I expect to find no messages on :my_queue
 
-  @no_ci
   Scenario: Checking the message count when the queue has messages
-    When I execute the following code
+    When I send the following messages to :my_queue
+      | body           |
+      | Test Message 1 |
+      | Test Message 2 |
+    And I allow for processing
+    And I execute the following code
     """ruby
-    publish(:my_queue, "test message 1")
-    publish(:my_queue, "test message 2")
     destination = MessageDriver::Broker.find_destination(:my_queue)
     expect(destination.message_count).to eq(2)
     """

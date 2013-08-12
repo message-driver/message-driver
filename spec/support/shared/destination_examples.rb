@@ -30,7 +30,7 @@ shared_examples "doesn't support #message_count" do
 end
 
 shared_examples "supports #message_count" do
-  it "reports it's message_count", :no_ci do
+  it "reports it's message_count" do
     expect {
       destination.publish("msg1")
       destination.publish("msg2")
