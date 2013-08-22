@@ -357,9 +357,9 @@ module MessageDriver
             @need_channel_reset = true
             @rollback_only = true if in_transaction?
             if e.kind_of? Bunny::NotFound
-              raise MessageDriver::QueueNotFound.new
+              raise MessageDriver::QueueNotFound.new(e.to_s, e)
             else
-              raise MessageDriver::WrappedError.new
+              raise MessageDriver::WrappedError.new(e.to_s, e)
             end
           rescue *NETWORK_ERRORS => e
             adapter.handle_connection_failure(e)
