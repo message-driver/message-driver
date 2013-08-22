@@ -14,14 +14,15 @@ Feature: Error Handling
 
   @no_ci
   @bunny
-  @wip
+  @slow
   Scenario: The broker goes down
     Given the following broker configuration
     """ruby
     MessageDriver::Broker.define do |b|
-      b.destination :my_queue, "broker_down_queue", arguments: {:'x-expires' => 10000 }
+      b.destination :my_queue, "broker_down_queue", durable: true, arguments: {:'x-expires' => 1000*60*10 } #expires in 10 minutes
     end
     """
+    And I have no messages on :my_queue
 
     When I execute the following code
     """ruby

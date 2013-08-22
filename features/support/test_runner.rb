@@ -14,7 +14,7 @@ class TestRunner
   def run_test_code(src)
     begin
       instance_eval(src, current_feature_file)
-    rescue Exception => e
+    rescue => e
       @raised_error = e
     end
   end

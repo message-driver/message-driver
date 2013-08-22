@@ -25,6 +25,10 @@ Given(/^I have the following messages? on (#{STRING_OR_SYM})$/) do |destination,
   step "I send the following messages to #{dest}", table
 end
 
+Given(/^I have no messages on (#{STRING_OR_SYM})$/) do |destination|
+  test_runner.purge_destination(destination)
+end
+
 When(/^I send the following messages? to (#{STRING_OR_SYM})$/) do |destination, table|
   table.hashes.each do |msg|
     MessageDriver::Client.publish(destination, msg[:body])
@@ -52,8 +56,8 @@ end
 Then(/^I expect to find the following (#{NUMBER}) messages? on (#{STRING_OR_SYM})$/) do |count, destination, table|
   expect(test_runner).to have_no_errors
   messages = test_runner.fetch_messages(destination)
-  expect(messages).to have(count).items
   expect(messages).to match_message_table(table)
+  expect(messages).to have(count).items
 end
 
 Then(/^I expect to find the following message on (#{STRING_OR_SYM})$/) do |destination, table|
@@ -68,8 +72,9 @@ Then(/^I expect it to raise "(.*?)"$/) do |error_msg|
 end
 
 Then(/^I expect it to raise a (.*?) error$/) do |error_type|
-  expect(test_runner.raised_error).to_not be_nil
-  expect(test_runner.raised_error.class.to_s).to match error_type
+  err = test_runner.raised_error
+  expect(err).to_not be_nil
+  expect(err.class.to_s).to match error_type
   test_runner.raised_error = nil
 end
 

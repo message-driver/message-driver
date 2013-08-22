@@ -9,7 +9,7 @@ module MessageDriver
 
   module Adapters
     class BunnyAdapter < Base
-      NETWORK_ERRORS = [Bunny::TCPConnectionFailed, Bunny::ConnectionLevelException, Bunny::NetworkErrorWrapper, Bunny::NetworkFailure, IOError].freeze
+      NETWORK_ERRORS = [Bunny::TCPConnectionFailed, Bunny::ConnectionClosedError, Bunny::ConnectionLevelException, Bunny::NetworkErrorWrapper, Bunny::NetworkFailure, IOError].freeze
 
       class Message < MessageDriver::Message::Base
         attr_reader :delivery_info
@@ -184,24 +184,11 @@ module MessageDriver
         @connection
       end
 
-      def handle_connection_failure(e)
-        #TODO log that connection failure occured
-        @contexts.each do |ctx|
-          ctx.handle_connection_failure
-        end
-        begin
-          @connection.close if @connection.open?
-        rescue
-          #TODO log if an error occurs
-        end
-      end
-
       def stop
         begin
           super
           @connection.close if !@connection.nil? && @connection.open?
         rescue *NETWORK_ERRORS
-          handle_connection_failure
           #TODO log error
         end
       end
@@ -362,15 +349,9 @@ module MessageDriver
               raise MessageDriver::WrappedError.new(e.to_s, e)
             end
           rescue *NETWORK_ERRORS => e
-            adapter.handle_connection_failure(e)
             @rollback_only = true if in_transaction?
             raise MessageDriver::ConnectionError.new(e.to_s, e)
           end
-        end
-
-        def handle_connection_failure
-          @valid = false
-          @channel.maybe_kill_consumer_work_pool! unless @channel.nil?
         end
 
         def args_to_message(delivery_info, properties, payload)

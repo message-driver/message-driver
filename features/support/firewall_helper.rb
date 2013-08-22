@@ -7,25 +7,18 @@ module FirewallHelper
   COMMANDS = {
     darwin: {
       setup: [
-        "sudo ipfw add 02070 deny tcp from any to any #{port}"
+        "lunchy stop rabbit"
       ],
       teardown: [
-        "sudo ipfw delete 02070"
+        "lunchy start rabbit"
       ]
     },
     linux: {
       setup: [
-        "sudo iptables -N block-rabbit",
-        "sudo iptables -A block-rabbit -p tcp --dport #{port} -j DROP",
-        "sudo iptables -A block-rabbit -p tcp --sport #{port} -j DROP",
-        "sudo iptables -I INPUT -j block-rabbit",
-        "sudo iptables -I OUTPUT -j block-rabbit"
+        "sudo service rabbitmq-server stop"
       ],
       teardown: [
-        "sudo iptables -D INPUT -j block-rabbit",
-        "sudo iptables -D OUTPUT -j block-rabbit",
-        "sudo iptables -F block-rabbit",
-        "sudo iptables -X block-rabbit"
+        "sudo service rabbitmq-server start"
       ]
     }
   }
