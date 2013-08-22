@@ -12,6 +12,7 @@ Feature: Error Handling
 
     Then I expect it to raise a MessageDriver::QueueNotFound error
 
+  @no_ci
   @bunny
   @slow
   Scenario: The broker goes down
