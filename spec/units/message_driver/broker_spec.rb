@@ -3,8 +3,9 @@ require 'message_driver/adapters/in_memory_adapter'
 
 module MessageDriver
   describe Broker do
+    let(:options) { { adapter: :in_memory } }
     before do
-      described_class.configure(adapter: :in_memory)
+      described_class.configure(options)
     end
     subject(:broker) { described_class.instance }
 
@@ -17,6 +18,24 @@ module MessageDriver
         described_class.configure(options)
 
         expect(described_class.instance).to be result
+      end
+    end
+
+    describe "#logger" do
+      it "returns the logger, which logs at the info level" do
+        expect(subject.logger).to be_a Logger
+        expect(subject.logger).to be_info
+        expect(subject.logger).to_not be_debug
+      end
+
+      context "configuring the logger" do
+        let(:logger) { double(Logger).as_null_object }
+        let(:options) { { adapter: :in_memory, logger: logger } }
+
+        it "returns the provided logger" do
+          actual = subject.logger
+          expect(actual).to be logger
+        end
       end
     end
 

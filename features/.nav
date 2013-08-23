@@ -5,6 +5,7 @@
 - dynamic_destinations.feature
 - destination_metadata.feature
 - client_acks.feature
+- logging.feature
 - message_consumers.feature
 - message_consumers
   - auto_ack_consumers.feature

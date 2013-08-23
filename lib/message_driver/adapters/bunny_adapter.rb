@@ -144,8 +144,8 @@ module MessageDriver
                   if @sub_ctx.valid? && ack_mode == :auto
                     begin
                       @sub_ctx.nack_message(message, requeue: true)
-                    rescue
-                      #TODO log failure
+                    rescue => e
+                      logger.error exception_to_str(e)
                     end
                   end
                   @error_handler.call(e, message) unless @error_handler.nil?
@@ -188,8 +188,8 @@ module MessageDriver
         begin
           super
           @connection.close if !@connection.nil? && @connection.open?
-        rescue *NETWORK_ERRORS
-          #TODO log error
+        rescue *NETWORK_ERRORS => e
+          logger.error "error while attempting connection close\n#{exception_to_str(e)}"
         end
       end
 

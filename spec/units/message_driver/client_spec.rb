@@ -10,9 +10,10 @@ module MessageDriver
 
     let(:adapter) { Adapters::InMemoryAdapter.new({}) }
     let(:adapter_context) { adapter.new_context }
+    let(:logger) { double(Logger).as_null_object }
 
     before do
-      MessageDriver.configure(adapter: adapter)
+      MessageDriver.configure(adapter: adapter, logger: logger)
     end
 
     shared_examples "a Client" do
@@ -152,6 +153,7 @@ module MessageDriver
             adapter_context.stub(:commit_transaction)
             adapter_context.stub(:rollback_transaction)
           end
+
           context "when the adapter supports transactions" do
             before do
               adapter_context.stub(:supports_transactions?) { true }
@@ -174,6 +176,18 @@ module MessageDriver
                 adapter_context.should have_received(:begin_transaction)
                 adapter_context.should_not have_received(:commit_transaction)
                 adapter_context.should have_received(:rollback_transaction)
+              end
+
+              context "and the the rollback raises an error" do
+                it "logs the error from the rollback and raises the original error" do
+                  adapter_context.stub(:rollback_transaction).and_raise("rollback failed!")
+                  expect {
+                    subject.with_message_transaction do
+                      raise "having a tough time"
+                    end
+                  }.to raise_error "having a tough time"
+                  expect(logger).to have_received(:error).with(match("rollback failed!"))
+                end
               end
             end
 
@@ -202,7 +216,6 @@ module MessageDriver
                   adapter_context.should have_received(:rollback_transaction).once
                 end
               end
-
             end
           end
 
@@ -218,7 +231,12 @@ module MessageDriver
               adapter_context.should_not have_received(:commit_transaction)
               adapter_context.should_not have_received(:rollback_transaction)
             end
-            it "logs a warning"
+            it "logs a warning" do
+              expect { |blk|
+                subject.with_message_transaction(&blk)
+              }.to yield_control
+              expect(logger).to have_received(:debug).with("this adapter does not support transactions")
+            end
           end
         end
 
@@ -249,7 +267,10 @@ module MessageDriver
               subject.ack_message(message)
               adapter_context.should_not have_received(:ack_message)
             end
-            it "logs a warning"
+            it "logs a warning" do
+              subject.ack_message(message)
+              expect(logger).to have_received(:debug).with("this adapter does not support client acks")
+            end
           end
         end
 
@@ -276,11 +297,14 @@ module MessageDriver
             before do
               adapter_context.stub(:supports_client_acks?) { false }
             end
-            it "doesn't call #ack_message" do
+            it "doesn't call #nack_message" do
               subject.nack_message(message)
               adapter_context.should_not have_received(:nack_message)
             end
-            it "logs a warning"
+            it "logs a warning" do
+              subject.nack_message(message)
+              expect(logger).to have_received(:debug).with("this adapter does not support client acks")
+            end
           end
         end
 

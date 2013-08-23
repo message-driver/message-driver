@@ -1,5 +1,3 @@
-require 'message_driver'
-
 class TestRunner
   include MessageDriver::Client
   include RSpec::Matchers

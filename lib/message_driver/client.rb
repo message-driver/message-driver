@@ -2,6 +2,7 @@ require 'forwardable'
 
 module MessageDriver
   module Client
+    include Logging
     extend self
 
     def publish(destination, body, headers={}, properties={})
@@ -29,7 +30,7 @@ module MessageDriver
       if ctx.supports_client_acks?
         ctx.ack_message(message, options)
       else
-        #TODO log a warning
+        logger.debug("this adapter does not support client acks")
       end
     end
 
@@ -38,7 +39,7 @@ module MessageDriver
       if ctx.supports_client_acks?
         ctx.nack_message(message, options)
       else
-        #TODO log a warning
+        logger.debug("this adapter does not support client acks")
       end
     end
 
@@ -54,13 +55,13 @@ module MessageDriver
           rescue
             begin
               wrapper.ctx.rollback_transaction
-            rescue
-              #TODO log exception from rollback
+            rescue => e
+              logger.error exception_to_str(e)
             end
             raise
           end
         else
-          #TODO log warning about not supporting transactions?
+          logger.debug("this adapter does not support transactions")
           yield
         end
       ensure

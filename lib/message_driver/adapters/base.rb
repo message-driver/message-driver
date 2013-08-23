@@ -1,6 +1,8 @@
 module MessageDriver
   module Adapters
     class Base
+      include Logging
+
       attr_accessor :contexts
 
       def initialize(configuration)
@@ -24,6 +26,8 @@ module MessageDriver
     end
 
     class ContextBase
+      include Logging
+
       attr_reader :adapter
       attr_accessor :valid
 

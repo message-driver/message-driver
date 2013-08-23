@@ -1,10 +1,11 @@
 require 'forwardable'
+require 'logger'
 
 module MessageDriver
   class Broker
     extend Forwardable
 
-    attr_reader :adapter, :configuration, :destinations, :consumers
+    attr_reader :adapter, :configuration, :destinations, :consumers, :logger
 
     def_delegators :@adapter, :stop
 
@@ -31,6 +32,8 @@ module MessageDriver
       @configuration = options
       @destinations = {}
       @consumers = {}
+      @logger = options[:logger] || Logger.new(STDOUT).tap{|l| l.level = Logger::INFO}
+      logger.debug "MessageDriver configured successfully!"
     end
 
     def dynamic_destination(dest_name, dest_options={}, message_props={})
