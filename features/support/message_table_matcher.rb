@@ -1,11 +1,27 @@
-RSpec::Matchers.define :match_message_table do |expected|
-  match do |messages|
-    actual = messages.collect do |msg|
-      expected.headers.inject({}) do |memo, obj|
+RSpec::Matchers.define :match_message_table do |expected_tbl|
+  define_method :expected_hash do
+    @expected_hash ||= expected_tbl.hashes
+  end
+
+  define_method :messages_to_hash do |messages|
+    messages.collect do |msg|
+      expected_tbl.headers.inject({ }) do |memo, obj|
         memo[obj] = msg.send(obj)
         memo
       end
     end
-    actual == expected.hashes
+  end
+
+  match do |messages|
+    @actual = messages_to_hash(messages)
+    @actual == expected_hash
+  end
+
+  failure_message_for_should do |_|
+    "expected #{expected_hash} and got #{@actual}"
+  end
+
+  description do
+    "contain messages #{expected_hash}"
   end
 end

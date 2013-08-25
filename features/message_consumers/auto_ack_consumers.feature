@@ -56,3 +56,24 @@ Feature: Message Consumers auto-acknowledgement
       | body             |
       | Auto Ack Error 1 |
       | Auto Ack Error 2 |
+
+  Scenario: A DontRequeue error occurs during processing
+    Given I have a message consumer
+    """ruby
+    MessageDriver::Broker.consumer(:my_consumer) do |message|
+      raise MessageDriver::DontRequeueError, "don't requeue me"
+    end
+    """
+    And I create a subscription
+    """ruby
+    MessageDriver::Client.subscribe(:source_queue, :my_consumer, ack: :auto)
+    """
+
+    When I send the following messages to :source_queue
+      | body             |
+      | Auto Ack Error 1 |
+      | Auto Ack Error 2 |
+    And I let the subscription process
+
+    Then I expect to find no messages on :dest_queue
+    And I expect to find no messages on :source_queue

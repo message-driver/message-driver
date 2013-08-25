@@ -16,4 +16,12 @@ module MessageDriver
   class QueueNotFound < WrappedError; end
   class ConnectionError < WrappedError; end
 
+  module DontRequeue; end
+  class DontRequeueError < Error
+    include DontRequeue
+  end
+
+  class WrappedDontRequeueError < WrappedError
+    include DontRequeue
+  end
 end

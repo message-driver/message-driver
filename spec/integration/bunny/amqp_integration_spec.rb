@@ -53,7 +53,7 @@ describe "AMQP Integration", :bunny, type: :integration do
     end
   end
 
-  context "when the broker connection fails", pending: "needs to be fixed" do
+  context "when the broker connection fails", pending: "these spec are busted" do
     def disrupt_connection
       #yes, this is very implementation specific
       MessageDriver::Broker.adapter.connection.instance_variable_get(:@transport).close

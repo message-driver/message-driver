@@ -22,6 +22,10 @@ module MessageDriver
         def delivery_tag
           delivery_info.delivery_tag
         end
+
+        def redelivered?
+          delivery_info.redelivered?
+        end
       end
 
       class Destination < MessageDriver::Destination::Base
@@ -108,7 +112,7 @@ module MessageDriver
       end
 
       class Subscription < Subscription::Base
-        def start(options)
+        def start
           raise MessageDriver::Error, "subscriptions are only supported with QueueDestinations" unless destination.is_a? QueueDestination
           @sub_ctx = adapter.new_subscription_context(self)
           @error_handler = options[:error_handler]
@@ -136,19 +140,25 @@ module MessageDriver
                     consumer.call(message)
                   when :transactional
                     Client.with_message_transaction do
-                      @sub_ctx.ack_message(message)
                       consumer.call(message)
+                      @sub_ctx.ack_message(message)
                     end
                   end
                 rescue => e
-                  if @sub_ctx.valid? && ack_mode == :auto
-                    begin
-                      @sub_ctx.nack_message(message, requeue: true)
-                    rescue => e
-                      logger.error exception_to_str(e)
+                  if e.is_a?(DontRequeue) || (options[:retry_redelivered] == false && message.redelivered?)
+                    if [:auto, :transactional].include? ack_mode
+                      @sub_ctx.nack_message(message, requeue: false)
                     end
+                  else
+                    if @sub_ctx.valid? && ack_mode == :auto
+                      begin
+                        @sub_ctx.nack_message(message, requeue: true)
+                      rescue => e
+                        logger.error exception_to_str(e)
+                      end
+                    end
+                    @error_handler.call(e, message) unless @error_handler.nil?
                   end
-                  @error_handler.call(e, message) unless @error_handler.nil?
                 end
               end
             end
@@ -316,8 +326,8 @@ module MessageDriver
         end
 
         def subscribe(destination, options={}, &consumer)
-          sub = Subscription.new(adapter, destination, consumer)
-          sub.start(options)
+          sub = Subscription.new(adapter, destination, consumer, options)
+          sub.start
           sub
         end
 
