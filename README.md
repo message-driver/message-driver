@@ -4,11 +4,11 @@ Easy message queues for ruby
 
 [![Gem Version](https://badge.fury.io/rb/message-driver.png)](http://badge.fury.io/rb/message-driver)
 
-[![Build Status](https://travis-ci.org/soupmatt/message-driver.png?branch=master)](https://travis-ci.org/soupmatt/message-driver)
+[![Build Status](https://travis-ci.org/message-driver/message-driver.png?branch=master)](https://travis-ci.org/message-driver/message-driver)
 
-[![Dependency Status](https://gemnasium.com/soupmatt/message-driver.png)](https://gemnasium.com/soupmatt/message-driver)
+[![Dependency Status](https://gemnasium.com/message-driver/message-driver.png)](https://gemnasium.com/message-driver/message-driver)
 
-[![Code Climate](https://codeclimate.com/github/soupmatt/message-driver.png)](https://codeclimate.com/github/soupmatt/message-driver)
+[![Code Climate](https://codeclimate.com/github/message-driver/message-driver.png)](https://codeclimate.com/github/message-driver/message-driver)
 
 ## Installation
 
