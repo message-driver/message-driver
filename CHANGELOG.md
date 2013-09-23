@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 - Not yet released
+## 0.2.0.rc1 - 2013-09-23
 
 * Features
     * Message Consumers
