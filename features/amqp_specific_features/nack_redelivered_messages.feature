@@ -25,7 +25,7 @@ Feature: Nacking Redelievered Messages from a consumer
     And I have a destination :rabbit_track with no messages on it
 
 
-  Scenario: Raising a DontRequeueError in an auto_ack consumer
+  Scenario: Raising an error in an auto_ack consumer
     Given I have a message consumer
     """ruby
     MessageDriver::Broker.consumer(:manual_redeliver) do |message|
@@ -57,7 +57,7 @@ Feature: Nacking Redelievered Messages from a consumer
       | Auto Retry 2 Attempt |
 
 
-  Scenario: Raising a DontRequeueError in a transactional consumer
+  Scenario: Raising an error in a transactional consumer
     Given I have a message consumer
     """ruby
     @attempts = 0
