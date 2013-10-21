@@ -118,6 +118,9 @@ module MessageDriver
           @error_handler = options[:error_handler]
           @sub_ctx.with_channel do |ch|
             queue = destination.bunny_queue(@sub_ctx.channel)
+            if options.has_key? :prefetch_size
+              ch.prefetch(options[:prefetch_size])
+            end
             ack_mode = case options[:ack]
                        when :auto, nil
                          :auto
