@@ -148,20 +148,20 @@ module MessageDriver
                     end
                   end
                 rescue => e
-                  if e.is_a?(DontRequeue) || (options[:retry_redelivered] == false && message.redelivered?)
-                    if [:auto, :transactional].include? ack_mode
-                      @sub_ctx.nack_message(message, requeue: false)
+                  if [:auto, :transactional].include? ack_mode
+                    requeue = true
+                    if e.is_a?(DontRequeue) || (options[:retry_redelivered] == false && message.redelivered?)
+                      requeue = false
                     end
-                  else
-                    if @sub_ctx.valid? && ack_mode == :auto
+                    if @sub_ctx.valid?
                       begin
-                        @sub_ctx.nack_message(message, requeue: true)
+                        @sub_ctx.nack_message(message, requeue: requeue)
                       rescue => e
                         logger.error exception_to_str(e)
                       end
                     end
-                    @error_handler.call(e, message) unless @error_handler.nil?
                   end
+                  @error_handler.call(e, message) unless @error_handler.nil?
                 end
               end
             end

@@ -22,8 +22,3 @@ When "I let the subscription process" do
   step "I cancel the subscription"
   expect(test_runner).to have_no_errors
 end
-
-When "I restart the subscription" do
-  test_runner.run_test_code("@subscription.start")
-  step "I allow for processing"
-end

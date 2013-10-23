@@ -76,17 +76,21 @@ Feature: Nacking Redelievered Messages from a consumer
       | body                      |
       | Transactional Redeliver 1 |
       | Transactional Redeliver 2 |
-    And I let the subscription process
-    And I restart the subscription
+      | Transactional Redeliver 3 |
+      | Transactional Redeliver 4 |
+      | Transactional Redeliver 5 |
     And I let the subscription process
 
     Then I expect to find no messages on :rabbit_track
     Then I expect to find no messages on :rabbit_work
     Then I expect the following check to pass
     """ruby
-    expect(@attempts).to eq(4)
+    expect(@attempts).to eq(10)
     """
-    Then I expect to find the following 2 messages on :rabbit_dlq
+    Then I expect to find the following 5 messages on :rabbit_dlq
       | body                      |
       | Transactional Redeliver 1 |
       | Transactional Redeliver 2 |
+      | Transactional Redeliver 3 |
+      | Transactional Redeliver 4 |
+      | Transactional Redeliver 5 |
