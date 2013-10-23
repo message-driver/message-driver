@@ -361,7 +361,12 @@ module MessageDriver
             else
               raise MessageDriver::WrappedError.new(e.to_s, e)
             end
+          rescue Bunny::ChannelAlreadyClosed => e
+            @need_channel_reset = true
+            @rollback_only = true if in_transaction?
+            raise MessageDriver::WrappedError.new(e.to_s, e)
           rescue *NETWORK_ERRORS => e
+            @need_channel_reset = true
             @rollback_only = true if in_transaction?
             raise MessageDriver::ConnectionError.new(e.to_s, e)
           end
