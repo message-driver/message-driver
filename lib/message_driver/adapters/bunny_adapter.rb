@@ -260,10 +260,12 @@ module MessageDriver
           raise MessageDriver::TransactionError, "you can't finish the transaction unless you already in one!" if !in_transaction? && !channel_commit
           begin
             if is_transactional? && valid? && !@need_channel_reset
-              if @rollback_only
-                @channel.tx_rollback
-              else
-                @channel.tx_commit
+              handle_errors do
+                if @rollback_only
+                  @channel.tx_rollback
+                else
+                  @channel.tx_commit
+                end
               end
             end
           ensure
@@ -344,15 +346,9 @@ module MessageDriver
           end
         end
 
-        def with_channel(require_commit=true)
-          raise MessageDriver::TransactionRollbackOnly if @rollback_only
-          raise MessageDriver::Error, "oh nos!" if !valid?
-          @channel = adapter.connection.create_channel if @channel.nil?
-          reset_channel if @need_channel_reset
+        def handle_errors
           begin
-            result = yield @channel
-            commit_transaction(true) if require_commit && is_transactional? && !in_transaction?
-            result
+            yield
           rescue Bunny::ChannelLevelException => e
             @need_channel_reset = true
             @rollback_only = true if in_transaction?
@@ -369,6 +365,18 @@ module MessageDriver
             @need_channel_reset = true
             @rollback_only = true if in_transaction?
             raise MessageDriver::ConnectionError.new(e.to_s, e)
+          end
+        end
+
+        def with_channel(require_commit=true)
+          raise MessageDriver::TransactionRollbackOnly if @rollback_only
+          raise MessageDriver::Error, "oh nos!" if !valid?
+          @channel = adapter.connection.create_channel if @channel.nil?
+          reset_channel if @need_channel_reset
+          handle_errors do
+            result = yield @channel
+            commit_transaction(true) if require_commit && is_transactional? && !in_transaction?
+            result
           end
         end
 

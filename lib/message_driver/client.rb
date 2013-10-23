@@ -47,18 +47,22 @@ module MessageDriver
       wrapper = fetch_context_wrapper
       wrapper.increment_transaction_depth
       begin
-        if wrapper.transaction_depth == 1 && wrapper.ctx.supports_transactions?
-          wrapper.ctx.begin_transaction(options)
-          begin
-            yield
-            wrapper.ctx.commit_transaction
-          rescue
+        if wrapper.ctx.supports_transactions?
+          if wrapper.transaction_depth == 1
+            wrapper.ctx.begin_transaction(options)
             begin
-              wrapper.ctx.rollback_transaction
-            rescue => e
-              logger.error exception_to_str(e)
+              yield
+            rescue
+              begin
+                wrapper.ctx.rollback_transaction
+              rescue => e
+                logger.error exception_to_str(e)
+              end
+              raise
             end
-            raise
+            wrapper.ctx.commit_transaction
+          else
+            yield
           end
         else
           logger.debug("this adapter does not support transactions")
