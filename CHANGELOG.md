@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0.rc3 - master
+
+* drop support for bunny 0.9.x
+* add support for bunny 1.0.x
+
 ## 0.2.0.rc2 - 2013-10-30
 
 * Features

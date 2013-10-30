@@ -9,10 +9,9 @@ before_script:
   - sudo service rabbitmq-server restart
 env:
   - ADAPTER=in_memory
-  - ADAPTER=bunny:0.9.0
   - ADAPTER=bunny:0.10.0
   - ADAPTER=stomp
-  - ADAPTER=bunny:1.0.0.rc
+  - ADAPTER=bunny:1.0.0
 rvm:
   - 2.0.0
   - 1.9.3
