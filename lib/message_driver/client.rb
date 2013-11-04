@@ -16,8 +16,12 @@ module MessageDriver
     end
 
     def subscribe(destination_name, consumer_name, options={})
-      destination = find_destination(destination_name)
       consumer =  find_consumer(consumer_name)
+      subscribe_with(destination_name, options, &consumer)
+    end
+
+    def subscribe_with(destination_name, options={}, &consumer)
+      destination = find_destination(destination_name)
       current_adapter_context.subscribe(destination, options, &consumer)
     end
 

@@ -359,6 +359,47 @@ module MessageDriver
             end
           end
         end
+
+        describe "#subscribe_with" do
+          let(:destination) { Broker.destination(:my_queue, "my_queue", exclusive: true) }
+          let(:consumer_double) { lambda do |m| end }
+
+          before do
+            adapter_context.stub(:subscribe)
+          end
+
+          it "delegates to the adapter_context" do
+            adapter_context.should_receive(:subscribe).with(destination, {}) do |&blk|
+              expect(blk).to be(consumer_double)
+            end
+            subject.subscribe_with(destination, &consumer_double)
+          end
+
+          it "passes the options through" do
+            options = {foo: :bar}
+            adapter_context.should_receive(:subscribe).with(destination, options) do |&blk|
+              expect(blk).to be(consumer_double)
+            end
+            subject.subscribe_with(destination, options, &consumer_double)
+          end
+
+          it "looks up the destination" do
+            adapter_context.should_receive(:subscribe).with(destination, {}) do |&blk|
+              expect(blk).to be(consumer_double)
+            end
+            subject.subscribe_with(:my_queue, &consumer_double)
+          end
+
+          context "when the destination can't be found" do
+            let(:bad_dest_name) { :not_a_queue }
+            it "raises a MessageDriver:NoSuchDestinationError" do
+              expect {
+                subject.subscribe_with(bad_dest_name, &consumer_double)
+              }.to raise_error(MessageDriver::NoSuchDestinationError, /#{bad_dest_name}/)
+              adapter_context.should_not have_received(:subscribe)
+            end
+          end
+        end
       end
     end
 
