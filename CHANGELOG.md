@@ -1,9 +1,11 @@
 # Changelog
 
-## 0.2.0.rc3 - master
+## 0.2.0 - 2013-11-05
 
 * drop support for bunny 0.9.x
 * add support for bunny 1.0.x
+* ability to create subscriptions from a block instead of having to
+  register a consumer
 
 ## 0.2.0.rc2 - 2013-10-30
 
