@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.3.0.dev - master
+
 ## 0.2.0 - 2013-11-05
 
 * drop support for bunny 0.9.x
