@@ -2,6 +2,11 @@
 
 ## 0.3.0.dev - master
 
+## 0.2.1 - 2013-11-13
+
+* Correct an issue in handling Bunny::ConnectionLevelErrors.
+  Bunny::Session will now get properly restarted.
+
 ## 0.2.0 - 2013-11-05
 
 * drop support for bunny 0.9.x
