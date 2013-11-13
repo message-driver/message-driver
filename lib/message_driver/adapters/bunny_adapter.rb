@@ -183,10 +183,11 @@ module MessageDriver
       def initialize(config)
         validate_bunny_version
         @config = config
+        start_connection_thread
       end
 
       def connection(ensure_started=true)
-        @connection ||= Bunny.new(@config)
+        start_connection_thread
         if ensure_started && !@connection.open?
           begin
             @connection.start
@@ -397,6 +398,29 @@ module MessageDriver
       end
 
       private
+
+      def start_connection_thread
+        @connection_thread ||= Thread.new do
+          begin
+            @connection = Bunny.new(@config)
+            sleep
+          rescue *NETWORK_ERRORS => e
+            logger.error "error on connection\n#{exception_to_str(e)}"
+            begin
+              while true
+                @connection.start
+                sleep
+              end
+            rescue *NETWORK_ERRORS => e
+              logger.error "error trying to restart connection\n#{exception_to_str(e)}"
+              sleep 1
+              retry
+            end
+          end
+          @connection_thread = nil
+        end
+        sleep 0.1 while @connection_thread.status != 'sleep'
+      end
 
       def validate_bunny_version
         required = Gem::Requirement.create('>= 0.10.8')
