@@ -116,56 +116,17 @@ module MessageDriver
           raise MessageDriver::Error, "subscriptions are only supported with QueueDestinations" unless destination.is_a? QueueDestination
           @sub_ctx = adapter.new_subscription_context(self)
           @error_handler = options[:error_handler]
-          @sub_ctx.with_channel do |ch|
-            queue = destination.bunny_queue(@sub_ctx.channel)
-            if options.has_key? :prefetch_size
-              ch.prefetch(options[:prefetch_size])
-            end
-            ack_mode = case options[:ack]
-                       when :auto, nil
-                         :auto
-                       when :manual
-                         :manual
-                       when :transactional
-                         :transactional
-                       else
-                         raise MessageDriver::Error, "unrecognized :ack option #{options[:ack]}"
-                       end
-            @bunny_consumer = queue.subscribe(options.merge(manual_ack: true)) do |delivery_info, properties, payload|
-              message = @sub_ctx.args_to_message(delivery_info, properties, payload)
-              Client.with_adapter_context(@sub_ctx) do
-                begin
-                  case ack_mode
-                  when :auto
-                    consumer.call(message)
-                    @sub_ctx.ack_message(message)
-                  when :manual
-                    consumer.call(message)
-                  when :transactional
-                    Client.with_message_transaction do
-                      consumer.call(message)
-                      @sub_ctx.ack_message(message)
-                    end
-                  end
-                rescue => e
-                  if [:auto, :transactional].include? ack_mode
-                    requeue = true
-                    if e.is_a?(DontRequeue) || (options[:retry_redelivered] == false && message.redelivered?)
-                      requeue = false
-                    end
-                    if @sub_ctx.valid?
-                      begin
-                        @sub_ctx.nack_message(message, requeue: requeue)
-                      rescue => e
-                        logger.error exception_to_str(e)
+          @ack_mode = case options[:ack]
+                      when :auto, nil
+                        :auto
+                      when :manual
+                        :manual
+                      when :transactional
+                        :transactional
+                      else
+                        raise MessageDriver::Error, "unrecognized :ack option #{options[:ack]}"
                       end
-                    end
-                  end
-                  @error_handler.call(e, message) unless @error_handler.nil?
-                end
-              end
-            end
-          end
+          start_subscription
         end
 
         def unsubscribe
@@ -176,6 +137,54 @@ module MessageDriver
           unless @sub_ctx.nil?
             @sub_ctx.invalidate(true)
             @sub_ctx = nil
+          end
+        end
+
+        private
+        def start_subscription
+          @sub_ctx.with_channel do |ch|
+            queue = destination.bunny_queue(@sub_ctx.channel)
+            if options.has_key? :prefetch_size
+              ch.prefetch(options[:prefetch_size])
+            end
+            @bunny_consumer = queue.subscribe(options.merge(manual_ack: true)) do |delivery_info, properties, payload|
+              Client.with_adapter_context(@sub_ctx) do
+                message = @sub_ctx.args_to_message(delivery_info, properties, payload)
+                handle_message(message)
+              end
+            end
+          end
+        end
+
+        def handle_message(message)
+          begin
+            case @ack_mode
+            when :auto
+              consumer.call(message)
+              @sub_ctx.ack_message(message)
+            when :manual
+              consumer.call(message)
+            when :transactional
+              Client.with_message_transaction do
+                consumer.call(message)
+                @sub_ctx.ack_message(message)
+              end
+            end
+          rescue => e
+            if [:auto, :transactional].include? @ack_mode
+              requeue = true
+              if e.is_a?(DontRequeue) || (options[:retry_redelivered] == false && message.redelivered?)
+                requeue = false
+              end
+              if @sub_ctx.valid?
+                begin
+                  @sub_ctx.nack_message(message, requeue: requeue)
+                rescue => e
+                  logger.error exception_to_str(e)
+                end
+              end
+            end
+            @error_handler.call(e, message) unless @error_handler.nil?
           end
         end
       end

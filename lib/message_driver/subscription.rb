@@ -1,6 +1,7 @@
 module MessageDriver
   module Subscription
     class Base
+      include Logging
       attr_reader :adapter, :destination, :consumer, :options
 
       def initialize(adapter, destination, consumer, options={})
