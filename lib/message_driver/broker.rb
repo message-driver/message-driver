@@ -29,11 +29,29 @@ module MessageDriver
 
     def initialize(options)
       @adapter = resolve_adapter(options[:adapter], options)
+      @stopped = false
       @configuration = options
       @destinations = {}
       @consumers = {}
       @logger = options[:logger] || Logger.new(STDOUT).tap{|l| l.level = Logger::INFO}
       logger.debug "MessageDriver configured successfully!"
+    end
+
+    def stop
+      @adapter.stop
+      @stopped = true
+    end
+
+    def stopped?
+      @stopped
+    end
+
+    def restart
+      unless stopped?
+        @adapter.stop
+      end
+      @adapter = resolve_adapter(@configuration[:adapter], @configuration)
+      @stopped = false
     end
 
     def dynamic_destination(dest_name, dest_options={}, message_props={})

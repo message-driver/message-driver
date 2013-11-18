@@ -3,14 +3,15 @@ module MessageDriver
     class Base
       include Logging
 
-      attr_accessor :contexts
+      def contexts
+        @contexts ||= []
+      end
 
       def initialize(configuration)
         raise "Must be implemented in subclass"
       end
 
       def new_context
-        @contexts ||= []
         ctx = build_context
         contexts << ctx
         ctx
@@ -21,7 +22,11 @@ module MessageDriver
       end
 
       def stop
-        contexts.each { |ctx| ctx.invalidate } if contexts
+        if @contexts
+          ctxs = @contexts
+          @contexts = []
+          ctxs.each { |ctx| ctx.invalidate }
+        end
       end
     end
 

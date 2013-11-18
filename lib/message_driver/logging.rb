@@ -5,7 +5,7 @@ module MessageDriver
     end
 
     def exception_to_str(e)
-      (["#{e.class}: #{e.to_s}"] + e.backtrace).join("  \n")
+      (["#{e.class}: #{e.to_s}"] + e.backtrace).join("\n  ")
     end
   end
 end

@@ -192,12 +192,13 @@ module MessageDriver
       def initialize(config)
         validate_bunny_version
         @config = config
-        start_connection_thread
+        @handle_connection_errors = config.fetch(:handle_connection_errors, true)
+        initialize_connection
       end
 
       def connection(ensure_started=true)
-        start_connection_thread
-        if ensure_started && !@connection.open?
+        initialize_connection
+        if ensure_started
           begin
             @connection.start
           rescue *NETWORK_ERRORS => e
@@ -213,6 +214,11 @@ module MessageDriver
           @connection.close if !@connection.nil? && @connection.open?
         rescue *NETWORK_ERRORS => e
           logger.error "error while attempting connection close\n#{exception_to_str(e)}"
+          begin
+            @connection.maybe_shutdown_heartbeat_sender
+          rescue
+            #ignore any errors here
+          end
         end
       end
 
@@ -349,10 +355,23 @@ module MessageDriver
         def invalidate(in_unsubscribe=false)
           super()
           unless @subscription.nil? || in_unsubscribe
-            @subscription.unsubscribe
+            begin
+              @subscription.unsubscribe
+            rescue => e
+              logger.debug "error trying to end subscription\n#{exception_to_str(e)}"
+            end
           end
           unless @channel.nil?
-            @channel.close if @channel.open?
+            begin
+              @channel.close if @channel.open?
+            rescue => e
+              logger.debug "error trying to close channel\n#{exception_to_str(e)}"
+              begin
+                @channel.maybe_kill_consumer_work_pool!
+              rescue
+                #ignore any errors here
+              end
+            end
           end
         end
 
@@ -398,7 +417,7 @@ module MessageDriver
 
         def reset_channel
           unless @channel.open?
-            @channel.open
+            @channel = adapter.connection.create_channel
             @is_transactional = false
             @rollback_only = true if in_transaction?
           end
@@ -408,27 +427,37 @@ module MessageDriver
 
       private
 
-      def start_connection_thread
-        @connection_thread ||= Thread.new do
-          begin
-            @connection = Bunny.new(@config)
-            sleep
-          rescue *NETWORK_ERRORS => e
-            logger.error "error on connection\n#{exception_to_str(e)}"
-            begin
-              while true
-                @connection.start
-                sleep
-              end
-            rescue *NETWORK_ERRORS => e
-              logger.error "error trying to restart connection\n#{exception_to_str(e)}"
-              sleep 1
-              retry
-            end
-          end
-          @connection_thread = nil
+      def silence_errors
+        begin
+          yield
+        rescue => e
+          logger.error exception_to_str(e)
         end
-        sleep 0.1 while @connection_thread.status != 'sleep'
+      end
+
+      def initialize_connection
+        if @handle_connection_errors
+          if @connection_thread.nil?
+            #hi mom!
+            @connection_thread = Thread.new do
+              @connection = Bunny.new(@config)
+              begin
+                sleep
+              rescue *NETWORK_ERRORS => e
+                logger.error "error on connection\n#{exception_to_str(e)}"
+                stop
+                retry
+              rescue => e
+                logger.error "unhandled error in connection thread! #{exception_to_str(e)}"
+              end
+            end
+            @connection_thread.abort_on_exception = true
+            sleep 0.1
+          end
+          sleep 0.1 while @connection_thread.status != 'sleep'
+        else
+          @connection ||= Bunny.new(@config)
+        end
       end
 
       def validate_bunny_version

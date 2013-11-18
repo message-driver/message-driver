@@ -74,6 +74,65 @@ module MessageDriver
           described_class.new(adapter: adapter)
         }.to raise_error(/adapter must be a MessageDriver::Adapters::Base/)
       end
+
+      it "starts off with the adapter not stopped" do
+        adapter = :in_memory
+
+        instance = described_class.new(adapter: adapter)
+        expect(instance).not_to be_stopped
+      end
+    end
+
+    describe "#stop" do
+      let(:adapter) { broker.adapter }
+      it "calls stop on the adapter" do
+        allow(adapter).to receive(:stop).and_call_original
+
+        subject.stop
+
+        expect(adapter).to have_received(:stop)
+      end
+
+      it "marks the broker as stopped" do
+        expect {
+          subject.stop
+        }.to change { subject.stopped? }.from(false).to(true)
+      end
+
+      it "invalidates the contexts" do
+        my_ctx = double("context", invalidate: nil)
+        adapter.contexts << my_ctx
+        subject.stop
+        expect(adapter.contexts).to be_empty
+        expect(my_ctx).to have_received(:invalidate)
+      end
+    end
+
+    describe "#restart" do
+      let!(:original_adapter) { subject.adapter }
+      before do
+        allow(original_adapter).to receive(:stop).and_call_original
+      end
+
+      it "reconfigures the adapter" do
+        expect {
+          subject.restart
+        }.to change { subject.adapter }
+      end
+
+      it "stops the adapter if it hasn't already been stopped" do
+        subject.restart
+        expect(original_adapter).to have_received(:stop).once
+      end
+
+      it "does not stop the adapter again if it has already been stopped" do
+        expect(subject.adapter).to be original_adapter
+        subject.stop
+        expect {
+          subject.restart
+        }.to change { subject.stopped? }.from(true).to(false)
+        expect(original_adapter).to have_received(:stop).once
+      end
     end
 
     describe "#configuration" do
