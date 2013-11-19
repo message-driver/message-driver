@@ -1,4 +1,5 @@
 require 'bunny'
+require 'bunny/session_patch'
 
 module MessageDriver
   class Broker
@@ -214,11 +215,8 @@ module MessageDriver
           @connection.close if !@connection.nil? && @connection.open?
         rescue *NETWORK_ERRORS => e
           logger.error "error while attempting connection close\n#{exception_to_str(e)}"
-          begin
-            @connection.maybe_shutdown_heartbeat_sender
-          rescue
-            #ignore any errors here
-          end
+        ensure
+          @connection.cleanup_threads
         end
       end
 
@@ -366,11 +364,8 @@ module MessageDriver
               @channel.close if @channel.open?
             rescue => e
               logger.debug "error trying to close channel\n#{exception_to_str(e)}"
-              begin
-                @channel.maybe_kill_consumer_work_pool!
-              rescue
-                #ignore any errors here
-              end
+            ensure
+              begin @channel.maybe_kill_consumer_work_pool! rescue nil; end
             end
           end
         end
@@ -427,7 +422,7 @@ module MessageDriver
 
       private
 
-      def silence_errors
+      def log_errors
         begin
           yield
         rescue => e
