@@ -7,8 +7,6 @@ module MessageDriver
 
     attr_reader :adapter, :configuration, :destinations, :consumers, :logger
 
-    def_delegators :@adapter, :stop
-
     class << self
       def configure(options)
         @instance = new(options)
