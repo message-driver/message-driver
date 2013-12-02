@@ -440,7 +440,6 @@ module MessageDriver
                 sleep
               rescue *NETWORK_ERRORS => e
                 logger.error "error on connection\n#{exception_to_str(e)}"
-                stop
                 retry
               rescue => e
                 logger.error "unhandled error in connection thread! #{exception_to_str(e)}"
