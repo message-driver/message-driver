@@ -216,7 +216,9 @@ module MessageDriver
         rescue *NETWORK_ERRORS => e
           logger.error "error while attempting connection close\n#{exception_to_str(e)}"
         ensure
-          @connection.cleanup_threads
+          conn = @connection
+          @connection = nil
+          conn.cleanup_threads unless conn.nil?
         end
       end
 
@@ -354,14 +356,14 @@ module MessageDriver
           super()
           unless @subscription.nil? || in_unsubscribe
             begin
-              @subscription.unsubscribe
+              @subscription.unsubscribe if adapter.connection.open?
             rescue => e
               logger.debug "error trying to end subscription\n#{exception_to_str(e)}"
             end
           end
           unless @channel.nil?
             begin
-              @channel.close if @channel.open?
+              @channel.close if @channel.open? && adapter.connection.open?
             rescue => e
               logger.debug "error trying to close channel\n#{exception_to_str(e)}"
             ensure
@@ -440,6 +442,14 @@ module MessageDriver
                 sleep
               rescue *NETWORK_ERRORS => e
                 logger.error "error on connection\n#{exception_to_str(e)}"
+                if @connection.automatically_recover?
+                  sleep 0.1
+                  unless @connection.recovering_from_network_failure?
+                    stop
+                  end
+                else
+                  stop
+                end
                 retry
               rescue => e
                 logger.error "unhandled error in connection thread! #{exception_to_str(e)}"
