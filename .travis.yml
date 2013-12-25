@@ -13,12 +13,13 @@ env:
   - ADAPTER=stomp
   - ADAPTER=bunny:1.0.0
 rvm:
+  - 2.1.0
   - 2.0.0
   - 1.9.3
   - 1.9.2
   - jruby-19mode
   - jruby-head
-  - rbx-19mode
+  - rbx
 matrix:
   exclude:
     - rvm: jruby-19mode
@@ -26,8 +27,7 @@ matrix:
     - rvm: jruby-head
       env: ADAPTER=bunny:0.9.0
   allow_failures:
-    - env: ADAPTER=bunny:1.0.0.rc
     - rvm: jruby-head
-    - rvm: rbx-19mode
+    - rvm: rbx
     - rvm: jruby-19mode
       env: ADAPTER=stomp
