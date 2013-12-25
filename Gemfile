@@ -9,8 +9,11 @@ group :tools do
   gem 'guard-rspec'
   gem 'guard-cucumber'
   gem 'pry'
-  platform :ruby do
+  platform :ruby_19 do
     gem 'pry-debugger'
+  end
+  platform :ruby_20 do
+    gem 'pry-byebug'
   end
   group :darwin do
     gem 'ruby_gntp'
