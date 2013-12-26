@@ -3,6 +3,10 @@ source 'https://rubygems.org'
 # Specify your gem's dependencies in message-driver.gemspec
 gemspec
 
+platform :rbx do
+  gem 'rubysl'
+end
+
 group :tools do
   gem 'guard'
   gem 'guard-bundler'
