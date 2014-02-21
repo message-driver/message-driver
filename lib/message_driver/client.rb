@@ -108,7 +108,7 @@ module MessageDriver
       Thread.current[:adapter_context] = wrapper
     end
 
-    def build_context_wrapper(ctx=Broker.adapter.new_context)
+    def build_context_wrapper(ctx=broker.adapter.new_context)
       ContextWrapper.new(ctx)
     end
 
@@ -117,16 +117,20 @@ module MessageDriver
       when Destination::Base
         destination
       else
-        Broker.find_destination(destination)
+        broker.find_destination(destination)
       end
     end
 
     def find_consumer(consumer)
-      Broker.find_consumer(consumer)
+      broker.find_consumer(consumer)
     end
 
     def adapter
-      Broker.adapter
+      broker.adapter
+    end
+
+    def broker
+      Broker
     end
 
     class ContextWrapper

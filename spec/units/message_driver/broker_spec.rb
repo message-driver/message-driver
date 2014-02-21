@@ -7,17 +7,35 @@ module MessageDriver
     before do
       described_class.configure(options)
     end
-    subject(:broker) { described_class.instance }
+    subject(:broker) { described_class.broker }
 
     describe ".configure" do
       it "calls new, passing in the options and saves the instance" do
         options = {foo: :bar}
         result = double(described_class)
-        described_class.should_receive(:new).with(options).and_return(result)
+        described_class.should_receive(:new).with(described_class::DEFAULT_BROKER_NAME, options).and_return(result)
 
         described_class.configure(options)
 
-        expect(described_class.instance).to be result
+        expect(described_class.broker).to be result
+        expect(described_class.broker(described_class::DEFAULT_BROKER_NAME)).to be result
+      end
+
+      context "when configurating multiple brokers" do
+        it "allows you to fetch each configured broker through .broker" do
+          options1 = {foo: :bar}
+          options2 = {bar: :baz}
+          result1 = double("result1")
+          result2 = double("result2")
+          allow(described_class).to receive(:new).with(:result1, options1).and_return(result1)
+          allow(described_class).to receive(:new).with(:result2, options2).and_return(result2)
+
+          described_class.configure(:result1, options1)
+          described_class.configure(:result2, options2)
+
+          expect(described_class.broker(:result1)).to be(result1)
+          expect(described_class.broker(:result2)).to be(result2)
+        end
       end
     end
 
@@ -80,6 +98,21 @@ module MessageDriver
 
         instance = described_class.new(adapter: adapter)
         expect(instance).not_to be_stopped
+      end
+
+      it "has a default name of :default" do
+        adapter = :in_memory
+
+        instance = described_class.new(adapter: adapter)
+        expect(instance.name).to eq(:default)
+      end
+
+      it "let's you override the name in the initializer" do
+        adapter = :in_memory
+        name = :my_vhost
+
+        instance = described_class.new(name, adapter: adapter)
+        expect(instance.name).to eq(name)
       end
     end
 

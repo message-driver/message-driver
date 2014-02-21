@@ -5,27 +5,43 @@ module MessageDriver
   class Broker
     extend Forwardable
 
-    attr_reader :adapter, :configuration, :destinations, :consumers, :logger
+    DEFAULT_BROKER_NAME = :default
+
+    attr_reader :adapter, :configuration, :destinations, :consumers, :logger, :name
 
     class << self
-      def configure(options)
-        @instance = new(options)
+      def configure(name = :default, options)
+        adapters[name] = new(name, options)
       end
 
       def method_missing(m, *args, &block)
-        @instance.send(m, *args, &block)
+        #STDERR.puts "#{self.name}.#{m} directly is deprecated, please use #{self.name}.broker.#{m} instead"
+        #STDERR.puts "called from #{Thread.current.backtrace[2]}"
+        broker.__send__(m, *args, &block)
       end
 
       def instance
-        @instance
+        #STDERR.puts "#{self.name}.instance is deprecated, please use #{self.name}.broker instead"
+        #STDERR.puts "called from #{Thread.current.backtrace[2]}"
+        broker
       end
 
-      def define
-        yield @instance
+      def define(name = DEFAULT_BROKER_NAME)
+        yield broker(name)
+      end
+
+      def broker(name = DEFAULT_BROKER_NAME)
+        adapters[name]
+      end
+
+      private
+      def adapters
+        @adapters ||= { }
       end
     end
 
-    def initialize(options)
+    def initialize(name = DEFAULT_BROKER_NAME, options)
+      @name = name
       @adapter = resolve_adapter(options[:adapter], options)
       @stopped = false
       @configuration = options
@@ -101,7 +117,7 @@ module MessageDriver
       adapter_method = "#{adapter_name}_adapter"
 
       unless respond_to?(adapter_method)
-        raise "the adapter #{adapter_name} must provide MessageDriver::Broker.#{adapter_method} that returns the adapter class"
+        raise "the adapter #{adapter_name} must provide MessageDriver::Broker##{adapter_method} that returns the adapter class"
       end
 
       send(adapter_method)
