@@ -9,9 +9,8 @@ before_script:
   - sudo service rabbitmq-server restart
 env:
   - ADAPTER=in_memory
-  - ADAPTER=bunny:0.10.0
   - ADAPTER=stomp
-  - ADAPTER=bunny:1.0.0
+  - ADAPTER=bunny:1.1.3
 rvm:
   - 2.1.0
   - 2.0.0
@@ -21,11 +20,6 @@ rvm:
   - jruby-head
   - rbx
 matrix:
-  exclude:
-    - rvm: jruby-19mode
-      env: ADAPTER=bunny:0.9.0
-    - rvm: jruby-head
-      env: ADAPTER=bunny:0.9.0
   allow_failures:
     - rvm: jruby-head
     - rvm: rbx

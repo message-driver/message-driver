@@ -465,10 +465,10 @@ module MessageDriver
       end
 
       def validate_bunny_version
-        required = Gem::Requirement.create('>= 0.10.8')
+        required = Gem::Requirement.create('>= 1.1.3')
         current = Gem::Version.create(Bunny::VERSION)
         unless required.satisfied_by? current
-          raise MessageDriver::Error, "bunny 0.10.8 or later is required for the bunny adapter"
+          raise MessageDriver::Error, "bunny 1.1.3 or later is required for the bunny adapter"
         end
       end
     end
