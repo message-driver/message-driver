@@ -244,33 +244,15 @@ module MessageDriver
           let(:message) { double("message") }
           let(:options) { {foo: :bar} }
           before do
-            adapter_context.stub(:ack_message)
+            allow(message).to receive(:ack)
           end
-          context "when the adapter supports client acks" do
-            before do
-              adapter_context.stub(:supports_client_acks?) { true }
-            end
-            it "calls #ack_message with the message" do
-              subject.ack_message(message)
-              adapter_context.should have_received(:ack_message).with(message, {})
-            end
-            it "passes the supplied options to ack_message" do
-              subject.ack_message(message, options)
-              adapter_context.should have_received(:ack_message).with(message, options)
-            end
+          it "calls #ack on the message" do
+            subject.ack_message(message)
+            expect(message).to have_received(:ack).with({})
           end
-          context "when the adapter doesn't support client acks" do
-            before do
-              adapter_context.stub(:supports_client_acks?) { false }
-            end
-            it "doesn't call #ack_message" do
-              subject.ack_message(message)
-              adapter_context.should_not have_received(:ack_message)
-            end
-            it "logs a warning" do
-              subject.ack_message(message)
-              expect(logger).to have_received(:debug).with("this adapter does not support client acks")
-            end
+          it "calls #ack on the message and passes the supplied options" do
+            subject.ack_message(message, options)
+            expect(message).to have_received(:ack).with(options)
           end
         end
 
@@ -278,33 +260,15 @@ module MessageDriver
           let(:message) { double("message") }
           let(:options) { {foo: :bar} }
           before do
-            adapter_context.stub(:nack_message)
+            allow(message).to receive(:nack)
           end
-          context "when the adapter supports client acks" do
-            before do
-              adapter_context.stub(:supports_client_acks?) { true }
-            end
-            it "calls #nack_message with the message" do
-              subject.nack_message(message)
-              adapter_context.should have_received(:nack_message).with(message, {})
-            end
-            it "passes the supplied options to nack_message" do
-              subject.nack_message(message, options)
-              adapter_context.should have_received(:nack_message).with(message, options)
-            end
+          it "calls #nack on the message" do
+            subject.nack_message(message)
+            expect(message).to have_received(:nack).with({})
           end
-          context "when the adapter doesn't support client acks" do
-            before do
-              adapter_context.stub(:supports_client_acks?) { false }
-            end
-            it "doesn't call #nack_message" do
-              subject.nack_message(message)
-              adapter_context.should_not have_received(:nack_message)
-            end
-            it "logs a warning" do
-              subject.nack_message(message)
-              expect(logger).to have_received(:debug).with("this adapter does not support client acks")
-            end
+          it "calls #nack on the message and passes the supplied options" do
+            subject.nack_message(message, options)
+            expect(message).to have_received(:nack).with(options)
           end
         end
 

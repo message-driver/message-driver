@@ -53,7 +53,7 @@ module MessageDriver
         end
 
         def publish(body, headers={}, properties={})
-          msg = Message.new(body, headers, properties)
+          msg = Message.new(nil, body, headers, properties)
           sub = subscription
           if sub.nil?
             message_queue << msg

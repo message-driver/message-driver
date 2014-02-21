@@ -30,21 +30,11 @@ module MessageDriver
     end
 
     def ack_message(message, options={})
-      ctx = current_adapter_context
-      if ctx.supports_client_acks?
-        ctx.ack_message(message, options)
-      else
-        logger.debug("this adapter does not support client acks")
-      end
+      message.ack(options)
     end
 
     def nack_message(message, options={})
-      ctx = current_adapter_context
-      if ctx.supports_client_acks?
-        ctx.nack_message(message, options)
-      else
-        logger.debug("this adapter does not support client acks")
-      end
+      message.nack(options)
     end
 
     def with_message_transaction(options={}, &block)

@@ -15,8 +15,8 @@ module MessageDriver
       class Message < MessageDriver::Message::Base
         attr_reader :delivery_info
 
-        def initialize(delivery_info, properties, payload)
-          super(payload, properties[:headers]||{}, properties)
+        def initialize(ctx, delivery_info, properties, payload)
+          super(ctx, payload, properties[:headers]||{}, properties)
           @delivery_info = delivery_info
         end
 
@@ -407,7 +407,7 @@ module MessageDriver
         end
 
         def args_to_message(delivery_info, properties, payload)
-          Message.new(delivery_info, properties, payload)
+          Message.new(self, delivery_info, properties, payload)
         end
 
         private

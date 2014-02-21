@@ -13,9 +13,9 @@ module MessageDriver
 
       class Message < MessageDriver::Message::Base
         attr_reader :stomp_message
-        def initialize(stomp_message)
+        def initialize(ctx, stomp_message)
           @stomp_message = stomp_message
-          super(stomp_message.body, stomp_message.headers, {})
+          super(ctx, stomp_message.body, stomp_message.headers, {})
         end
       end
 
@@ -76,7 +76,7 @@ module MessageDriver
               end
             end
             connection.unsubscribe(destination.name, options, sub_id)
-            Message.new(msg) if msg
+            Message.new(self, msg) if msg
           end
         end
 

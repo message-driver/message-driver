@@ -16,14 +16,6 @@ module MessageDriver::Adapters
       end
     end
 
-    describe "#stop" do
-      it "raises an error", pending: "maybe we don't want to do this" do
-        expect {
-          subject.stop
-        }.to raise_error "Must be implemented in subclass"
-      end
-    end
-
     describe ContextBase do
       class TestContext < ContextBase
       end

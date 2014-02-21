@@ -1,20 +1,31 @@
 module MessageDriver
   module Message
     class Base
-      attr_reader :body, :headers, :properties
+      include Logging
 
-      def initialize(body, headers, properties)
+      attr_reader :ctx, :body, :headers, :properties
+
+      def initialize(ctx, body, headers, properties)
+        @ctx = ctx
         @body = body
         @headers = headers
         @properties = properties
       end
 
       def ack(options={})
-        Client.ack_message(self, options)
+        if ctx.supports_client_acks?
+          ctx.ack_message(self, options)
+        else
+          logger.debug("this adapter does not support client acks")
+        end
       end
 
       def nack(options={})
-        Client.nack_message(self, options)
+        if ctx.supports_client_acks?
+          ctx.nack_message(self, options)
+        else
+          logger.debug("this adapter does not support client acks")
+        end
       end
     end
   end
