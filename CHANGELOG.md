@@ -2,6 +2,11 @@
 
 ## 0.3.0.dev - master
 
+## 0.2.2 - 2014-02-21
+
+* Lots of work on reconnection handling for bunny. Still a work in
+  progress.
+
 ## 0.2.1 - 2013-11-13
 
 * Correct an issue in handling Bunny::ConnectionLevelErrors.
