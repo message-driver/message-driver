@@ -5,6 +5,7 @@ require 'nesty'
 
 module MessageDriver
   class Error < StandardError; end
+  class BrokerNotConfiguredError < Error; end
   class TransactionError < Error; end
   class TransactionRollbackOnly < TransactionError; end
   class NoSuchDestinationError < Error; end

@@ -31,7 +31,11 @@ module MessageDriver
       end
 
       def broker(name = DEFAULT_BROKER_NAME)
-        adapters[name]
+        result = adapters[name]
+        if result.nil?
+          raise BrokerNotConfiguredError, "There is not broker named #{name} configured. The configured brokers are #{adapters.keys}"
+        end
+        result
       end
 
       private

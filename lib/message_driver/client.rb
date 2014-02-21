@@ -73,7 +73,7 @@ module MessageDriver
     end
 
     def with_adapter_context(adapter_context, &block)
-      old_ctx, Thread.current[:adapter_context] = fetch_context_wrapper(false), build_context_wrapper(adapter_context)
+      old_ctx, Thread.current[adapter_context_key] = fetch_context_wrapper(false), build_context_wrapper(adapter_context)
       begin
         yield
       ensure
@@ -92,20 +92,20 @@ module MessageDriver
     private
 
     def fetch_context_wrapper(initialize=true)
-      wrapper = Thread.current[:adapter_context]
+      wrapper = Thread.current[adapter_context_key]
       if wrapper.nil? || !wrapper.valid?
         if initialize
           wrapper = build_context_wrapper
         else
           wrapper = nil
         end
-        Thread.current[:adapter_context] = wrapper
+        Thread.current[adapter_context_key] = wrapper
       end
       wrapper
     end
 
     def set_context_wrapper(wrapper)
-      Thread.current[:adapter_context] = wrapper
+      Thread.current[adapter_context_key] = wrapper
     end
 
     def build_context_wrapper(ctx=broker.adapter.new_context)
@@ -130,7 +130,15 @@ module MessageDriver
     end
 
     def broker
-      Broker
+      Broker.broker(broker_name)
+    end
+
+    def broker_name
+      Broker::DEFAULT_BROKER_NAME
+    end
+
+    def adapter_context_key
+      @__adapter_context_key ||= "#{broker_name}_adapter_context".to_sym
     end
 
     class ContextWrapper

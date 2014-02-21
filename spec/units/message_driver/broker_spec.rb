@@ -9,7 +9,7 @@ module MessageDriver
     end
     subject(:broker) { described_class.broker }
 
-    describe ".configure" do
+    describe ".configure and .broker" do
       it "calls new, passing in the options and saves the instance" do
         options = {foo: :bar}
         result = double(described_class)
@@ -35,6 +35,14 @@ module MessageDriver
 
           expect(described_class.broker(:result1)).to be(result1)
           expect(described_class.broker(:result2)).to be(result2)
+        end
+      end
+
+      context "when you try to access a broker that isn't configured" do
+        it "should raise an error" do
+          expect {
+            described_class.broker(:not_an_adapter)
+          }.to raise_error BrokerNotConfiguredError
         end
       end
     end
