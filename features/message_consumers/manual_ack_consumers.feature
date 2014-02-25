@@ -9,7 +9,7 @@ Feature: Message Consumers with manual acknowledgement
   Scenario: Consuming Messages
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:my_consumer) do |message|
+    MessageDriver::Client.consumer(:my_consumer) do |message|
       message.ack
     end
     """
@@ -29,7 +29,7 @@ Feature: Message Consumers with manual acknowledgement
   Scenario: When a message is nack'ed
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:my_consumer) do |message|
+    MessageDriver::Client.consumer(:my_consumer) do |message|
       message.nack(requeue: true)
     end
     """
@@ -52,7 +52,7 @@ Feature: Message Consumers with manual acknowledgement
   Scenario: When an occurs before the message is ack'ed
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:my_consumer) do |message|
+    MessageDriver::Client.consumer(:my_consumer) do |message|
       raise "oh nos!"
       message.ack
     end
@@ -76,7 +76,7 @@ Feature: Message Consumers with manual acknowledgement
   Scenario: When an error occurs after the message is ack'ed
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:my_consumer) do |message|
+    MessageDriver::Client.consumer(:my_consumer) do |message|
       message.ack
       raise "oh nos!"
     end

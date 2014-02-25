@@ -8,7 +8,7 @@ Feature: Destination Metadata
   Scenario: Checking the message count when the queue is empty
     When I execute the following code
     """ruby
-    destination = MessageDriver::Broker.find_destination(:my_queue)
+    destination = MessageDriver::Client.find_destination(:my_queue)
     expect(destination.message_count).to eq(0)
     """
 
@@ -23,7 +23,7 @@ Feature: Destination Metadata
     And I allow for processing
     And I execute the following code
     """ruby
-    destination = MessageDriver::Broker.find_destination(:my_queue)
+    destination = MessageDriver::Client.find_destination(:my_queue)
     expect(destination.message_count).to eq(2)
     """
 

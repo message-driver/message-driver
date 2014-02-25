@@ -7,7 +7,7 @@ Feature: Message Consumers
     And I have a destination :source_queue with no messages on it
     And I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:my_consumer) do |message|
+    MessageDriver::Client.consumer(:my_consumer) do |message|
       MessageDriver::Client.publish(:dest_queue, message.body)
     end
     """

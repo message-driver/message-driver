@@ -5,7 +5,7 @@ Feature: Error Handling
     Given I am connected to the broker
     When I execute the following code
     """ruby
-    MessageDriver::Broker.dynamic_destination("missing_queue", passive: true)
+    MessageDriver::Client.dynamic_destination("missing_queue", passive: true)
     """
 
     Then I expect it to raise a MessageDriver::QueueNotFound error

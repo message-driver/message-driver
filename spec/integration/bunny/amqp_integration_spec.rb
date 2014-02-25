@@ -1,18 +1,13 @@
 require 'spec_helper'
 
 describe "AMQP Integration", :bunny, type: :integration do
-  before(:each) do
-    MessageDriver::Broker.configure BrokerConfig.config
-  end
-  after(:each) do
-    MessageDriver::Broker.stop
-  end
+  let!(:broker) { MessageDriver::Broker.configure BrokerConfig.config }
 
   context "when a queue can't be found" do
     let(:queue_name) { "my.lost.queue" }
     it "raises a MessageDriver::QueueNotFound error" do
       expect {
-        MessageDriver::Broker.dynamic_destination(queue_name, passive: true)
+        broker.dynamic_destination(queue_name, passive: true)
       }.to raise_error(MessageDriver::QueueNotFound) do |err|
         expect(err.queue_name).to eq(queue_name)
         expect(err.nested).to be_a Bunny::NotFound
@@ -23,16 +18,16 @@ describe "AMQP Integration", :bunny, type: :integration do
   context "when a channel level exception occurs" do
     it "raises a MessageDriver::WrappedError error" do
       expect {
-        MessageDriver::Broker.dynamic_destination("not.a.queue", passive: true)
+        broker.dynamic_destination("not.a.queue", passive: true)
       }.to raise_error(MessageDriver::WrappedError) { |err| err.nested.should be_a Bunny::ChannelLevelException }
     end
 
     it "reestablishes the channel transparently" do
       expect {
-        MessageDriver::Broker.dynamic_destination("not.a.queue", passive: true)
+        broker.dynamic_destination("not.a.queue", passive: true)
       }.to raise_error(MessageDriver::WrappedError)
       expect {
-        MessageDriver::Broker.dynamic_destination("", exclusive: true)
+        broker.dynamic_destination("", exclusive: true)
       }.to_not raise_error
     end
 
@@ -40,14 +35,14 @@ describe "AMQP Integration", :bunny, type: :integration do
       it "sets the channel_context as rollback-only until the transaction is finished" do
         MessageDriver::Client.with_message_transaction do
           expect {
-            MessageDriver::Broker.dynamic_destination("not.a.queue", passive: true)
+            broker.dynamic_destination("not.a.queue", passive: true)
           }.to raise_error(MessageDriver::WrappedError)
           expect {
-            MessageDriver::Broker.dynamic_destination("", exclusive: true)
+            broker.dynamic_destination("", exclusive: true)
           }.to raise_error(MessageDriver::TransactionRollbackOnly)
         end
         expect {
-          MessageDriver::Broker.dynamic_destination("", exclusive: true)
+          broker.dynamic_destination("", exclusive: true)
         }.to_not raise_error
       end
     end
@@ -56,11 +51,11 @@ describe "AMQP Integration", :bunny, type: :integration do
   context "when the broker connection fails", pending: "these spec are busted" do
     def disrupt_connection
       #yes, this is very implementation specific
-      MessageDriver::Broker.adapter.connection.instance_variable_get(:@transport).close
+      broker.adapter.connection.instance_variable_get(:@transport).close
     end
 
     def create_destination(queue_name)
-      MessageDriver::Broker.dynamic_destination(queue_name, exclusive: true)
+      broker.dynamic_destination(queue_name, exclusive: true)
     end
 
     it "raises a MessageDriver::ConnectionError" do
@@ -91,7 +86,7 @@ describe "AMQP Integration", :bunny, type: :integration do
         expect {
           MessageDriver::Client.with_message_transaction do
             disrupt_connection
-            MessageDriver::Broker.dynamic_destination("", exclusive: true)
+            broker.dynamic_destination("", exclusive: true)
           end
         }.to raise_error(MessageDriver::ConnectionError)
       end
@@ -100,21 +95,21 @@ describe "AMQP Integration", :bunny, type: :integration do
         MessageDriver::Client.with_message_transaction do
           disrupt_connection
           expect {
-            MessageDriver::Broker.dynamic_destination("", exclusive: true)
+            broker.dynamic_destination("", exclusive: true)
           }.to raise_error(MessageDriver::ConnectionError)
           expect {
-            MessageDriver::Broker.dynamic_destination("", exclusive: true)
+            broker.dynamic_destination("", exclusive: true)
           }.to raise_error(MessageDriver::TransactionRollbackOnly)
         end
         expect {
-          MessageDriver::Broker.dynamic_destination("", exclusive: true)
+          broker.dynamic_destination("", exclusive: true)
         }.to_not raise_error
       end
     end
   end
 
   context "when an unhandled expection occurs in a transaction" do
-    let(:destination) { MessageDriver::Broker.dynamic_destination("", exclusive: true) }
+    let(:destination) { broker.dynamic_destination("", exclusive: true) }
 
     it "rolls back the transaction" do
       expect {

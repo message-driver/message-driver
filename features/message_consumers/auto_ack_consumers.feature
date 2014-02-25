@@ -11,7 +11,7 @@ Feature: Message Consumers auto-acknowledgement
   Scenario: Consuming Messages
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:my_consumer) do |message|
+    MessageDriver::Client.consumer(:my_consumer) do |message|
       MessageDriver::Client.publish(:dest_queue, message.body)
     end
     """
@@ -36,7 +36,7 @@ Feature: Message Consumers auto-acknowledgement
   Scenario: An error occurs during processing
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:my_consumer) do |message|
+    MessageDriver::Client.consumer(:my_consumer) do |message|
       raise "oh nos!"
     end
     """
@@ -60,7 +60,7 @@ Feature: Message Consumers auto-acknowledgement
   Scenario: A DontRequeue error occurs during processing
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:my_consumer) do |message|
+    MessageDriver::Client.consumer(:my_consumer) do |message|
       raise MessageDriver::DontRequeueError, "don't requeue me"
     end
     """

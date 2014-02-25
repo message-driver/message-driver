@@ -28,7 +28,7 @@ Feature: Nacking Redelievered Messages from a consumer
   Scenario: Raising an error in an auto_ack consumer
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:manual_redeliver) do |message|
+    MessageDriver::Client.consumer(:manual_redeliver) do |message|
       publish(:rabbit_track, "#{message.body} Attempt")
       raise "oh nos!"
     end
@@ -61,7 +61,7 @@ Feature: Nacking Redelievered Messages from a consumer
     Given I have a message consumer
     """ruby
     @attempts = 0
-    MessageDriver::Broker.consumer(:transactional_redeliver) do |message|
+    MessageDriver::Client.consumer(:transactional_redeliver) do |message|
       publish(:rabbit_track, "#{message.body} Attempt")
       @attempts += 1
       raise "oh nos!"

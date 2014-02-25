@@ -40,7 +40,7 @@ class TestRunner
   def fetch_destination(destination)
     case destination
     when String, Symbol
-      MessageDriver::Broker.find_destination(destination)
+      MessageDriver::Client.find_destination(destination)
     when MessageDriver::Destination::Base
       destination
     else

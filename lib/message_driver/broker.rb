@@ -1,8 +1,5 @@
-require 'forwardable'
-
 module MessageDriver
   class Broker
-    extend Forwardable
     include Logging
 
     DEFAULT_BROKER_NAME = :default
@@ -18,8 +15,8 @@ module MessageDriver
       end
 
       def method_missing(m, *args, &block)
-        #STDERR.puts "#{self.name}.#{m} directly is deprecated, please use #{self.name}.broker.#{m} instead"
-        #STDERR.puts "called from #{Thread.current.backtrace[2]}"
+        STDERR.puts "#{self.name}.#{m} directly is deprecated, please use MessageDriver::Client.#{m} or #{self.name}.broker.#{m} instead"
+        STDERR.puts "called from #{Thread.current.backtrace[2]}"
         if public_method_defined? m
           broker.__send__(m, *args, &block)
         else
@@ -28,8 +25,8 @@ module MessageDriver
       end
 
       def instance
-        #STDERR.puts "#{self.name}.instance is deprecated, please use #{self.name}.broker instead"
-        #STDERR.puts "called from #{Thread.current.backtrace[2]}"
+        STDERR.puts "#{self.name}.instance is deprecated, please use #{self.name}.broker instead"
+        STDERR.puts "called from #{Thread.current.backtrace[2]}"
         broker
       end
 
@@ -45,20 +42,32 @@ module MessageDriver
         result
       end
 
-      def reset
-        brokers.keys.each do |k|
-          begin
-            brokers[k].stop
-          rescue => e
-            Logging.logger.warn Logging.message_with_exception("error stopping broker #{k}", e)
-          end
-          brokers.delete(k)
+      def stop
+        each_broker do |brk|
+          brk.stop
         end
+      end
+
+      def reset
+        each_broker do |brk|
+          begin
+            brk.stop
+          rescue => e
+            Logging.logger.warn Logging.message_with_exception("error stopping broker #{brk.name}", e)
+          end
+        end
+        brokers.clear
       end
 
       private
       def brokers
         @brokers ||= { }
+      end
+
+      def each_broker
+        brokers.keys.each do |k|
+          yield brokers[k]
+        end
       end
     end
 

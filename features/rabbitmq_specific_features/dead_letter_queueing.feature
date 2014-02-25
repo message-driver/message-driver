@@ -43,7 +43,7 @@ Feature: DLQ-ing messages with nacks and consumers
   Scenario: Nacking a message on a manual_ack consumer
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:manual_dql) do |message|
+    MessageDriver::Client.consumer(:manual_dql) do |message|
       message.nack(requeue: false)
     end
     """
@@ -68,7 +68,7 @@ Feature: DLQ-ing messages with nacks and consumers
   Scenario: Raising a DontRequeueError in an auto_ack consumer
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:manual_dql) do |message|
+    MessageDriver::Client.consumer(:manual_dql) do |message|
       raise MessageDriver::DontRequeueError
     end
     """
@@ -93,7 +93,7 @@ Feature: DLQ-ing messages with nacks and consumers
   Scenario: Raising a DontRequeueError in a transactional consumer
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:transactional_dql) do |message|
+    MessageDriver::Client.consumer(:transactional_dql) do |message|
       publish(:rabbit_work, "I get rolled back")
       raise MessageDriver::DontRequeueError
     end

@@ -1,7 +1,7 @@
 @bunny
 @wip
 Feature: Message Consumers prefetch size
-  You can set the prefetch size for your message consumers 
+  You can set the prefetch size for your message consumers.
 
   Background:
     Given I am connected to the broker
@@ -12,13 +12,13 @@ Feature: Message Consumers prefetch size
   Scenario: Consuming Messages
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:my_consumer_1) do |message|
+    MessageDriver::Client.consumer(:my_consumer_1) do |message|
       MessageDriver::Client.publish(:dest_queue_1, message.body)
     end
     """
     And I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:my_consumer_2) do |message|
+    MessageDriver::Client.consumer(:my_consumer_2) do |message|
       MessageDriver::Client.publish(:dest_queue_2, message.body)
     end
     """

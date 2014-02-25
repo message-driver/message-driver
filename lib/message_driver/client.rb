@@ -1,5 +1,3 @@
-require 'forwardable'
-
 module MessageDriver
   module Client
     include Logging
@@ -35,6 +33,23 @@ module MessageDriver
 
     def nack_message(message, options={})
       message.nack(options)
+    end
+
+    def consumer(key, &block)
+      broker.consumer(key, &block)
+    end
+
+    def find_destination(destination)
+      case destination
+      when Destination::Base
+        destination
+      else
+        broker.find_destination(destination)
+      end
+    end
+
+    def find_consumer(consumer)
+      broker.find_consumer(consumer)
     end
 
     def with_message_transaction(options={}, &block)
@@ -134,19 +149,6 @@ module MessageDriver
 
     def build_context_wrapper(ctx=broker.adapter.new_context)
       ContextWrapper.new(ctx)
-    end
-
-    def find_destination(destination)
-      case destination
-      when Destination::Base
-        destination
-      else
-        broker.find_destination(destination)
-      end
-    end
-
-    def find_consumer(consumer)
-      broker.find_consumer(consumer)
     end
 
     def adapter

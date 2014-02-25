@@ -8,7 +8,7 @@ Feature: Transactional Message Consumers
   Scenario: Consuming Messages within a transaction
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:my_consumer) do |message|
+    MessageDriver::Client.consumer(:my_consumer) do |message|
       MessageDriver::Client.publish(:dest_queue, message.body)
     end
     """
@@ -32,7 +32,7 @@ Feature: Transactional Message Consumers
   Scenario: When an error occurs
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:my_consumer) do |message|
+    MessageDriver::Client.consumer(:my_consumer) do |message|
       MessageDriver::Client.publish(:dest_queue, message.body)
       raise "oh nos!"
     end
@@ -57,7 +57,7 @@ Feature: Transactional Message Consumers
   Scenario: When a DontRequeue error occurs
     Given I have a message consumer
     """ruby
-    MessageDriver::Broker.consumer(:my_consumer) do |message|
+    MessageDriver::Client.consumer(:my_consumer) do |message|
       MessageDriver::Client.publish(:dest_queue, message.body)
       raise MessageDriver::DontRequeueError, "don't requeue me"
     end
