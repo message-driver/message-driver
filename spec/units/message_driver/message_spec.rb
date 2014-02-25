@@ -18,14 +18,10 @@ module MessageDriver::Message
       end
     end
 
-    let(:logger) { double(Logger).as_null_object }
+    let(:logger) { MessageDriver.logger }
     let(:ctx) { double("adapter_context") }
     let(:options) { double("options") }
     subject(:message) { described_class.new(ctx, "body", {}, {}) }
-
-    before do
-      allow(MessageDriver::Broker).to receive(:logger).and_return(logger)
-    end
 
     describe "#ack" do
       before do
@@ -53,6 +49,7 @@ module MessageDriver::Message
           expect(ctx).not_to have_received(:ack_message)
         end
         it "logs a warning" do
+          allow(logger).to receive(:debug)
           subject.ack
           expect(logger).to have_received(:debug).with("this adapter does not support client acks")
         end
@@ -85,6 +82,7 @@ module MessageDriver::Message
           expect(ctx).not_to have_received(:nack_message)
         end
         it "logs a warning" do
+          allow(logger).to receive(:debug)
           subject.nack
           expect(logger).to have_received(:debug).with("this adapter does not support client acks")
         end

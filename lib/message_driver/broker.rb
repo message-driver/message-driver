@@ -1,23 +1,30 @@
 require 'forwardable'
-require 'logger'
 
 module MessageDriver
   class Broker
     extend Forwardable
+    include Logging
 
     DEFAULT_BROKER_NAME = :default
 
-    attr_reader :adapter, :configuration, :destinations, :consumers, :logger, :name
+    attr_reader :adapter, :configuration, :destinations, :consumers, :name
 
     class << self
-      def configure(name = :default, options)
-        adapters[name] = new(name, options)
+      def configure(name = DEFAULT_BROKER_NAME, options)
+        if brokers.keys.include? name
+          raise BrokerAlreadyConfigured, "there is already a broker named #{name} configured"
+        end
+        brokers[name] = new(name, options)
       end
 
       def method_missing(m, *args, &block)
         #STDERR.puts "#{self.name}.#{m} directly is deprecated, please use #{self.name}.broker.#{m} instead"
         #STDERR.puts "called from #{Thread.current.backtrace[2]}"
-        broker.__send__(m, *args, &block)
+        if public_method_defined? m
+          broker.__send__(m, *args, &block)
+        else
+          super
+        end
       end
 
       def instance
@@ -31,16 +38,27 @@ module MessageDriver
       end
 
       def broker(name = DEFAULT_BROKER_NAME)
-        result = adapters[name]
+        result = brokers[name]
         if result.nil?
-          raise BrokerNotConfiguredError, "There is not broker named #{name} configured. The configured brokers are #{adapters.keys}"
+          raise BrokerNotConfigured, "There is no broker named #{name} configured. The configured brokers are #{brokers.keys}"
         end
         result
       end
 
+      def reset
+        brokers.keys.each do |k|
+          begin
+            brokers[k].stop
+          rescue => e
+            Logging.logger.warn Logging.message_with_exception("error stopping broker #{k}", e)
+          end
+          brokers.delete(k)
+        end
+      end
+
       private
-      def adapters
-        @adapters ||= { }
+      def brokers
+        @brokers ||= { }
       end
     end
 
@@ -51,8 +69,15 @@ module MessageDriver
       @configuration = options
       @destinations = {}
       @consumers = {}
-      @logger = options[:logger] || Logger.new(STDOUT).tap{|l| l.level = Logger::INFO}
       logger.debug "MessageDriver configured successfully!"
+    end
+
+    def logger
+      MessageDriver.logger
+    end
+
+    def client
+      @client ||= Client.for_broker(name)
     end
 
     def stop
@@ -73,11 +98,11 @@ module MessageDriver
     end
 
     def dynamic_destination(dest_name, dest_options={}, message_props={})
-      Client.dynamic_destination(dest_name, dest_options, message_props)
+      client.dynamic_destination(dest_name, dest_options, message_props)
     end
 
     def destination(key, dest_name, dest_options={}, message_props={})
-      dest = Client.dynamic_destination(dest_name, dest_options, message_props)
+      dest = self.dynamic_destination(dest_name, dest_options, message_props)
       @destinations[key] = dest
     end
 
@@ -107,7 +132,7 @@ module MessageDriver
       when Symbol, String
         resolve_adapter(find_adapter_class(adapter), options)
       when Class
-        resolve_adapter(adapter.new(options), options)
+        resolve_adapter(adapter.new(self, options), options)
       when MessageDriver::Adapters::Base
         adapter
       else

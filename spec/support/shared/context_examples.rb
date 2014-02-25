@@ -1,6 +1,8 @@
 shared_examples "an adapter context" do
   it { should be_a MessageDriver::Adapters::ContextBase }
 
+  its(:adapter) { should be adapter }
+
   it "is initially valid" do
     should be_valid
   end

@@ -9,11 +9,12 @@ module MessageDriver::Adapters
 
     describe "#initialize" do
       context "differing bunny versions" do
+        let(:broker) { double("broker") }
         shared_examples "raises an error" do
           it "raises an error" do
             stub_const("Bunny::VERSION", version)
             expect {
-              described_class.new(valid_connection_attrs)
+              described_class.new(broker, valid_connection_attrs)
             }.to raise_error MessageDriver::Error, "bunny 1.1.3 or later is required for the bunny adapter"
           end
         end
@@ -22,7 +23,7 @@ module MessageDriver::Adapters
             stub_const("Bunny::VERSION", version)
             adapter = nil
             expect {
-              adapter = described_class.new(valid_connection_attrs)
+              adapter = described_class.new(broker, valid_connection_attrs)
             }.to_not raise_error
           end
         end
@@ -41,26 +42,25 @@ module MessageDriver::Adapters
       end
 
       it "connects to the rabbit broker" do
-        adapter = described_class.new(valid_connection_attrs)
+        broker = double(:broker)
+        adapter = described_class.new(broker, valid_connection_attrs)
 
         expect(adapter.connection).to be_a Bunny::Session
         expect(adapter.connection).to be_open
       end
 
       it "connects to the rabbit broker lazily" do
-        adapter = described_class.new(valid_connection_attrs)
+        broker = double(:broker)
+        adapter = described_class.new(broker, valid_connection_attrs)
 
         expect(adapter.connection(false)).to_not be_open
       end
     end
 
     shared_context "a connected bunny adapter" do
-      subject(:adapter) { described_class.new(valid_connection_attrs) }
+      let(:broker) { MessageDriver::Broker.configure(valid_connection_attrs) }
+      subject(:adapter) { broker.adapter }
       let(:connection) { adapter.connection }
-
-      before do
-        MessageDriver::Broker.configure(adapter: adapter)
-      end
 
       after do
         adapter.stop

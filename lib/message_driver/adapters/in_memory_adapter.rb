@@ -68,7 +68,8 @@ module MessageDriver
         end
       end
 
-      def initialize(config={})
+      def initialize(broker, config={})
+        @broker = broker
         @destinations = {}
         @message_store = Hash.new { |h,k| h[k] = [] }
         @subscriptions = Hash.new

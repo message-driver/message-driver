@@ -4,7 +4,8 @@ require 'message_driver/adapters/in_memory_adapter'
 
 module MessageDriver::Adapters
   describe InMemoryAdapter, :in_memory, type: :integration do
-    subject(:adapter) { described_class.new }
+    let(:broker) { double("broker") }
+    subject(:adapter) { described_class.new(broker) }
 
     describe "#new_context" do
       it "returns a InMemoryAdapter::InMemoryContext" do

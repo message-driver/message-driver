@@ -89,6 +89,30 @@ module MessageDriver
       end
     end
 
+    def broker
+      Broker.broker(broker_name)
+    end
+
+    def broker_name
+      Broker::DEFAULT_BROKER_NAME
+    end
+
+    def for_broker(_broker_name)
+      Module.new do |mod|
+        include Client
+        extend self
+
+        define_method :broker_name do
+          _broker_name
+        end
+
+        #self.__send__(:define_method, :included) do |target|
+          #target.__send__ :prepend, Client
+        #end
+      end
+    end
+    module_function :for_broker
+
     private
 
     def fetch_context_wrapper(initialize=true)
@@ -127,14 +151,6 @@ module MessageDriver
 
     def adapter
       broker.adapter
-    end
-
-    def broker
-      Broker.broker(broker_name)
-    end
-
-    def broker_name
-      Broker::DEFAULT_BROKER_NAME
     end
 
     def adapter_context_key

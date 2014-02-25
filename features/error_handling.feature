@@ -1,10 +1,8 @@
 Feature: Error Handling
 
-  Background:
-    Given I am connected to the broker
-
   @bunny
   Scenario: Queue isn't found on the broker
+    Given I am connected to the broker
     When I execute the following code
     """ruby
     MessageDriver::Broker.dynamic_destination("missing_queue", passive: true)

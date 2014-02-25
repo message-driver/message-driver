@@ -11,6 +11,15 @@ RSpec.configure do |c|
 
   c.reporter.message("Acceptance Tests running with broker config: #{BrokerConfig.config}")
 
+  spec_logger = Logger.new(STDOUT).tap { |l| l.level = Logger::FATAL }
+  c.before(:each) do
+    MessageDriver.logger = spec_logger
+  end
+
+  c.after(:each) do
+    MessageDriver::Broker.reset
+  end
+
   c.filter_run_excluding :no_ci if ENV['CI']=='true' && ENV['ADAPTER'] && ENV['ADAPTER'].start_with?('bunny')
   if c.inclusion_filter[:all_adapters] == true
     BrokerConfig.unconfigured_adapters.each do |a|

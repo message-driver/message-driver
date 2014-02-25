@@ -1,5 +1,5 @@
 Given "I am connected to the broker" do
-  MessageDriver.configure(broker_config)
+  MessageDriver::Broker.configure(broker_config)
 end
 
 Given "the following broker configuration" do |src|

@@ -3,16 +3,13 @@ require 'message_driver/adapters/in_memory_adapter'
 
 module MessageDriver
   describe Broker do
+    let(:broker_name) { described_class::DEFAULT_BROKER_NAME }
     let(:options) { { adapter: :in_memory } }
-    before do
-      described_class.configure(options)
-    end
-    subject(:broker) { described_class.broker }
 
     describe ".configure and .broker" do
       it "calls new, passing in the options and saves the instance" do
         options = {foo: :bar}
-        result = double(described_class)
+        result = double(described_class).as_null_object
         described_class.should_receive(:new).with(described_class::DEFAULT_BROKER_NAME, options).and_return(result)
 
         described_class.configure(options)
@@ -21,12 +18,19 @@ module MessageDriver
         expect(described_class.broker(described_class::DEFAULT_BROKER_NAME)).to be result
       end
 
+      it "doesn't allow you to configure the same broker twice" do
+        described_class.configure(broker_name, options)
+        expect {
+          described_class.configure(broker_name, options)
+        }.to raise_error MessageDriver::BrokerAlreadyConfigured, match("default")
+      end
+
       context "when configurating multiple brokers" do
         it "allows you to fetch each configured broker through .broker" do
           options1 = {foo: :bar}
           options2 = {bar: :baz}
-          result1 = double("result1")
-          result2 = double("result2")
+          result1 = double("result1").as_null_object
+          result2 = double("result2").as_null_object
           allow(described_class).to receive(:new).with(:result1, options1).and_return(result1)
           allow(described_class).to receive(:new).with(:result2, options2).and_return(result2)
 
@@ -42,25 +46,55 @@ module MessageDriver
         it "should raise an error" do
           expect {
             described_class.broker(:not_an_adapter)
-          }.to raise_error BrokerNotConfiguredError
+          }.to raise_error BrokerNotConfigured
         end
       end
     end
 
-    describe "#logger" do
-      it "returns the logger, which logs at the info level" do
-        expect(subject.logger).to be_a Logger
-        expect(subject.logger).to be_info
-        expect(subject.logger).to_not be_debug
+    describe ".reset" do
+      it "stops and removes all the brokers" do
+        broker1 = described_class.configure(:broker1, adapter: :in_memory)
+        broker2 = described_class.configure(:broker2, adapter: :in_memory)
+
+        allow(broker1).to receive(:stop).and_call_original
+        allow(broker2).to receive(:stop).and_call_original
+
+        described_class.reset
+
+        expect(broker1).to have_received(:stop)
+        expect(broker2).to have_received(:stop)
+
+        expect {
+          described_class.broker(:broker1)
+        }.to raise_error BrokerNotConfigured
+
+        expect {
+          described_class.broker(:broker2)
+        }.to raise_error BrokerNotConfigured
       end
 
-      context "configuring the logger" do
-        let(:logger) { double(Logger).as_null_object }
-        let(:options) { { adapter: :in_memory, logger: logger } }
+      context "when one of the brokers raises and error" do
+        it "still stops all the brokers" do
+          broker1 = described_class.configure(:broker1, adapter: :in_memory)
+          broker2 = described_class.configure(:broker2, adapter: :in_memory)
 
-        it "returns the provided logger" do
-          actual = subject.logger
-          expect(actual).to be logger
+          allow(broker1).to receive(:stop).and_raise "error stopping broker1!"
+          allow(broker2).to receive(:stop).and_call_original
+
+          expect {
+            described_class.reset
+          }.not_to raise_error
+
+          expect(broker1).to have_received(:stop)
+          expect(broker2).to have_received(:stop)
+
+          expect {
+            described_class.broker(:broker1)
+          }.to raise_error BrokerNotConfigured
+
+          expect {
+            described_class.broker(:broker2)
+          }.to raise_error BrokerNotConfigured
         end
       end
     end
@@ -124,126 +158,150 @@ module MessageDriver
       end
     end
 
-    describe "#stop" do
-      let(:adapter) { broker.adapter }
-      it "calls stop on the adapter" do
-        allow(adapter).to receive(:stop).and_call_original
 
-        subject.stop
+    context do
+      subject!(:broker) { described_class.configure(broker_name, options) }
 
-        expect(adapter).to have_received(:stop)
-      end
+      describe "#stop" do
+        let(:adapter) { broker.adapter }
+        it "calls stop on the adapter" do
+          allow(adapter).to receive(:stop).and_call_original
 
-      it "marks the broker as stopped" do
-        expect {
           subject.stop
-        }.to change { subject.stopped? }.from(false).to(true)
+
+          expect(adapter).to have_received(:stop)
+        end
+
+        it "marks the broker as stopped" do
+          expect {
+            subject.stop
+          }.to change { subject.stopped? }.from(false).to(true)
+        end
+
+        it "invalidates the contexts" do
+          my_ctx = double("context", invalidate: nil)
+          adapter.contexts << my_ctx
+          subject.stop
+          expect(adapter.contexts).to be_empty
+          expect(my_ctx).to have_received(:invalidate)
+        end
       end
 
-      it "invalidates the contexts" do
-        my_ctx = double("context", invalidate: nil)
-        adapter.contexts << my_ctx
-        subject.stop
-        expect(adapter.contexts).to be_empty
-        expect(my_ctx).to have_received(:invalidate)
-      end
-    end
+      describe "#restart" do
+        let!(:original_adapter) { subject.adapter }
+        before do
+          allow(original_adapter).to receive(:stop).and_call_original
+        end
 
-    describe "#restart" do
-      let!(:original_adapter) { subject.adapter }
-      before do
-        allow(original_adapter).to receive(:stop).and_call_original
-      end
+        it "reconfigures the adapter" do
+          expect {
+            subject.restart
+          }.to change { subject.adapter }
+        end
 
-      it "reconfigures the adapter" do
-        expect {
+        it "stops the adapter if it hasn't already been stopped" do
           subject.restart
-        }.to change { subject.adapter }
-      end
+          expect(original_adapter).to have_received(:stop).once
+        end
 
-      it "stops the adapter if it hasn't already been stopped" do
-        subject.restart
-        expect(original_adapter).to have_received(:stop).once
-      end
-
-      it "does not stop the adapter again if it has already been stopped" do
-        expect(subject.adapter).to be original_adapter
-        subject.stop
-        expect {
-          subject.restart
-        }.to change { subject.stopped? }.from(true).to(false)
-        expect(original_adapter).to have_received(:stop).once
-      end
-    end
-
-    describe "#configuration" do
-      it "returns the configuration hash you passed to .configure" do
-        config = {adapter: :in_memory, foo: :bar, baz: :boz}
-        instance = described_class.new(config)
-        expect(instance.configuration).to be config
-      end
-    end
-
-    describe "#destination" do
-      it "returns the destination" do
-        destination = broker.destination(:my_queue, "my_queue", exclusive: true)
-        expect(destination).to be_a MessageDriver::Destination::Base
-      end
-    end
-
-    describe "#find_destination" do
-      it "finds the previously defined destination" do
-        my_destination = broker.destination(:my_queue, "my_queue", exclusive: true)
-        expect(broker.find_destination(:my_queue)).to be(my_destination)
-      end
-
-      context "when the destination can't be found" do
-        let(:bad_dest_name) { :not_a_queue }
-        it "raises a MessageDriver:NoSuchDestinationError" do
+        it "does not stop the adapter again if it has already been stopped" do
+          expect(subject.adapter).to be original_adapter
+          subject.stop
           expect {
-            broker.find_destination(bad_dest_name)
-          }.to raise_error(MessageDriver::NoSuchDestinationError, /#{bad_dest_name}/)
+            subject.restart
+          }.to change { subject.stopped? }.from(true).to(false)
+          expect(original_adapter).to have_received(:stop).once
         end
       end
-    end
 
-    describe "#consumer" do
-      let(:consumer_double) { lambda do |m| end }
-      it "saves the provided consumer" do
-        broker.consumer(:my_consumer, &consumer_double)
-        expect(broker.consumers[:my_consumer]).to be(consumer_double)
-      end
-
-      context "when no consumer is provided" do
-        it "raises an error" do
-          expect {
-            broker.consumer(:my_consumer)
-          }.to raise_error(MessageDriver::Error, "you must provide a block")
+      describe "#configuration" do
+        it "returns the configuration hash you passed to .configure" do
+          config = {adapter: :in_memory, foo: :bar, baz: :boz}
+          instance = described_class.new(config)
+          expect(instance.configuration).to be config
         end
       end
-    end
 
-    describe "#find_consumer" do
-      let(:consumer_double) { lambda do |m| end }
-      it "finds the previously defined consumer" do
-        my_consumer = broker.consumer(:my_consumer, &consumer_double)
-        expect(broker.find_consumer(:my_consumer)).to be(my_consumer)
-      end
-
-      context "when the consumer can't be found" do
-        let(:bad_consumer_name) { :not_a_queue }
-        it "raises a MessageDriver:NoSuchConsumerError" do
-          expect {
-            broker.find_consumer(bad_consumer_name)
-          }.to raise_error(MessageDriver::NoSuchConsumerError, /#{bad_consumer_name}/)
+      describe "#destination" do
+        it "returns the destination" do
+          destination = broker.destination(:my_queue, "my_queue", exclusive: true)
+          expect(destination).to be_a MessageDriver::Destination::Base
         end
       end
-    end
 
-    describe "#dynamic_destination" do
-      it "returns the destination" do
-        destination = broker.dynamic_destination("my_queue", exclusive: true)
-        expect(destination).to be_a MessageDriver::Destination::Base
+      describe "#find_destination" do
+        it "finds the previously defined destination" do
+          my_destination = broker.destination(:my_queue, "my_queue", exclusive: true)
+          expect(broker.find_destination(:my_queue)).to be(my_destination)
+        end
+
+        context "when the destination can't be found" do
+          let(:bad_dest_name) { :not_a_queue }
+          it "raises a MessageDriver:NoSuchDestinationError" do
+            expect {
+              broker.find_destination(bad_dest_name)
+            }.to raise_error(MessageDriver::NoSuchDestinationError, /#{bad_dest_name}/)
+          end
+        end
+      end
+
+      describe "#consumer" do
+        let(:consumer_double) { lambda do |m| end }
+        it "saves the provided consumer" do
+          broker.consumer(:my_consumer, &consumer_double)
+          expect(broker.consumers[:my_consumer]).to be(consumer_double)
+        end
+
+        context "when no consumer is provided" do
+          it "raises an error" do
+            expect {
+              broker.consumer(:my_consumer)
+            }.to raise_error(MessageDriver::Error, "you must provide a block")
+          end
+        end
+      end
+
+      describe "#find_consumer" do
+        let(:consumer_double) { lambda do |m| end }
+        it "finds the previously defined consumer" do
+          my_consumer = broker.consumer(:my_consumer, &consumer_double)
+          expect(broker.find_consumer(:my_consumer)).to be(my_consumer)
+        end
+
+        context "when the consumer can't be found" do
+          let(:bad_consumer_name) { :not_a_queue }
+          it "raises a MessageDriver:NoSuchConsumerError" do
+            expect {
+              broker.find_consumer(bad_consumer_name)
+            }.to raise_error(MessageDriver::NoSuchConsumerError, /#{bad_consumer_name}/)
+          end
+        end
+      end
+
+      describe "#dynamic_destination" do
+        it "returns the destination" do
+          destination = broker.dynamic_destination("my_queue", exclusive: true)
+          expect(destination).to be_a MessageDriver::Destination::Base
+        end
+      end
+
+      describe "#client" do
+        let(:broker_name) { described_class::DEFAULT_BROKER_NAME }
+        it "returns a module that extends MessageDriver::Client that knows it's broker" do
+          expect(broker.client).to be_kind_of MessageDriver::Client
+          expect(broker.client.broker_name).to eq(broker_name)
+          expect(broker.client.broker).to be(broker)
+        end
+
+        context "when the broker has a non-default name" do
+          let(:broker_name) { :my_cool_broker }
+          it "returns a module that extends MessageDriver::Client that knows it's broker" do
+            expect(broker.name).to eq(broker_name)
+            expect(broker.client).to be_kind_of MessageDriver::Client
+            expect(broker.client.broker_name).to eq(broker_name)
+            expect(broker.client.broker).to be(broker)
+          end
+        end
       end
     end
 

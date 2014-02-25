@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe "AMQP Integration", :bunny, type: :integration do
   before(:each) do
-    MessageDriver.configure BrokerConfig.config
+    MessageDriver::Broker.configure BrokerConfig.config
   end
   after(:each) do
     MessageDriver::Broker.stop

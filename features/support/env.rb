@@ -4,5 +4,5 @@ require 'aruba/cucumber'
 require 'message_driver'
 
 After do
-  MessageDriver.stop
+  MessageDriver::Broker.reset
 end

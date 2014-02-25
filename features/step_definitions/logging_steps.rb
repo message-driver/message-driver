@@ -8,7 +8,7 @@ Given(/^I am logging to a log file(?: at the (#{STRING_OR_SYM}) level)?$/) do |l
     @logger = Logger.new(LOG_FILE_NAME)
   end
   step "I set the log level to #{level || "info"}"
-  scenario_config[:logger] = @logger
+  @orig_logger, MessageDriver.logger = MessageDriver.logger, @logger
 end
 
 Given(/^I set the log level to (#{STRING_OR_SYM})$/) do |level|
@@ -24,5 +24,9 @@ After do
   if @logger
     @logger.close
     @logger = nil
+  end
+  if @orig_logger
+    MessageDriver.logger = @orig_logger
+    @orig_logger = nil
   end
 end

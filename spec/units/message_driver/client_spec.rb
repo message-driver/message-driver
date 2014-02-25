@@ -8,15 +8,19 @@ module MessageDriver
       include Client
     end
 
-    let(:adapter) { Adapters::InMemoryAdapter.new({}) }
+    let(:logger) { MessageDriver.logger }
+    let(:broker_name) { Broker::DEFAULT_BROKER_NAME }
+    let!(:broker) { Broker.configure(broker_name, adapter: Adapters::InMemoryAdapter, logger: logger) }
+    let(:adapter) { broker.adapter }
     let(:adapter_context) { adapter.new_context }
-    let(:logger) { double(Logger).as_null_object }
-
-    before do
-      MessageDriver.configure(adapter: adapter, logger: logger)
-    end
 
     shared_examples "a Client" do
+      describe "#broker" do
+        it "returns the broker_name" do
+          expect(subject.broker_name).to eq(broker_name)
+        end
+      end
+
       describe "#current_adapter_context" do
         before { subject.clear_context }
 
@@ -37,7 +41,7 @@ module MessageDriver
       end
 
       context "with a given adapter_context" do
-        around do |example|
+        around(:each) do |example|
           subject.with_adapter_context(adapter_context, &example)
         end
 
@@ -66,7 +70,7 @@ module MessageDriver
         end
 
         describe "#publish" do
-          let(:destination) { Broker.destination(:my_queue, "my_queue", exclusive: true) }
+          let(:destination) { broker.destination(:my_queue, "my_queue", exclusive: true) }
           let(:body) { "my message" }
           let(:headers) { {foo: :bar} }
           let(:properties) { {bar: :baz} }
@@ -103,7 +107,7 @@ module MessageDriver
 
         describe "#pop_message" do
           let(:expected) { double(MessageDriver::Message) }
-          let(:destination) { Broker.destination(:my_queue, "my_queue", exclusive: true) }
+          let(:destination) { broker.destination(:my_queue, "my_queue", exclusive: true) }
           let(:options) { {foo: :bar} }
           before do
             adapter_context.stub(:pop_message)
@@ -180,6 +184,7 @@ module MessageDriver
 
               context "and the the rollback raises an error" do
                 it "logs the error from the rollback and raises the original error" do
+                  allow(logger).to receive(:error)
                   adapter_context.stub(:rollback_transaction).and_raise("rollback failed!")
                   expect {
                     subject.with_message_transaction do
@@ -232,6 +237,7 @@ module MessageDriver
               adapter_context.should_not have_received(:rollback_transaction)
             end
             it "logs a warning" do
+              allow(logger).to receive(:debug)
               expect { |blk|
                 subject.with_message_transaction(&blk)
               }.to yield_control
@@ -273,12 +279,12 @@ module MessageDriver
         end
 
         describe "#subscribe" do
-          let(:destination) { Broker.destination(:my_queue, "my_queue", exclusive: true) }
+          let(:destination) { broker.destination(:my_queue, "my_queue", exclusive: true) }
           let(:consumer_double) { lambda do |m| end }
 
           before do
             adapter_context.stub(:subscribe)
-            Broker.consumer(:my_consumer, &consumer_double)
+            broker.consumer(:my_consumer, &consumer_double)
           end
 
           it "delegates to the adapter_context" do
@@ -325,7 +331,7 @@ module MessageDriver
         end
 
         describe "#subscribe_with" do
-          let(:destination) { Broker.destination(:my_queue, "my_queue", exclusive: true) }
+          let(:destination) { broker.destination(:my_queue, "my_queue", exclusive: true) }
           let(:consumer_double) { lambda do |m| end }
 
           before do
@@ -375,6 +381,44 @@ module MessageDriver
     context "when the module is used directly" do
       subject { described_class }
       it_behaves_like "a Client"
+    end
+
+    describe ".for_broker" do
+      let(:broker_name) { :my_cool_broker }
+      let(:client) { described_class.for_broker(broker_name) }
+      it "produces a module that extends #{described_class.name}" do
+        expect(client).to be_a Module
+        expect(client).to be_kind_of described_class
+      end
+
+      it "knows it's broker" do
+        expect(client.broker_name).to eq(broker_name)
+        expect(client.broker).to be(broker)
+      end
+
+      context "when the resulting module is used as an included module" do
+        subject! do
+          clz = Class.new
+          clz.send :include, client
+          clz.new
+        end
+        #subject do
+          #client
+          #clz = begin
+                  #class TestIncludeClass
+                    #include Client.for_broker(:my_cool_broker)
+                  #end
+                #end
+          #clz.new
+        #end
+        it_behaves_like "a Client"
+      end
+
+      context "when the resulting module is used directly" do
+        it_behaves_like "a Client" do
+          subject! { client }
+        end
+      end
     end
   end
 end

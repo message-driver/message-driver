@@ -3,11 +3,13 @@ module MessageDriver
     class Base
       include Logging
 
+      attr_reader :broker
+
       def contexts
         @contexts ||= []
       end
 
-      def initialize(configuration)
+      def initialize(broker, configuration)
         raise "Must be implemented in subclass"
       end
 

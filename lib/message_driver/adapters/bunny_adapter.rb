@@ -190,8 +190,9 @@ module MessageDriver
         end
       end
 
-      def initialize(config)
+      def initialize(broker, config)
         validate_bunny_version
+        @broker = broker
         @config = config
         @handle_connection_errors = config.fetch(:handle_connection_errors, true)
         initialize_connection

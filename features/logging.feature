@@ -1,8 +1,9 @@
 @all_adapters
 Feature: Stuff gets logged if you set a logger
 
-  You can configure the logger by add a logger to the hash passed to `MessageDriver::Broker.configure`.
-  If you don't provide a logger, then an info level logger will be created and sent to `STDOUT`.
+  You can configure the logger by setting it on `MessageDriver.logger`.
+  If you don't provide a logger, then an info level logger will be created
+  and sent to `STDOUT`.
 
   Scenario: Starting the broker
     Given I am logging to a log file at the debug level

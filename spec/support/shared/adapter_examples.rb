@@ -14,4 +14,10 @@ shared_examples "an adapter" do
       expect(ctx2).to_not be_valid
     end
   end
+
+  describe "#broker" do
+    it "returns the broker associated with the adapter" do
+      expect(subject.broker).to be(broker)
+    end
+  end
 end
