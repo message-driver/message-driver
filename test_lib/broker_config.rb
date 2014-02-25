@@ -7,7 +7,8 @@ class BrokerConfig
       when 'bunny'
         {
           adapter: :bunny,
-          vhost: 'message-driver-test'
+          vhost: 'message-driver-test',
+          continuation_timeout: 10000
         }
       when 'in_memory'
         {adapter: :in_memory}
