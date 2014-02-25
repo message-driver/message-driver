@@ -1,9 +1,10 @@
 #!/bin/bash
 
-rabbitmqctl add_vhost message-driver-test
-rabbitmqctl set_permissions -p message-driver-test guest ".*" ".*" ".*"
+sudo rabbitmqctl add_vhost message-driver-test
+sudo rabbitmqctl set_permissions -p message-driver-test guest ".*" ".*" ".*"
 
 if [ "$ADAPTER" = "stomp" ]; then
-  rabbitmq-plugins enable rabbitmq_stomp
-  service rabbitmq-server restart
+  sudo rabbitmq-plugins enable rabbitmq_stomp
+  sudo service rabbitmq-server restart
+  sleep 3
 fi

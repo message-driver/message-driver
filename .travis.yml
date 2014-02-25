@@ -4,7 +4,7 @@ bundler_args: --without tools darwin
 services:
   - rabbitmq
 before_script:
-  - sudo ci/travis_setup
+  - ci/travis_setup
 env:
   - ADAPTER=in_memory
   - ADAPTER=stomp
