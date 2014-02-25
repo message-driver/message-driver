@@ -9,7 +9,7 @@ guard 'bundler' do
 end
 
 common_rspec_opts = { all_after_pass: true }
-unit_spec_opts = common_rspec_opts.merge({ spec_paths: ["spec/units"], cmd: 'rspec -f doc', run_all: { cmd: 'bundle exec rspec' } })
+unit_spec_opts = common_rspec_opts.merge({ spec_paths: ["spec/units"], cmd: 'bundle exec rspec -f doc', run_all: { cmd: 'bundle exec rspec' } })
 integration_spec_opts = common_rspec_opts.merge({ spec_paths: ["spec/integration/#{BrokerConfig.current_adapter}"], cmd: 'bundle exec rspec -f doc -t all_adapters', run_all: { cmd: 'bundle exec rspec -t all_adapters' } })
 
 group 'specs' do
