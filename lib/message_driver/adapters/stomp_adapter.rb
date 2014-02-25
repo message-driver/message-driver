@@ -25,9 +25,10 @@ module MessageDriver
 
       attr_reader :config, :poll_timeout
 
-      def initialize(config)
+      def initialize(broker, config)
         validate_stomp_version
 
+        @broker = broker
         @config = config.symbolize_keys
         connect_headers = @config[:connect_headers] ||= {}
         connect_headers.symbolize_keys
@@ -66,7 +67,6 @@ module MessageDriver
             sub_id = connection.uuid
             msg = nil
             count = 0
-            options[:id] = sub_id #this is a workaround for https://github.com/stompgem/stomp/issues/56
             connection.subscribe(destination.name, options, sub_id)
             while msg.nil? && count < max_poll_count
               msg = connection.poll

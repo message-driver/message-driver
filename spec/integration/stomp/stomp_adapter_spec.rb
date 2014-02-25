@@ -9,13 +9,14 @@ module MessageDriver::Adapters
 
     describe "#initialize" do
       let(:connection_attrs) { valid_connection_attrs }
+      let(:broker) { double("broker") }
 
       context "differing stomp versions" do
         shared_examples "raises a stomp error" do
           it "raises an error" do
             stub_const("Stomp::Version::STRING", version)
             expect {
-              described_class.new(connection_attrs)
+              described_class.new(broker, connection_attrs)
             }.to raise_error MessageDriver::Error, "stomp 1.3.1 or a later version of the 1.3.x series is required for the stomp adapter"
           end
         end
@@ -24,7 +25,7 @@ module MessageDriver::Adapters
             stub_const("Stomp::Version::STRING", version)
             adapter = nil
             expect {
-              adapter = described_class.new(connection_attrs)
+              adapter = described_class.new(broker, connection_attrs)
             }.to_not raise_error
           end
         end
@@ -44,7 +45,7 @@ module MessageDriver::Adapters
 
       describe "the resulting config" do
         let(:connection_attrs) { {hosts: [{host: "my_host"}]} }
-        subject(:config) { described_class.new(connection_attrs).config }
+        subject(:config) { described_class.new(broker, connection_attrs).config }
 
         its([:connect_headers]) { should eq(:"accept-version" => "1.1,1.2") }
         its([:hosts]) { should eq(connection_attrs[:hosts]) }
@@ -71,11 +72,8 @@ module MessageDriver::Adapters
     end
 
     shared_context "a connected stomp adapter" do
-      subject(:adapter) { described_class.new(valid_connection_attrs) }
-
-      before do
-        MessageDriver::Broker.configure(adapter: adapter)
-      end
+      let(:broker) { MessageDriver::Broker.configure(valid_connection_attrs) }
+      subject(:adapter) { broker.adapter }
 
       after do
         adapter.stop
