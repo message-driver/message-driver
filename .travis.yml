@@ -1,12 +1,10 @@
 language: ruby
+cache: bundler
 bundler_args: --without tools darwin
 services:
   - rabbitmq
 before_script:
-  - sudo rabbitmqctl add_vhost message-driver-test
-  - sudo rabbitmqctl set_permissions -p message-driver-test guest ".*" ".*" ".*"
-  - sudo rabbitmq-plugins enable rabbitmq_stomp
-  - sudo service rabbitmq-server restart
+  - sudo ci/travis_setup
 env:
   - ADAPTER=in_memory
   - ADAPTER=stomp
