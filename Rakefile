@@ -6,8 +6,6 @@ require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 require 'cucumber/rake/task'
 
-#require File.join(File.dirname(__FILE__), 'test_lib', 'broker_config')
-
 namespace :spec do
   desc "Run unit specs"
   RSpec::Core::RakeTask.new(:units) do |t|
