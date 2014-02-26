@@ -80,13 +80,13 @@ module MessageDriver
         end
 
         def message_count
-          Client.current_adapter_context.with_channel(false) do |ch|
+          adapter.broker.client.current_adapter_context.with_channel(false) do |ch|
             ch.queue(@name, @dest_options.merge(passive: true)).message_count
           end
         end
 
         def purge
-          Client.current_adapter_context.with_channel(false) do |ch|
+          adapter.broker.client.current_adapter_context.with_channel(false) do |ch|
             bunny_queue(ch).purge
           end
         end
@@ -149,7 +149,7 @@ module MessageDriver
               ch.prefetch(options[:prefetch_size])
             end
             @bunny_consumer = queue.subscribe(options.merge(manual_ack: true)) do |delivery_info, properties, payload|
-              Client.with_adapter_context(@sub_ctx) do
+              adapter.broker.client.with_adapter_context(@sub_ctx) do
                 message = @sub_ctx.args_to_message(delivery_info, properties, payload)
                 handle_message(message)
               end
@@ -166,7 +166,7 @@ module MessageDriver
             when :manual
               consumer.call(message)
             when :transactional
-              Client.with_message_transaction do
+              adapter.broker.client.with_message_transaction do
                 consumer.call(message)
                 @sub_ctx.ack_message(message)
               end

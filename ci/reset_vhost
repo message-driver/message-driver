@@ -1,0 +1,5 @@
+#!/bin/bash
+
+rabbitmqctl delete_vhost message-driver-test
+rabbitmqctl add_vhost message-driver-test
+rabbitmqctl set_permissions -p message-driver-test guest ".*" ".*" ".*"

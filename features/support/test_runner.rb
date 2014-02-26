@@ -4,6 +4,11 @@ class TestRunner
 
   attr_accessor :raised_error
   attr_accessor :current_feature_file
+  attr_accessor :broker_name
+
+  def broker_name
+    @broker_name ||= MessageDriver::Broker::DEFAULT_BROKER_NAME
+  end
 
   def run_config_code(src)
     instance_eval(src, current_feature_file)
@@ -40,7 +45,7 @@ class TestRunner
   def fetch_destination(destination)
     case destination
     when String, Symbol
-      MessageDriver::Client.find_destination(destination)
+      MessageDriver::Client[self.broker_name].find_destination(destination)
     when MessageDriver::Destination::Base
       destination
     else

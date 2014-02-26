@@ -120,13 +120,13 @@ module MessageDriver
         define_method :broker_name do
           _broker_name
         end
-
-        #self.__send__(:define_method, :included) do |target|
-          #target.__send__ :prepend, Client
-        #end
       end
     end
     module_function :for_broker
+
+    def [](index)
+      Broker.broker(index).client
+    end
 
     private
 

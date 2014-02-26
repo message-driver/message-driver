@@ -14,22 +14,6 @@ module MessageDriver
         brokers[name] = new(name, options)
       end
 
-      def method_missing(m, *args, &block)
-        STDERR.puts "#{self.name}.#{m} directly is deprecated, please use MessageDriver::Client.#{m} or #{self.name}.broker.#{m} instead"
-        STDERR.puts "called from #{Thread.current.backtrace[2]}"
-        if public_method_defined? m
-          broker.__send__(m, *args, &block)
-        else
-          super
-        end
-      end
-
-      def instance
-        STDERR.puts "#{self.name}.instance is deprecated, please use #{self.name}.broker instead"
-        STDERR.puts "called from #{Thread.current.backtrace[2]}"
-        broker
-      end
-
       def define(name = DEFAULT_BROKER_NAME)
         yield broker(name)
       end

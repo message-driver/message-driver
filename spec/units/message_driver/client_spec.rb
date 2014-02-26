@@ -402,15 +402,6 @@ module MessageDriver
           clz.send :include, client
           clz.new
         end
-        #subject do
-          #client
-          #clz = begin
-                  #class TestIncludeClass
-                    #include Client.for_broker(:my_cool_broker)
-                  #end
-                #end
-          #clz.new
-        #end
         it_behaves_like "a Client"
       end
 
@@ -418,6 +409,15 @@ module MessageDriver
         it_behaves_like "a Client" do
           subject! { client }
         end
+      end
+    end
+
+    describe ".[]" do
+      it "grabs the client for the given broker" do
+        expected = double("client")
+        broker = double("broker", client: expected)
+        allow(Broker).to receive(:broker).with(:test_broker).and_return(broker)
+        expect(described_class[:test_broker]).to be expected
       end
     end
   end

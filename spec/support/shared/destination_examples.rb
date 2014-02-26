@@ -1,4 +1,6 @@
 shared_examples "a destination" do
+  its(:adapter) { should be adapter }
+
   describe "#pop_message" do
     let(:body) { "The message body" }
     let(:headers) { { "foo" => "bar", "bar" => "baz"} }

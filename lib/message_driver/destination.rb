@@ -11,11 +11,11 @@ module MessageDriver
       end
 
       def publish(body, headers={}, properties={})
-        Client.publish(self, body, headers, properties)
+        adapter.broker.client.publish(self, body, headers, properties)
       end
 
       def pop_message(options={})
-        Client.pop_message(self, options)
+        adapter.broker.client.pop_message(self, options)
       end
 
       def after_initialize(adapter_context)

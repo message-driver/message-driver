@@ -1,5 +1,10 @@
 Given "I am connected to the broker" do
-  MessageDriver::Broker.configure(broker_config)
+  MessageDriver::Broker.configure(test_runner.broker_name, broker_config)
+end
+
+Given(/^I am connected to a broker named (#{STRING_OR_SYM})$/) do |broker_name|
+  test_runner.broker_name = broker_name
+  step "I am connected to the broker"
 end
 
 Given "the following broker configuration" do |src|
@@ -7,8 +12,12 @@ Given "the following broker configuration" do |src|
   test_runner.run_config_code(src)
 end
 
+Given "I configure my broker as follows" do |src|
+  test_runner.run_config_code(src)
+end
+
 Given(/^I have a destination (#{STRING_OR_SYM})$/) do |destination|
-  MessageDriver::Broker.define do |b|
+  MessageDriver::Broker.define(test_runner.broker_name) do |b|
     b.destination(destination, destination.to_s)
   end
 end
@@ -31,7 +40,7 @@ end
 
 When(/^I send the following messages? to (#{STRING_OR_SYM})$/) do |destination, table|
   table.hashes.each do |msg|
-    MessageDriver::Client.publish(destination, msg[:body])
+    MessageDriver::Client[test_runner.broker_name].publish(destination, msg[:body])
   end
 end
 
@@ -40,7 +49,7 @@ When "I execute the following code" do |src|
 end
 
 When "I reset the context" do
-  MessageDriver::Client.current_adapter_context.invalidate
+  MessageDriver::Client[test_runner.broker_name].current_adapter_context.invalidate
 end
 
 When "I allow for processing" do

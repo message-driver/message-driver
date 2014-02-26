@@ -53,7 +53,7 @@ module MessageDriver
           unless name.start_with?("/")
             name = "/queue/#{name}"
           end
-          Destination.new(self, name, dest_options, message_props)
+          Destination.new(adapter, name, dest_options, message_props)
         end
 
         def publish(destination, body, headers={}, properties={})
