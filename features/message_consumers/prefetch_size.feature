@@ -1,6 +1,6 @@
 @bunny
 @wip
-Feature: Message Consumers prefetch size
+Feature: Controlling Prefetch Size
   You can set the prefetch size for your message consumers.
 
   Background:

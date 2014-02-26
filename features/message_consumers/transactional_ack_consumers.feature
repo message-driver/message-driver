@@ -1,5 +1,8 @@
 @bunny
-Feature: Transactional Message Consumers
+Feature: Transactional Consumers
+  These consumers will wrap the acknowledgement of the consumed message
+  as well as any publishes in a native broker transaction.
+
   Background:
     Given I am connected to the broker
     And I have a destination :dest_queue with no messages on it

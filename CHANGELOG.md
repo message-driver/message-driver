@@ -2,6 +2,9 @@
 
 ## 0.3.0.dev - master
 
+* Support for handling multiple broker connections
+* require bunny 1.1.3 or later
+
 ## 0.2.2 - 2014-02-21
 
 * Lots of work on reconnection handling for bunny. Still a work in

@@ -1,6 +1,6 @@
 @in_memory
 @bunny
-Feature: Message Consumers
+Feature: Basics of Message Consumers
   Background:
     Given I am connected to the broker
     And I have a destination :dest_queue with no messages on it

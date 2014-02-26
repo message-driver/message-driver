@@ -6,15 +6,18 @@
 - destination_metadata.feature
 - client_acks.feature
 - logging.feature
-- message_consumers.feature
-- message_consumers
+- message_consumers (Message Consumers)
+  - basics.feature
   - auto_ack_consumers.feature
   - manual_ack_consumers.feature
   - transactional_ack_consumers.feature
+  - prefetch_size.feature
+  - subscribe_with_a_block.feature
 - amqp_specific_features (AMQP-Specific Features):
   - declaring_amqp_destinations.feature
   - binding_amqp_destinations.feature
   - server_named_desitnations.feature
   - requeueing_on_nack.feature
+- connecting_to_multiple_brokers.feature
 - error_handling.feature
 - Rails.md

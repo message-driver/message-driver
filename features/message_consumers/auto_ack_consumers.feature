@@ -1,5 +1,5 @@
 @bunny
-Feature: Message Consumers auto-acknowledgement
+Feature: Automatic Message Acknowledgement
   This mode will ack the message if the consumer completes successfully.
   It will nack the message if the consumer raises an error.
 

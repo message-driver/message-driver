@@ -1,5 +1,5 @@
 @bunny
-Feature: Message Consumers with manual acknowledgement
+Feature: Manual Message Acknowledgement
   This mode requires the consumer to call ack on the message in order to acknowledge it
 
   Background:
