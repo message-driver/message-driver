@@ -4,6 +4,8 @@
 
 * Support for handling multiple broker connections
 * require bunny 1.1.3 or later
+* make bunny connections as lazily initialized as possible
+* bunny transaction start lazily
 
 ## 0.2.2 - 2014-02-21
 

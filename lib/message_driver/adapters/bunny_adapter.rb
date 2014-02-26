@@ -262,12 +262,6 @@ module MessageDriver
 
         def begin_transaction(options={})
           raise MessageDriver::TransactionError, "you can't begin another transaction, you are already in one!" if in_transaction?
-          unless is_transactional?
-            with_channel(false) do |ch|
-              ch.tx_select
-            end
-            @is_transactional = true
-          end
           @in_transaction = true
         end
 
@@ -395,9 +389,13 @@ module MessageDriver
 
         def with_channel(require_commit=true)
           raise MessageDriver::TransactionRollbackOnly if @rollback_only
-          raise MessageDriver::Error, "oh nos!" if !valid?
+          raise MessageDriver::Error, "this adapter context is not valid!" if !valid?
           @channel = adapter.connection.create_channel if @channel.nil?
           reset_channel if @need_channel_reset
+          if in_transaction? && !is_transactional?
+            @channel.tx_select
+            @is_transactional = true
+          end
           handle_errors do
             result = yield @channel
             commit_transaction(true) if require_commit && is_transactional? && !in_transaction?
