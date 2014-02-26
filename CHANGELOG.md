@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0.dev - master
+## 0.3.0 - 2014-02-26
 
 * Support for handling multiple broker connections
 * require bunny 1.1.3 or later
