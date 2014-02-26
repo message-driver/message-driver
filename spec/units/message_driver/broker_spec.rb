@@ -99,6 +99,28 @@ module MessageDriver
       end
     end
 
+    describe ".client" do
+      let(:broker_name) { described_class::DEFAULT_BROKER_NAME }
+      it "returns a module that extends MessageDriver::Client for the specified broker" do
+        expect(described_class.client(broker_name)).to be_kind_of MessageDriver::Client
+        expect(described_class.client(broker_name).broker_name).to eq(broker_name)
+      end
+
+      it "caches the modules" do
+        first = described_class.client(broker_name)
+        second = described_class.client(broker_name)
+        expect(second).to be first
+      end
+
+      context "when the broker has a non-default name" do
+        let(:broker_name) { :my_cool_broker }
+        it "returns a module that extends MessageDriver::Client that knows it's broker" do
+          expect(described_class.client(broker_name)).to be_kind_of MessageDriver::Client
+          expect(described_class.client(broker_name).broker_name).to eq(broker_name)
+        end
+      end
+    end
+
     describe "#initialize" do
       it "raises an error if you don't specify an adapter" do
         expect {
@@ -291,6 +313,16 @@ module MessageDriver
           expect(broker.client).to be_kind_of MessageDriver::Client
           expect(broker.client.broker_name).to eq(broker_name)
           expect(broker.client.broker).to be(broker)
+        end
+
+        it "caches the modules" do
+          first = broker.client
+          second = broker.client
+          expect(second).to be first
+        end
+
+        it "returns the same module as .client" do
+          expect(broker.client).to be described_class.client(broker.name)
         end
 
         context "when the broker has a non-default name" do

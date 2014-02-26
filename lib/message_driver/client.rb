@@ -1,3 +1,5 @@
+require 'forwardable'
+
 module MessageDriver
   module Client
     include Logging
@@ -125,7 +127,7 @@ module MessageDriver
     module_function :for_broker
 
     def [](index)
-      Broker.broker(index).client
+      Broker.client(index)
     end
 
     private
@@ -147,7 +149,7 @@ module MessageDriver
       Thread.current[adapter_context_key] = wrapper
     end
 
-    def build_context_wrapper(ctx=broker.adapter.new_context)
+    def build_context_wrapper(ctx=adapter.new_context)
       ContextWrapper.new(ctx)
     end
 
@@ -181,5 +183,4 @@ module MessageDriver
       end
     end
   end
-
 end

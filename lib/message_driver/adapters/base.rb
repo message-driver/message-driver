@@ -23,6 +23,10 @@ module MessageDriver
         raise "Must be implemented in subclass"
       end
 
+      def reset_after_tests
+        #does nothing, can be overridden by adapters that want to support testing scenarios
+      end
+
       def stop
         if @contexts
           ctxs = @contexts

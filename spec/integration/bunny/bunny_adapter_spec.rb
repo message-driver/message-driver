@@ -53,7 +53,7 @@ module MessageDriver::Adapters
         broker = double(:broker)
         adapter = described_class.new(broker, valid_connection_attrs)
 
-        expect(adapter.connection(false)).to_not be_open
+        expect(adapter.connection(false)).to be_nil
       end
     end
 

@@ -1,5 +1,4 @@
 require 'bunny'
-require 'bunny/session_patch'
 
 module MessageDriver
   class Broker
@@ -194,17 +193,18 @@ module MessageDriver
         validate_bunny_version
         @broker = broker
         @config = config
-        @handle_connection_errors = config.fetch(:handle_connection_errors, true)
-        initialize_connection
       end
 
       def connection(ensure_started=true)
-        initialize_connection
         if ensure_started
           begin
+            @connection ||= Bunny::Session.new(@config)
             @connection.start
           rescue *NETWORK_ERRORS => e
             raise MessageDriver::ConnectionError.new(e.to_s, e)
+          rescue => e
+            stop
+            raise e
           end
         end
         @connection
@@ -213,13 +213,11 @@ module MessageDriver
       def stop
         begin
           super
-          @connection.close if !@connection.nil? && @connection.open?
-        rescue *NETWORK_ERRORS => e
+          @connection.close if !@connection.nil?
+        rescue => e
           logger.error "error while attempting connection close\n#{exception_to_str(e)}"
         ensure
-          conn = @connection
           @connection = nil
-          conn.cleanup_threads unless conn.nil?
         end
       end
 
@@ -430,38 +428,6 @@ module MessageDriver
           yield
         rescue => e
           logger.error exception_to_str(e)
-        end
-      end
-
-      def initialize_connection
-        if @handle_connection_errors
-          if @connection_thread.nil?
-            #hi mom!
-            @connection_thread = Thread.new do
-              @connection = Bunny.new(@config)
-              begin
-                sleep
-              rescue *NETWORK_ERRORS => e
-                logger.error "error on connection\n#{exception_to_str(e)}"
-                if @connection.automatically_recover?
-                  sleep 0.1
-                  unless @connection.recovering_from_network_failure?
-                    stop
-                  end
-                else
-                  stop
-                end
-                retry
-              rescue => e
-                logger.error "unhandled error in connection thread! #{exception_to_str(e)}"
-              end
-            end
-            @connection_thread.abort_on_exception = true
-            sleep 0.1
-          end
-          sleep 0.1 while @connection_thread.status != 'sleep'
-        else
-          @connection ||= Bunny.new(@config)
         end
       end
 

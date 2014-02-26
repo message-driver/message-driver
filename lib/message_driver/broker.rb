@@ -26,9 +26,28 @@ module MessageDriver
         result
       end
 
-      def stop
+      def client(name)
+        unless result = clients[name]
+          result = clients[name] = Client.for_broker(name)
+        end
+        result
+      end
+
+      def stop_all
         each_broker do |brk|
           brk.stop
+        end
+      end
+
+      def restart_all
+        each_broker do |brk|
+          brk.restart
+        end
+      end
+
+      def reset_after_tests
+        each_broker do |brk|
+          brk.adapter.reset_after_tests
         end
       end
 
@@ -46,6 +65,10 @@ module MessageDriver
       private
       def brokers
         @brokers ||= { }
+      end
+
+      def clients
+        @clients ||= { }
       end
 
       def each_broker
@@ -70,7 +93,7 @@ module MessageDriver
     end
 
     def client
-      @client ||= Client.for_broker(name)
+      @client ||= self.class.client(name)
     end
 
     def stop

@@ -415,8 +415,7 @@ module MessageDriver
     describe ".[]" do
       it "grabs the client for the given broker" do
         expected = double("client")
-        broker = double("broker", client: expected)
-        allow(Broker).to receive(:broker).with(:test_broker).and_return(broker)
+        allow(Broker).to receive(:client).with(:test_broker).and_return(expected)
         expect(described_class[:test_broker]).to be expected
       end
     end
