@@ -13,19 +13,14 @@ group :tools do
   gem 'guard-rspec'
   gem 'guard-cucumber'
   gem 'pry'
-  platform :ruby_19 do
-    gem 'pry-debugger'
-  end
-  platform :ruby_20 do
-    gem 'pry-byebug'
-  end
+  gem 'pry-byebug', :platform => [:mri_20, :mri_21]
   group :darwin do
     gem 'ruby_gntp'
     gem 'rb-fsevent'
     gem 'relish'
     gem 'lunchy'
   end
-end
+end if RUBY_VERSION >= "1.9.3"
 
 require File.expand_path("../test_lib/broker_config", __FILE__)
 

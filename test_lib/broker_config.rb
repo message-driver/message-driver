@@ -2,7 +2,7 @@ class BrokerConfig
   class << self
     def config
       adapter_file = File.expand_path("../../.adapter_under_test", __FILE__)
-      @adapter, @version = (ENV['ADAPTER'] || (File.exist?(adapter_file) && File.read(adapter_file).chomp)).split(":")
+      @adapter, @version = (ENV['ADAPTER'] || (File.exist?(adapter_file) ? File.read(adapter_file).chomp : "")).split(":")
       case @adapter
       when 'bunny'
         {
