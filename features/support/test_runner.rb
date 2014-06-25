@@ -26,10 +26,14 @@ class TestRunner
     destination = fetch_destination(destination_name)
     pause_if_needed
     result = []
-    begin
+    loop do
       msg = destination.pop_message
-      result << msg unless msg.nil?
-    end until msg.nil?
+      if msg.nil?
+        break
+      else
+        result << msg
+      end
+    end
     result
   end
 

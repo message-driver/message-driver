@@ -13,16 +13,16 @@ group :tools do
   gem 'guard-rspec'
   gem 'guard-cucumber'
   gem 'pry'
-  gem 'pry-byebug', :platform => [:mri_20, :mri_21]
+  gem 'pry-byebug', platform: [:mri_20, :mri_21]
   group :darwin do
     gem 'ruby_gntp'
     gem 'rb-fsevent'
     gem 'relish'
     gem 'lunchy'
   end
-end if RUBY_VERSION >= "1.9.3"
+end if RUBY_VERSION >= '1.9.3'
 
-require File.expand_path("../test_lib/broker_config", __FILE__)
+require File.expand_path('../test_lib/broker_config', __FILE__)
 
 adapter = BrokerConfig.current_adapter.to_s
 version = BrokerConfig.adapter_version

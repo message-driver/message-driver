@@ -309,7 +309,7 @@ module MessageDriver
           with_channel(false) do |ch|
             queue = ch.queue(destination.name, passive: true)
 
-            message = queue.pop(ack: !!options[:client_ack])
+            message = queue.pop(ack: options.fetch(:client_ack, false))
             if message.nil? || message[0].nil?
               nil
             else

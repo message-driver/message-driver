@@ -72,7 +72,7 @@ module MessageDriver
         @broker = broker
         @destinations = {}
         @message_store = Hash.new { |h,k| h[k] = [] }
-        @subscriptions = Hash.new
+        @subscriptions = {}
       end
 
       def build_context
