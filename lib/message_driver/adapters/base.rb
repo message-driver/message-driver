@@ -9,7 +9,7 @@ module MessageDriver
         @contexts ||= []
       end
 
-      def initialize(broker, configuration)
+      def initialize(_broker, _configuration)
         raise 'Must be implemented in subclass'
       end
 
@@ -47,19 +47,19 @@ module MessageDriver
         @valid = true
       end
 
-      def publish(destination, body, headers={}, properties={})
+      def publish(_destination, _body, _headers={}, _properties={})
         raise 'Must be implemented in subclass'
       end
 
-      def pop_message(destination, options={})
+      def pop_message(_destination, _options={})
         raise 'Must be implemented in subclass'
       end
 
-      def subscribe(destination, options={}, &consumer)
+      def subscribe(_destination, _options={}, &_consumer)
         raise "#subscribe is not supported by #{adapter.class}"
       end
 
-      def create_destination(name, dest_options={}, message_props={})
+      def create_destination(_name, _dest_options={}, _message_props={})
         raise 'Must be implemented in subclass'
       end
 

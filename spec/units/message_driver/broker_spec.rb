@@ -268,7 +268,7 @@ module MessageDriver
       end
 
       describe '#consumer' do
-        let(:consumer_double) { lambda do |m| end }
+        let(:consumer_double) { lambda do |_| end }
         it 'saves the provided consumer' do
           broker.consumer(:my_consumer, &consumer_double)
           expect(broker.consumers[:my_consumer]).to be(consumer_double)
@@ -284,7 +284,7 @@ module MessageDriver
       end
 
       describe '#find_consumer' do
-        let(:consumer_double) { lambda do |m| end }
+        let(:consumer_double) { lambda do |_| end }
         it 'finds the previously defined consumer' do
           my_consumer = broker.consumer(:my_consumer, &consumer_double)
           expect(broker.find_consumer(:my_consumer)).to be(my_consumer)

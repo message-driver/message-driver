@@ -8,7 +8,7 @@ shared_examples 'subscriptions are not supported' do
   describe '#subscribe' do
     it 'raises an error' do
       destination = double('destination')
-      consumer = lambda do |m| end
+      consumer = lambda do |_| end
       expect {
         subject.subscribe(destination, &consumer)
       }.to raise_error "#subscribe is not supported by #{subject.adapter.class}"
@@ -113,7 +113,7 @@ shared_examples 'subscriptions are supported' do |subscription_type|
     context 'when the consumer raises an error' do
       let(:error) { RuntimeError.new('oh nos!') }
       let(:consumer) do
-        lambda do |msg|
+        lambda do |_|
           raise error
         end
       end

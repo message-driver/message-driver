@@ -280,7 +280,7 @@ module MessageDriver
 
         describe '#subscribe' do
           let(:destination) { broker.destination(:my_queue, 'my_queue', exclusive: true) }
-          let(:consumer_double) { lambda do |m| end }
+          let(:consumer_double) { lambda do |_| end }
 
           before do
             adapter_context.stub(:subscribe)
@@ -332,7 +332,7 @@ module MessageDriver
 
         describe '#subscribe_with' do
           let(:destination) { broker.destination(:my_queue, 'my_queue', exclusive: true) }
-          let(:consumer_double) { lambda do |m| end }
+          let(:consumer_double) { lambda do |_| end }
 
           before do
             adapter_context.stub(:subscribe)

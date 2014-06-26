@@ -11,7 +11,7 @@ module MessageDriver::Destination
     describe '#subscribe' do
       it 'raises an error' do
         expect {
-          consumer = lambda do |m| end
+          consumer = lambda do |_| end
           destination.subscribe(&consumer)
         }.to raise_error "#subscribe is not supported by #{destination.class}"
       end

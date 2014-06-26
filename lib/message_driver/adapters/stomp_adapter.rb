@@ -56,7 +56,7 @@ module MessageDriver
           Destination.new(adapter, name, dest_options, message_props)
         end
 
-        def publish(destination, body, headers={}, properties={})
+        def publish(destination, body, headers={}, _properties={})
           with_connection do |connection|
             connection.publish(destination.name, body, headers)
           end

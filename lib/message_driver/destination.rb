@@ -18,7 +18,7 @@ module MessageDriver
         adapter.broker.client.pop_message(self, options)
       end
 
-      def after_initialize(adapter_context)
+      def after_initialize(_adapter_context)
         #does nothing, feel free to override as needed
       end
 
@@ -26,7 +26,7 @@ module MessageDriver
         raise "#message_count is not supported by #{self.class}"
       end
 
-      def subscribe(&consumer)
+      def subscribe(&_consumer)
         raise "#subscribe is not supported by #{self.class}"
       end
     end

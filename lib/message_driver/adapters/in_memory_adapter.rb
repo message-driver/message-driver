@@ -39,7 +39,7 @@ module MessageDriver
           message_queue.size
         end
 
-        def pop_message(options={})
+        def pop_message(_options={})
           message_queue.shift
         end
 
@@ -68,7 +68,7 @@ module MessageDriver
         end
       end
 
-      def initialize(broker, config={})
+      def initialize(broker, _config={})
         @broker = broker
         @destinations = {}
         @message_store = Hash.new { |h,k| h[k] = [] }

@@ -3,7 +3,7 @@ require 'spec_helper'
 module MessageDriver::Adapters
   describe Base do
     class TestAdapter < Base
-      def initialize(configuration)
+      def initialize(_configuration)
       end
     end
     subject(:adapter) { TestAdapter.new({}) }

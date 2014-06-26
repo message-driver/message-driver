@@ -74,7 +74,7 @@ module MessageDriver
           ''
         end
 
-        def routing_key(properties)
+        def routing_key(_properties)
           @name
         end
 
@@ -260,7 +260,7 @@ module MessageDriver
           true
         end
 
-        def begin_transaction(options={})
+        def begin_transaction(_options={})
           raise MessageDriver::TransactionError, "you can't begin another transaction, you are already in one!" if in_transaction?
           @in_transaction = true
         end
@@ -322,7 +322,7 @@ module MessageDriver
           true
         end
 
-        def ack_message(message, options={})
+        def ack_message(message, _options={})
           with_channel(true) do |ch|
             ch.ack(message.delivery_tag)
           end

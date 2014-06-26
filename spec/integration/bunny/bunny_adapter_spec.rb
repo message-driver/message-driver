@@ -325,7 +325,7 @@ module MessageDriver::Adapters
         context 'the destination is an ExchangeDestination' do
           let(:dest_name) { 'my_dest' }
           let(:destination) { adapter_context.create_destination(dest_name, type: :exchange) }
-          let(:consumer) { lambda do |m|; end }
+          let(:consumer) { lambda do |_|; end }
 
           it 'raises an error' do
             expect {

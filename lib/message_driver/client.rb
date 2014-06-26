@@ -54,7 +54,7 @@ module MessageDriver
       broker.find_consumer(consumer)
     end
 
-    def with_message_transaction(options={}, &block)
+    def with_message_transaction(options={})
       wrapper = fetch_context_wrapper
       wrapper.increment_transaction_depth
       begin
@@ -89,7 +89,7 @@ module MessageDriver
       ctx.nil? ? nil : ctx.ctx
     end
 
-    def with_adapter_context(adapter_context, &block)
+    def with_adapter_context(adapter_context)
       old_ctx, Thread.current[adapter_context_key] = fetch_context_wrapper(false), build_context_wrapper(adapter_context)
       begin
         yield
@@ -115,7 +115,7 @@ module MessageDriver
     end
 
     def for_broker(name)
-      Module.new do |mod|
+      Module.new do
         include Client
         extend self
 

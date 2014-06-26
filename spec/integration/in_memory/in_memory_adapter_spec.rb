@@ -60,7 +60,7 @@ module MessageDriver::Adapters
 
       it 'removes any existing subscriptions' do
         destinations = (1..3).map(&adapter.method(:create_destination))
-        consumer = lambda do |m| end
+        consumer = lambda do |_| end
         destinations.each do |destination|
           destination.subscribe(&consumer)
         end
@@ -80,7 +80,7 @@ module MessageDriver::Adapters
       let(:dest2) { adapter.create_destination(queue_name) }
 
       context 'when I have a consumer on one destination' do
-        let(:consumer) { lambda do |m| end }
+        let(:consumer) { lambda do |_| end }
         before do
           dest1.subscribe(&consumer)
         end
