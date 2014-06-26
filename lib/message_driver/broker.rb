@@ -27,7 +27,7 @@ module MessageDriver
       end
 
       def client(name)
-        unless result = clients[name]
+        unless (result = clients[name])
           result = clients[name] = Client.for_broker(name)
         end
         result
@@ -85,7 +85,7 @@ module MessageDriver
       @configuration = options
       @destinations = {}
       @consumers = {}
-      logger.debug "MessageDriver configured successfully!"
+      logger.debug 'MessageDriver configured successfully!'
     end
 
     def logger
@@ -123,7 +123,7 @@ module MessageDriver
     end
 
     def consumer(key, &block)
-      raise MessageDriver::Error, "you must provide a block" unless block_given?
+      raise MessageDriver::Error, 'you must provide a block' unless block_given?
       @consumers[key] = block
     end
 
@@ -144,7 +144,7 @@ module MessageDriver
     def resolve_adapter(adapter, options)
       case adapter
       when nil
-        raise "you must specify an adapter"
+        raise 'you must specify an adapter'
       when Symbol, String
         resolve_adapter(find_adapter_class(adapter), options)
       when Class

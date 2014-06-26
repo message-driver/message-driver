@@ -4,12 +4,12 @@ module MessageDriver::Destination
   describe Base do
     subject(:destination) { Base.new(nil, nil, nil, nil) }
 
-    it "needs some real tests"
+    it 'needs some real tests'
 
     include_examples "doesn't support #message_count"
 
-    describe "#subscribe" do
-      it "raises an error" do
+    describe '#subscribe' do
+      it 'raises an error' do
         expect {
           consumer = lambda do |m| end
           destination.subscribe(&consumer)

@@ -1,6 +1,6 @@
-require_relative "./common"
+require_relative './common'
 
-LOG.info("starting producer")
+LOG.info('starting producer')
 
 stopping = false
 
@@ -8,12 +8,12 @@ ending_proc = proc do
   stopping = true
 end
 
-trap "TERM", &ending_proc
-trap "INT", &ending_proc
+trap 'TERM', &ending_proc
+trap 'INT', &ending_proc
 
 counter = 0
 
-while !stopping do
+while !stopping
   10.times do
     counter += 1
     begin
@@ -21,7 +21,7 @@ while !stopping do
     rescue MessageDriver::ConnectionError => e
       LOG.info("The connection is closed! #{e}")
       sleep 1
-      LOG.info("retrying...")
+      LOG.info('retrying...')
       retry
     end
   end
@@ -29,5 +29,5 @@ while !stopping do
   sleep 1
 end
 
-LOG.info("stopping producer")
+LOG.info('stopping producer')
 MessageDriver::Broker.stop

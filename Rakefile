@@ -7,32 +7,32 @@ require 'rspec/core/rake_task'
 require 'cucumber/rake/task'
 
 namespace :spec do
-  desc "Run unit specs"
+  desc 'Run unit specs'
   RSpec::Core::RakeTask.new(:units) do |t|
-    t.pattern = "./spec/units{,/*/**}/*_spec.rb"
+    t.pattern = './spec/units{,/*/**}/*_spec.rb'
   end
 
-  desc "Run the integration specs"
+  desc 'Run the integration specs'
   RSpec::Core::RakeTask.new(:integrations) do |t|
-    t.rspec_opts = "--tag all_adapters"
+    t.rspec_opts = '--tag all_adapters'
     t.pattern = "./spec/integration/#{BrokerConfig.current_adapter}{,/*/**}/*_spec.rb"
   end
 
   cucumber_opts = "--format progress --tag @all_adapters,@#{BrokerConfig.current_adapter} --tag ~@wip"
-  cucumber_opts += " --tag ~@no_ci" if ENV['CI']=='true' && ENV['ADAPTER'] && ENV['ADAPTER'].start_with?('bunny')
+  cucumber_opts += ' --tag ~@no_ci' if ENV['CI']=='true' && ENV['ADAPTER'] && ENV['ADAPTER'].start_with?('bunny')
   Cucumber::Rake::Task.new(:features) do |t|
     t.cucumber_opts = cucumber_opts
   end
 
-  desc "run all the specs"
+  desc 'run all the specs'
   task :all => [:units, :integrations, :features]
 
-  desc "run all the specs for each adapter"
+  desc 'run all the specs for each adapter'
   task :all_adapters do
     current_adapter = BrokerConfig.current_adapter
     BrokerConfig.all_adapters.each do |adapter|
       set_adapter_under_test(adapter)
-      system("rake spec:all")
+      system('rake spec:all')
     end
     set_adapter_under_test(current_adapter)
   end
@@ -51,4 +51,4 @@ namespace :undertest do
   end
 end
 
-task :default => ["spec:all"]
+task :default => ['spec:all']

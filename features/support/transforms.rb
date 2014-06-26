@@ -1,6 +1,6 @@
 NUMBER = Transform(/^\d+|no$/) do |num|
   case num
-  when "no"
+  when 'no'
     0
   else
     num.to_i

@@ -1,9 +1,9 @@
-When "the broker goes down" do
+When 'the broker goes down' do
   block_broker_port
   sleep 2
 end
 
-When "the broker comes up" do
+When 'the broker comes up' do
   unblock_broker_port
   sleep 20
 end

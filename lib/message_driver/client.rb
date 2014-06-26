@@ -76,7 +76,7 @@ module MessageDriver
             yield
           end
         else
-          logger.debug("this adapter does not support transactions")
+          logger.debug('this adapter does not support transactions')
           yield
         end
       ensure
@@ -114,13 +114,13 @@ module MessageDriver
       Broker::DEFAULT_BROKER_NAME
     end
 
-    def for_broker(_broker_name)
+    def for_broker(name)
       Module.new do |mod|
         include Client
         extend self
 
         define_method :broker_name do
-          _broker_name
+          name
         end
       end
     end

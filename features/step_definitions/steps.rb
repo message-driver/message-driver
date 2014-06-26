@@ -1,18 +1,18 @@
-Given "I am connected to the broker" do
+Given 'I am connected to the broker' do
   MessageDriver::Broker.configure(test_runner.broker_name, broker_config)
 end
 
 Given(/^I am connected to a broker named (#{STRING_OR_SYM})$/) do |broker_name|
   test_runner.broker_name = broker_name
-  step "I am connected to the broker"
+  step 'I am connected to the broker'
 end
 
-Given "the following broker configuration" do |src|
-  step "I am connected to the broker"
+Given 'the following broker configuration' do |src|
+  step 'I am connected to the broker'
   test_runner.run_config_code(src)
 end
 
-Given "I configure my broker as follows" do |src|
+Given 'I configure my broker as follows' do |src|
   test_runner.run_config_code(src)
 end
 
@@ -44,15 +44,15 @@ When(/^I send the following messages? to (#{STRING_OR_SYM})$/) do |destination, 
   end
 end
 
-When "I execute the following code" do |src|
+When 'I execute the following code' do |src|
   test_runner.run_test_code(src)
 end
 
-When "I reset the context" do
+When 'I reset the context' do
   MessageDriver::Client[test_runner.broker_name].current_adapter_context.invalidate
 end
 
-When "I allow for processing" do
+When 'I allow for processing' do
   test_runner.pause_if_needed
 end
 
@@ -87,13 +87,13 @@ Then(/^I expect it to raise a (.*?) error$/) do |error_type|
   test_runner.raised_error = nil
 end
 
-Then "I expect to have no errors" do
+Then 'I expect to have no errors' do
   expect(test_runner).to have_no_errors
 end
 
-Then "I expect the following check to pass" do |src|
-  step "I execute the following code", src
-  step "I expect to have no errors"
+Then 'I expect the following check to pass' do |src|
+  step 'I execute the following code', src
+  step 'I expect to have no errors'
 end
 
 Before do |current_scenario|

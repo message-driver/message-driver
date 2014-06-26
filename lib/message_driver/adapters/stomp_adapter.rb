@@ -32,7 +32,7 @@ module MessageDriver
         @config = config.symbolize_keys
         connect_headers = @config[:connect_headers] ||= {}
         connect_headers.symbolize_keys
-        connect_headers[:"accept-version"] = "1.1,1.2"
+        connect_headers[:"accept-version"] = '1.1,1.2'
 
         vhost = @config.delete(:vhost)
         connect_headers[:host] = vhost if vhost
@@ -50,7 +50,7 @@ module MessageDriver
         #end
 
         def create_destination(name, dest_options={}, message_props={})
-          unless name.start_with?("/")
+          unless name.start_with?('/')
             name = "/queue/#{name}"
           end
           Destination.new(adapter, name, dest_options, message_props)
@@ -119,7 +119,7 @@ module MessageDriver
         required = Gem::Requirement.create('~> 1.3.1')
         current = Gem::Version.create(Stomp::Version::STRING)
         unless required.satisfied_by? current
-          raise MessageDriver::Error, "stomp 1.3.1 or a later version of the 1.3.x series is required for the stomp adapter"
+          raise MessageDriver::Error, 'stomp 1.3.1 or a later version of the 1.3.x series is required for the stomp adapter'
         end
       end
     end

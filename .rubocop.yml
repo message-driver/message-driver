@@ -1,1 +1,7 @@
 inherit_from: .rubocop_todo.yml
+
+Style/AccessorMethodName:
+  Enabled: false
+
+Style/BlockNesting:
+  Max: 4

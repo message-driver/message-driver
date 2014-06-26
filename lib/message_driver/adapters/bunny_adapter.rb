@@ -46,13 +46,13 @@ module MessageDriver
 
       class QueueDestination < Destination
         def after_initialize(adapter_context)
-          unless @dest_options[:no_declare]
+          if @dest_options[:no_declare]
+            raise MessageDriver::Error, 'server-named queues must be declared, but you provided :no_declare => true' if @name.empty?
+            raise MessageDriver::Error, 'queues with bindings must be declared, but you provided :no_declare => true' if @dest_options[:bindings]
+          else
             adapter_context.with_channel(false) do |ch|
               bunny_queue(ch, true)
             end
-          else
-            raise MessageDriver::Error, "server-named queues must be declared, but you provided :no_declare => true" if @name.empty?
-            raise MessageDriver::Error, "queues with bindings must be declared, but you provided :no_declare => true" if @dest_options[:bindings]
           end
         end
 
@@ -60,7 +60,7 @@ module MessageDriver
           queue = channel.queue(@name, @dest_options)
           if initialize
             @name = queue.name
-            if bindings = @dest_options[:bindings]
+            if (bindings = @dest_options[:bindings])
               bindings.each do |bnd|
                 raise MessageDriver::Error, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
                 queue.bind(bnd[:source], bnd[:args]||{})
@@ -71,7 +71,7 @@ module MessageDriver
         end
 
         def exchange_name
-          ""
+          ''
         end
 
         def routing_key(properties)
@@ -93,14 +93,14 @@ module MessageDriver
 
       class ExchangeDestination < Destination
         def after_initialize(adapter_context)
-          if declare = @dest_options[:declare]
+          if (declare = @dest_options[:declare])
             adapter_context.with_channel(false) do |ch|
               type = declare.delete(:type)
-              raise MessageDriver::Error, "you must provide a valid exchange type" unless type
+              raise MessageDriver::Error, 'you must provide a valid exchange type' unless type
               ch.exchange_declare(@name, type, declare)
             end
           end
-          if bindings = @dest_options[:bindings]
+          if (bindings = @dest_options[:bindings])
             adapter_context.with_channel(false) do |ch|
               bindings.each do |bnd|
                 raise MessageDriver::Error, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
@@ -113,7 +113,7 @@ module MessageDriver
 
       class Subscription < Subscription::Base
         def start
-          raise MessageDriver::Error, "subscriptions are only supported with QueueDestinations" unless destination.is_a? QueueDestination
+          raise MessageDriver::Error, 'subscriptions are only supported with QueueDestinations' unless destination.is_a? QueueDestination
           @sub_ctx = adapter.new_subscription_context(self)
           @error_handler = options[:error_handler]
           @ack_mode = case options[:ack]
@@ -389,7 +389,7 @@ module MessageDriver
 
         def with_channel(require_commit=true)
           raise MessageDriver::TransactionRollbackOnly if @rollback_only
-          raise MessageDriver::Error, "this adapter context is not valid!" if !valid?
+          raise MessageDriver::Error, 'this adapter context is not valid!' if !valid?
           @channel = adapter.connection.create_channel if @channel.nil?
           reset_channel if @need_channel_reset
           if in_transaction? && !is_transactional?
@@ -433,7 +433,7 @@ module MessageDriver
         required = Gem::Requirement.create('>= 1.1.3')
         current = Gem::Version.create(Bunny::VERSION)
         unless required.satisfied_by? current
-          raise MessageDriver::Error, "bunny 1.1.3 or later is required for the bunny adapter"
+          raise MessageDriver::Error, 'bunny 1.1.3 or later is required for the bunny adapter'
         end
       end
     end

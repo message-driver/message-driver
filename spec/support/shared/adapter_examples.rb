@@ -1,12 +1,12 @@
-shared_examples "an adapter" do
-  describe "#new_context" do
-    it "returns a MessageDriver::Adapters::ContextBase" do
+shared_examples 'an adapter' do
+  describe '#new_context' do
+    it 'returns a MessageDriver::Adapters::ContextBase' do
       expect(subject.new_context).to be_a MessageDriver::Adapters::ContextBase
     end
   end
 
-  describe "#stop" do
-    it "invalidates all the adapter contexts" do
+  describe '#stop' do
+    it 'invalidates all the adapter contexts' do
       ctx1 = subject.new_context
       ctx2 = subject.new_context
       subject.stop
@@ -15,8 +15,8 @@ shared_examples "an adapter" do
     end
   end
 
-  describe "#broker" do
-    it "returns the broker associated with the adapter" do
+  describe '#broker' do
+    it 'returns the broker associated with the adapter' do
       expect(subject.broker).to be(broker)
     end
   end

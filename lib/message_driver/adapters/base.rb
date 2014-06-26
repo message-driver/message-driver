@@ -10,7 +10,7 @@ module MessageDriver
       end
 
       def initialize(broker, configuration)
-        raise "Must be implemented in subclass"
+        raise 'Must be implemented in subclass'
       end
 
       def new_context
@@ -20,7 +20,7 @@ module MessageDriver
       end
 
       def build_context
-        raise "Must be implemented in subclass"
+        raise 'Must be implemented in subclass'
       end
 
       def reset_after_tests
@@ -48,11 +48,11 @@ module MessageDriver
       end
 
       def publish(destination, body, headers={}, properties={})
-        raise "Must be implemented in subclass"
+        raise 'Must be implemented in subclass'
       end
 
       def pop_message(destination, options={})
-        raise "Must be implemented in subclass"
+        raise 'Must be implemented in subclass'
       end
 
       def subscribe(destination, options={}, &consumer)
@@ -60,7 +60,7 @@ module MessageDriver
       end
 
       def create_destination(name, dest_options={}, message_props={})
-        raise "Must be implemented in subclass"
+        raise 'Must be implemented in subclass'
       end
 
       def valid?

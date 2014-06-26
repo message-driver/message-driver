@@ -16,7 +16,7 @@ module MessageDriver
         if ctx.supports_client_acks?
           ctx.ack_message(self, options)
         else
-          logger.debug("this adapter does not support client acks")
+          logger.debug('this adapter does not support client acks')
         end
       end
 
@@ -24,7 +24,7 @@ module MessageDriver
         if ctx.supports_client_acks?
           ctx.nack_message(self, options)
         else
-          logger.debug("this adapter does not support client acks")
+          logger.debug('this adapter does not support client acks')
         end
       end
     end

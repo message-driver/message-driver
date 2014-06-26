@@ -2,7 +2,7 @@ require 'message_driver'
 
 require File.join(File.dirname(__FILE__), '..', 'test_lib', 'broker_config')
 
-Dir["./spec/support/**/*.rb"].sort.each {|f| require f}
+Dir['./spec/support/**/*.rb'].sort.each {|f| require f}
 
 RSpec.configure do |c|
   c.treat_symbols_as_metadata_keys_with_true_values = true

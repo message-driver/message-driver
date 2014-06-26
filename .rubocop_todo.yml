@@ -5,20 +5,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 4
-# Configuration parameters: AllowSafeAssignment.
-Lint/AssignmentInCondition:
-  Enabled: false
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Lint/StringConversionInInterpolation:
-  Enabled: false
-
-# Offense count: 1
-Lint/UnderscorePrefixedVariableName:
-  Enabled: false
-
 # Offense count: 11
 # Cop supports --auto-correct.
 Lint/UnusedBlockArgument:
@@ -28,14 +14,6 @@ Lint/UnusedBlockArgument:
 # Cop supports --auto-correct.
 Lint/UnusedMethodArgument:
   Enabled: false
-
-# Offense count: 3
-Style/AccessorMethodName:
-  Enabled: false
-
-# Offense count: 2
-Style/BlockNesting:
-  Max: 4
 
 # Offense count: 84
 # Cop supports --auto-correct.
@@ -258,28 +236,8 @@ Style/SpaceInsideHashLiteralBraces:
 Style/SpecialGlobalVars:
   Enabled: false
 
-# Offense count: 581
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/StringLiterals:
-  Enabled: false
-
 # Offense count: 7
 # Cop supports --auto-correct.
 # Configuration parameters: ExactNameMatch, AllowPredicates, AllowDSLWriters, Whitelist.
 Style/TrivialAccessors:
-  Enabled: false
-
-# Offense count: 1
-Style/UnlessElse:
-  Enabled: false
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/UnneededPercentQ:
-  Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/WhileUntilDo:
   Enabled: false

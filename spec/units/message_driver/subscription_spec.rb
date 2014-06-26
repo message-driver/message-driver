@@ -4,7 +4,7 @@ module MessageDriver::Subscription
   describe Base do
     let(:adapter) { double(MessageDriver::Adapters::Base) }
     let(:destination) { double(MessageDriver::Destination::Base) }
-    let(:consumer) { double("a consumer") }
+    let(:consumer) { double('a consumer') }
     subject(:subscription) { Base.new(adapter, destination, consumer) }
 
     it "sets it's adapter, destination and consumer on instansiation" do
@@ -13,11 +13,11 @@ module MessageDriver::Subscription
       expect(subscription.consumer).to eq(consumer)
     end
 
-    describe "#unsubscribe" do
-      it "raises an error" do
+    describe '#unsubscribe' do
+      it 'raises an error' do
         expect {
           subscription.unsubscribe
-        }.to raise_error("must be implemented in subclass")
+        }.to raise_error('must be implemented in subclass')
       end
     end
   end

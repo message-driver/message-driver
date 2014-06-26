@@ -7,18 +7,18 @@ module FirewallHelper
   COMMANDS = {
     darwin: {
       setup: [
-        "lunchy stop rabbit"
+        'lunchy stop rabbit'
       ],
       teardown: [
-        "lunchy start rabbit"
+        'lunchy start rabbit'
       ]
     },
     linux: {
       setup: [
-        "sudo service rabbitmq-server stop"
+        'sudo service rabbitmq-server stop'
       ],
       teardown: [
-        "sudo service rabbitmq-server start"
+        'sudo service rabbitmq-server start'
       ]
     }
   }
@@ -49,7 +49,7 @@ module FirewallHelper
   end
 
   def darwin?
-    system("uname | grep Darwin")
+    system('uname | grep Darwin')
   end
 end
 
