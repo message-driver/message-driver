@@ -1,7 +1,4 @@
-vendor = File.expand_path('../vendor', __FILE__)
-$:.unshift(vendor) unless $:.include?(vendor)
-
-require 'nesty'
+require 'vendor/nesty'
 
 module MessageDriver
   class Error < StandardError; end
