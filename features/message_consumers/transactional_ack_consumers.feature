@@ -32,6 +32,7 @@ Feature: Transactional Consumers
       | Test Message 1 |
       | Test Message 2 |
 
+  @no_ci
   Scenario: When an error occurs
     Given I have a message consumer
     """ruby
