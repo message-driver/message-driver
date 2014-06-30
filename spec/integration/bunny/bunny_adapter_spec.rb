@@ -15,7 +15,7 @@ module MessageDriver::Adapters
             stub_const('Bunny::VERSION', version)
             expect {
               described_class.new(broker, valid_connection_attrs)
-            }.to raise_error MessageDriver::Error, 'bunny 1.1.3 or later is required for the bunny adapter'
+            }.to raise_error MessageDriver::Error, 'bunny 1.2.2 or later is required for the bunny adapter'
           end
         end
         shared_examples "doesn't raise an error" do
@@ -27,13 +27,13 @@ module MessageDriver::Adapters
             }.to_not raise_error
           end
         end
-        %w(0.8.0 0.9.0.pre11 0.9.0.rc1 0.9.0 0.9.8 0.10.7 1.0.3 1.1.2).each do |v|
+        %w(0.8.0  0.9.0 0.9.8 0.10.7 1.0.3 1.1.2 1.2.1).each do |v|
           context "bunny version #{v}" do
             let(:version) { v }
             include_examples 'raises an error'
           end
         end
-        %w(1.1.3 1.1.5).each do |v|
+        %w(1.2.2 1.3.2 1.4.0).each do |v|
           context "bunny version #{v}" do
             let(:version) { v }
             include_examples "doesn't raise an error"
@@ -90,6 +90,11 @@ module MessageDriver::Adapters
     describe BunnyAdapter::BunnyContext do
       include_context 'a connected bunny adapter'
       subject(:adapter_context) { adapter.new_context }
+      around(:each) do |ex|
+        MessageDriver::Client.with_adapter_context(adapter_context) do
+          ex.run
+        end
+      end
 
       it_behaves_like 'an adapter context'
       it_behaves_like 'transactions are supported'
@@ -120,6 +125,16 @@ module MessageDriver::Adapters
             subject(:result) { adapter_context.create_destination(dest_name, exclusive: true) }
 
             it { should be_a BunnyAdapter::QueueDestination }
+          end
+        end
+
+        shared_examples 'supports publisher confirmations' do
+          let(:properties) { {persistent: false, confirm: true} }
+          it 'switches the channel to confirms mode' do
+            expect(adapter_context.channel.using_publisher_confirms?).to eq(true)
+          end
+          it 'waits until the confirm comes in' do
+            expect(adapter_context.channel.unconfirmed_set).to be_empty
           end
         end
 
@@ -168,6 +183,7 @@ module MessageDriver::Adapters
                 expect(msg.delivery_info.exchange).to eq('')
                 expect(msg.delivery_info.routing_key).to eq(subject.name)
               end
+              include_examples 'supports publisher confirmations'
             end
             it_behaves_like 'a destination'
           end
@@ -260,6 +276,7 @@ module MessageDriver::Adapters
                   expect(msg[1][:delivery_mode]).to eq(1)
                 end
               end
+              include_examples 'supports publisher confirmations'
             end
           end
 

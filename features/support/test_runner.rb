@@ -57,6 +57,10 @@ class TestRunner
     end
   end
 
+  def fetch_current_adapter_context
+    MessageDriver::Client[self.broker_name].current_adapter_context
+  end
+
   def publish_table_to_destination(destination, table)
     table.hashes.each do |msg|
       destination.publish(msg[:body], msg[:headers]||{}, msg[:properties]||{})

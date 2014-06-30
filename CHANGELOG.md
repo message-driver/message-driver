@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 - (not yet released)
+
+* require bunny 1.2.2 or later
+* add support for publish confirmations
+
 ## 0.3.0 - 2014-02-26
 
 * Support for handling multiple broker connections

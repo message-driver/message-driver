@@ -298,8 +298,14 @@ module MessageDriver
 
         def publish(destination, body, headers={}, properties={})
           exchange, routing_key, props = *destination.publish_params(headers, properties)
+          confirm = props.delete(:confirm)
+          confirm = false if confirm.nil?
           with_channel(true) do |ch|
+            if confirm == true
+              ch.confirm_select if !ch.using_publisher_confirms?
+            end
             ch.basic_publish(body, exchange, routing_key, props)
+            ch.wait_for_confirms if confirm == true
           end
         end
 
@@ -430,10 +436,10 @@ module MessageDriver
       end
 
       def validate_bunny_version
-        required = Gem::Requirement.create('>= 1.1.3')
+        required = Gem::Requirement.create('>= 1.2.2')
         current = Gem::Version.create(Bunny::VERSION)
         unless required.satisfied_by? current
-          raise MessageDriver::Error, 'bunny 1.1.3 or later is required for the bunny adapter'
+          raise MessageDriver::Error, 'bunny 1.2.2 or later is required for the bunny adapter'
         end
       end
     end
