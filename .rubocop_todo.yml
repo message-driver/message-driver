@@ -23,7 +23,7 @@ Style/ClassAndModuleChildren:
 # Offense count: 2
 # Configuration parameters: CountComments.
 Style/ClassLength:
-  Max: 167
+  Enabled: false
 
 # Offense count: 4
 Style/CyclomaticComplexity:

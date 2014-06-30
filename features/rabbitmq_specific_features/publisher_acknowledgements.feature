@@ -34,3 +34,18 @@ Feature: Publisher Acknowledgements
     And I expect to find the following message on :publish_ack
       | body         |
       | Test Message |
+
+
+  Scenario: Publishing a batch of messages with confirmations turned on
+    When I execute the following code
+    """"ruby
+    with_message_transaction(type: :confirm_and_wait) do
+      50.times do |i|
+        publish(:publish_ack, "Test Message #{i}")
+      end
+    end
+    """
+
+    Then I expect all the publishes to have been acknowledged
+    And I expect that we are not in transaction mode
+    And I expect to find 50 messages on :publish_ack

@@ -261,26 +261,32 @@ module MessageDriver
           true
         end
 
-        def begin_transaction(_options={})
+        def begin_transaction(options={})
           raise MessageDriver::TransactionError, "you can't begin another transaction, you are already in one!" if in_transaction?
           @in_transaction = true
+          @in_confirms_transaction = true if options[:type] == :confirm_and_wait
         end
 
         def commit_transaction(channel_commit=false)
           raise MessageDriver::TransactionError, "you can't finish the transaction unless you already in one!" if !in_transaction? && !channel_commit
           begin
-            if is_transactional? && valid? && !@need_channel_reset
-              handle_errors do
-                if @rollback_only
-                  @channel.tx_rollback
-                else
-                  @channel.tx_commit
+            if @in_confirms_transaction
+              @channel.wait_for_confirms unless @rollback_only
+            else
+              if is_transactional? && valid? && !@need_channel_reset
+                handle_errors do
+                  if @rollback_only
+                    @channel.tx_rollback
+                  else
+                    @channel.tx_commit
+                  end
                 end
               end
             end
           ensure
             @rollback_only = false
             @in_transaction = false
+            @in_confirms_transaction = false
           end
         end
 
@@ -289,9 +295,10 @@ module MessageDriver
           commit_transaction
         end
 
-        def is_transactional?
+        def transactional?
           @is_transactional
         end
+        alias_method :is_transactional?, :transactional?
 
         def in_transaction?
           @in_transaction
@@ -399,9 +406,15 @@ module MessageDriver
           raise MessageDriver::Error, 'this adapter context is not valid!' unless valid?
           @channel = adapter.connection.create_channel if @channel.nil?
           reset_channel if @need_channel_reset
-          if in_transaction? && !is_transactional?
-            @channel.tx_select
-            @is_transactional = true
+          if in_transaction?
+            if @in_confirms_transaction
+              @channel.confirm_select unless @channel.using_publisher_confirmations?
+            else
+              unless is_transactional?
+                @channel.tx_select
+                @is_transactional = true
+              end
+            end
           end
           handle_errors do
             result = yield @channel
