@@ -4,8 +4,8 @@ RSpec::Matchers.define :match_message_table do |expected_tbl|
   end
 
   define_method :messages_to_hash do |messages|
-    messages.collect do |msg|
-      expected_tbl.headers.inject({ }) do |memo, obj|
+    messages.map do |msg|
+      expected_tbl.headers.reduce({ }) do |memo, obj|
         memo[obj] = msg.send(obj)
         memo
       end

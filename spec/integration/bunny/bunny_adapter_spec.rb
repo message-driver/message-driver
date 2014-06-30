@@ -106,7 +106,6 @@ module MessageDriver::Adapters
         it 'needs some real tests'
       end
 
-
       describe '#invalidate' do
         it 'closes the channel' do
           subject.with_channel(false) do |ch|
@@ -199,7 +198,7 @@ module MessageDriver::Adapters
 
             it 'routes message to the queue through the exchange' do
               destination = adapter_context.create_destination(dest_name, type: :queue, exclusive: true, bindings: [{source: 'amq.direct', args: {routing_key: 'test_queue_bind'}}])
-              exchange.publish('test queue bindings', {}, {routing_key: 'test_queue_bind'})
+              exchange.publish('test queue bindings', {}, routing_key: 'test_queue_bind')
               message = destination.pop_message
               expect(message).to_not be_nil
               expect(message.body).to eq('test queue bindings')
@@ -313,7 +312,7 @@ module MessageDriver::Adapters
             it 'routes message to the queue through the exchange' do
               adapter_context.create_destination('amq.fanout', type: :exchange, bindings: [{source: 'amq.direct', args: {routing_key: 'test_exchange_bind'}}])
               destination = adapter_context.create_destination(dest_name, type: :queue, exclusive: true, bindings: [{source: 'amq.fanout'}])
-              exchange.publish('test exchange bindings', {}, {routing_key: 'test_exchange_bind'})
+              exchange.publish('test exchange bindings', {}, routing_key: 'test_exchange_bind')
               message = destination.pop_message
               expect(message).to_not be_nil
               expect(message.body).to eq('test exchange bindings')

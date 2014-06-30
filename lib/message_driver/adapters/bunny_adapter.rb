@@ -144,7 +144,7 @@ module MessageDriver
         def start_subscription
           @sub_ctx.with_channel do |ch|
             queue = destination.bunny_queue(@sub_ctx.channel)
-            if options.has_key? :prefetch_size
+            if options.key? :prefetch_size
               ch.prefetch(options[:prefetch_size])
             end
             @bunny_consumer = queue.subscribe(options.merge(manual_ack: true)) do |delivery_info, properties, payload|
@@ -335,7 +335,7 @@ module MessageDriver
         end
 
         def nack_message(message, options={})
-          requeue = options[:requeue].kind_of?(FalseClass) ? false : true
+          requeue = options[:requeue].is_a?(FalseClass) ? false : true
           with_channel(true) do |ch|
             ch.reject(message.delivery_tag, requeue)
           end
@@ -377,7 +377,7 @@ module MessageDriver
           rescue Bunny::ChannelLevelException => e
             @need_channel_reset = true
             @rollback_only = true if in_transaction?
-            if e.kind_of? Bunny::NotFound
+            if e.is_a? Bunny::NotFound
               raise MessageDriver::QueueNotFound.new(e.to_s, e)
             else
               raise MessageDriver::WrappedError.new(e.to_s, e)

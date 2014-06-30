@@ -37,7 +37,7 @@ module MessageDriver::Adapters
       describe '#publish' do
         it 'raises an error' do
           expect {
-            subject.publish(:destination, {foo: 'bar'})
+            subject.publish(:destination, foo: 'bar')
           }.to raise_error 'Must be implemented in subclass'
         end
       end

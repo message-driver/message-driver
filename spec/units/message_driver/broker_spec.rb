@@ -180,7 +180,6 @@ module MessageDriver
       end
     end
 
-
     context do
       subject!(:broker) { described_class.configure(broker_name, options) }
 

@@ -20,6 +20,9 @@ group :tools do
     gem 'relish'
     gem 'lunchy'
   end
+  gem 'yard'
+  gem 'redcarpet'
+  gem 'launchy'
 end if RUBY_VERSION >= '1.9.3'
 
 require File.expand_path('../test_lib/broker_config', __FILE__)

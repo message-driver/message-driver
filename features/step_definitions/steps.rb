@@ -23,14 +23,14 @@ Given(/^I have a destination (#{STRING_OR_SYM})$/) do |destination|
 end
 
 Given(/^I have a destination (#{STRING_OR_SYM}) with no messages on it$/) do |destination|
-  dest = destination.kind_of?(Symbol) ? destination.inspect : destination.to_s
+  dest = destination.is_a?(Symbol) ? destination.inspect : destination.to_s
   step "I have a destination #{dest}"
   test_runner.purge_destination(destination)
 end
 
 Given(/^I have the following messages? on (#{STRING_OR_SYM})$/) do |destination, table|
   test_runner.purge_destination(destination)
-  dest = destination.kind_of?(Symbol) ? destination.inspect : destination.to_s
+  dest = destination.is_a?(Symbol) ? destination.inspect : destination.to_s
   step "I send the following messages to #{dest}", table
 end
 
@@ -70,7 +70,7 @@ Then(/^I expect to find the following (#{NUMBER}) messages? on (#{STRING_OR_SYM}
 end
 
 Then(/^I expect to find the following message on (#{STRING_OR_SYM})$/) do |destination, table|
-  dest = destination.kind_of?(Symbol) ? destination.inspect : destination.to_s
+  dest = destination.is_a?(Symbol) ? destination.inspect : destination.to_s
   step "I expect to find the following 1 message on #{dest}", table
 end
 
