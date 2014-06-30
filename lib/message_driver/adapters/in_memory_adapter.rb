@@ -9,7 +9,6 @@ module MessageDriver
 
   module Adapters
     class InMemoryAdapter < Base
-
       class Message < MessageDriver::Message::Base
       end
 
@@ -30,7 +29,6 @@ module MessageDriver
       end
 
       class Destination < MessageDriver::Destination::Base
-
         def subscription
           adapter.subscription_for(name)
         end
@@ -63,6 +61,7 @@ module MessageDriver
         end
 
         private
+
         def message_queue
           adapter.message_queue_for(name)
         end

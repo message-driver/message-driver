@@ -23,5 +23,4 @@ module MessageDriver
   def logger=(logger)
     @__logger = logger
   end
-
 end

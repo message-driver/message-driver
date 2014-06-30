@@ -12,6 +12,7 @@ group :tools do
   gem 'guard-bundler'
   gem 'guard-rspec'
   gem 'guard-cucumber'
+  gem 'guard-rubocop'
   gem 'pry'
   gem 'pry-byebug', platform: [:mri_20, :mri_21]
   group :darwin do

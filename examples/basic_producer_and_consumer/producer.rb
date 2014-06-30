@@ -13,7 +13,7 @@ trap 'INT', &ending_proc
 
 counter = 0
 
-while !stopping
+until stopping
   10.times do
     counter += 1
     begin

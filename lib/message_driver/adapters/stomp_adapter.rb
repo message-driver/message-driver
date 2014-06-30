@@ -10,7 +10,6 @@ module MessageDriver
 
   module Adapters
     class StompAdapter < Base
-
       class Message < MessageDriver::Message::Base
         attr_reader :stomp_message
         def initialize(ctx, stomp_message)
@@ -20,7 +19,6 @@ module MessageDriver
       end
 
       class Destination < MessageDriver::Destination::Base
-
       end
 
       attr_reader :config, :poll_timeout

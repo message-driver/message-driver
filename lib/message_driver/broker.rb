@@ -63,6 +63,7 @@ module MessageDriver
       end
 
       private
+
       def brokers
         @brokers ||= { }
       end

@@ -12,3 +12,7 @@ Style/AccessorMethodName:
 
 Style/BlockNesting:
   Max: 4
+
+Style/FileName:
+  Exclude:
+    - 'lib/message-driver.rb'

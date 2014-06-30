@@ -1,5 +1,4 @@
 module FirewallHelper
-
   def self.port
     BrokerConfig.current_adapter_port
   end

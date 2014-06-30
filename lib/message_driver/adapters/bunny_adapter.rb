@@ -141,6 +141,7 @@ module MessageDriver
         end
 
         private
+
         def start_subscription
           @sub_ctx.with_channel do |ch|
             queue = destination.bunny_queue(@sub_ctx.channel)
@@ -213,7 +214,7 @@ module MessageDriver
       def stop
         begin
           super
-          @connection.close if !@connection.nil?
+          @connection.close unless @connection.nil?
         rescue => e
           logger.error "error while attempting connection close\n#{exception_to_str(e)}"
         ensure
@@ -302,7 +303,7 @@ module MessageDriver
           confirm = false if confirm.nil?
           with_channel(true) do |ch|
             if confirm == true
-              ch.confirm_select if !ch.using_publisher_confirms?
+              ch.confirm_select unless ch.using_publisher_confirms?
             end
             ch.basic_publish(body, exchange, routing_key, props)
             ch.wait_for_confirms if confirm == true
@@ -395,7 +396,7 @@ module MessageDriver
 
         def with_channel(require_commit=true)
           raise MessageDriver::TransactionRollbackOnly if @rollback_only
-          raise MessageDriver::Error, 'this adapter context is not valid!' if !valid?
+          raise MessageDriver::Error, 'this adapter context is not valid!' unless valid?
           @channel = adapter.connection.create_channel if @channel.nil?
           reset_channel if @need_channel_reset
           if in_transaction? && !is_transactional?

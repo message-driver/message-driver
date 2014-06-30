@@ -1,6 +1,6 @@
 RSpec::Matchers.define :have_no_errors do
   match do |test_runner|
-    test_runner.raised_error == nil
+    test_runner.raised_error.nil?
   end
 
   failure_message_for_should do |test_runner|

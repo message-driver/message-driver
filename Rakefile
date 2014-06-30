@@ -25,7 +25,7 @@ namespace :spec do
   end
 
   desc 'run all the specs'
-  task :all => [:units, :integrations, :features]
+  task all: [:units, :integrations, :features]
 
   desc 'run all the specs for each adapter'
   task :all_adapters do
@@ -51,4 +51,4 @@ namespace :undertest do
   end
 end
 
-task :default => ['spec:all']
+task default: ['spec:all']
