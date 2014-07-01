@@ -10,6 +10,8 @@ Easy message queues for ruby
 
 [![Code Climate](https://codeclimate.com/github/message-driver/message-driver.png)](https://codeclimate.com/github/message-driver/message-driver)
 
+[![Coverage Status](https://img.shields.io/coveralls/message-driver/message-driver.svg)](https://coveralls.io/r/message-driver/message-driver)
+
 ## Installation
 
 Add this line to your application's Gemfile:
