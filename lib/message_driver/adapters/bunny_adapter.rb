@@ -271,7 +271,7 @@ module MessageDriver
           raise MessageDriver::TransactionError, "you can't finish the transaction unless you already in one!" if !in_transaction? && !channel_commit
           begin
             if @in_confirms_transaction
-              @channel.wait_for_confirms unless @rollback_only
+              wait_for_confirms(@channel) unless @rollback_only
             else
               if is_transactional? && valid? && !@need_channel_reset
                 handle_errors do
@@ -289,6 +289,13 @@ module MessageDriver
             @in_confirms_transaction = false
           end
         end
+
+        def wait_for_confirms(channel)
+          until channel.unconfirmed_set.empty?
+            channel.wait_for_confirms
+          end
+        end
+        private :wait_for_confirms
 
         def rollback_transaction
           @rollback_only = true
