@@ -1,3 +1,6 @@
+require 'coveralls'
+Coveralls.wear!
+
 require File.join(File.dirname(__FILE__), '..', '..', 'test_lib', 'broker_config')
 
 require 'aruba/cucumber'

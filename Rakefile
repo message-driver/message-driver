@@ -6,6 +6,8 @@ require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 require 'cucumber/rake/task'
 
+require 'coveralls/rake/task'
+
 namespace :spec do
   desc 'Run unit specs'
   RSpec::Core::RakeTask.new(:units) do |t|
@@ -41,6 +43,10 @@ end
 def set_adapter_under_test(adapter)
   system "echo #{adapter} > #{File.join(File.dirname(__FILE__), '.adapter_under_test')}"
 end
+
+Coveralls::RakeTask.new
+desc 'run with code coverage'
+task ci: ['spec:all', 'coveralls:push']
 
 namespace :undertest do
   BrokerConfig.all_adapters.each do |adapter|

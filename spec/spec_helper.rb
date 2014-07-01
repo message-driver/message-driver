@@ -1,3 +1,6 @@
+require 'coveralls'
+Coveralls.wear!
+
 require 'message_driver'
 
 require File.join(File.dirname(__FILE__), '..', 'test_lib', 'broker_config')

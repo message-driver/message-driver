@@ -41,3 +41,5 @@ else
     gem adapter.to_s, "~> #{version}"
   end
 end
+
+gem 'coveralls', require: false
