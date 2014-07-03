@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0 - (not yet released)
+## 0.4.0 - 2014-07-03
 
 * require bunny 1.2.2 or later
 * add support for publish confirmations
