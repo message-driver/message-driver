@@ -8,11 +8,11 @@ platform :rbx do
 end
 
 group :tools do
-  gem 'guard'
-  gem 'guard-bundler'
-  gem 'guard-rspec'
-  gem 'guard-cucumber'
-  gem 'guard-rubocop'
+  gem 'guard', platform: [:mri_20, :mri_21]
+  gem 'guard-bundler', platform: [:mri_20, :mri_21]
+  gem 'guard-rspec', platform: [:mri_20, :mri_21]
+  gem 'guard-cucumber', platform: [:mri_20, :mri_21]
+  gem 'guard-rubocop', platform: [:mri_20, :mri_21]
   gem 'pry'
   gem 'pry-byebug', platform: [:mri_20, :mri_21]
   group :darwin do
@@ -24,7 +24,7 @@ group :tools do
   gem 'yard'
   gem 'redcarpet'
   gem 'launchy'
-end if RUBY_VERSION >= '1.9.3'
+end
 
 require File.expand_path('../test_lib/broker_config', __FILE__)
 
