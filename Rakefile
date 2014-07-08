@@ -60,4 +60,4 @@ namespace :undertest do
   end
 end
 
-task default: ['spec:all', 'rubocop']
+task default: ['spec:all']
