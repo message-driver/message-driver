@@ -1,4 +1,5 @@
 require 'bunny'
+require 'forwardable'
 
 module MessageDriver
   class Broker
@@ -112,20 +113,22 @@ module MessageDriver
       end
 
       class Subscription < Subscription::Base
+        attr_reader :sub_ctx, :error_handler
+
         def start
           raise MessageDriver::Error, 'subscriptions are only supported with QueueDestinations' unless destination.is_a? QueueDestination
           @sub_ctx = adapter.new_subscription_context(self)
           @error_handler = options[:error_handler]
-          @ack_mode = case options[:ack]
-                      when :auto, nil
-                        :auto
-                      when :manual
-                        :manual
-                      when :transactional
-                        :transactional
-                      else
-                        raise MessageDriver::Error, "unrecognized :ack option #{options[:ack]}"
-                      end
+          @message_handler =  case options[:ack]
+                              when :auto, nil
+                                AutoAckHandler.new(self)
+                              when :manual
+                                ManualAckHandler.new(self)
+                              when :transactional
+                                TransactionalAckHandler.new(self)
+                              else
+                                raise MessageDriver::Error, "unrecognized :ack option #{options[:ack]}"
+                              end
           start_subscription
         end
 
@@ -142,6 +145,70 @@ module MessageDriver
 
         private
 
+        class MessageHandler
+          extend Forwardable
+          include Logging
+
+          attr_accessor :subscription
+          def_delegators :subscription, :adapter, :sub_ctx, :consumer, :error_handler, :options
+
+          def initialize(subscription)
+            @subscription = subscription
+          end
+
+          def call(message)
+            begin
+              consumer.call(message)
+            rescue => e
+              error_handler.call(e, message) unless error_handler.nil?
+            end
+          end
+
+          def nack_message(e, message)
+            requeue = true
+            if e.is_a?(DontRequeue) || (options[:retry_redelivered] == false && message.redelivered?)
+              requeue = false
+            end
+            if sub_ctx.valid?
+              begin
+                sub_ctx.nack_message(message, requeue: requeue)
+              rescue => e
+                logger.error exception_to_str(e)
+              end
+            end
+          end
+        end
+
+        class ManualAckHandler < MessageHandler
+          # all functionality implemented in super class
+        end
+
+        class AutoAckHandler < MessageHandler
+          def call(message)
+            begin
+              consumer.call(message)
+              sub_ctx.ack_message(message)
+            rescue => e
+              nack_message(e, message)
+              error_handler.call(e, message) unless error_handler.nil?
+            end
+          end
+        end
+
+        class TransactionalAckHandler < MessageHandler
+          def call(message)
+            begin
+              adapter.broker.client.with_message_transaction do
+                consumer.call(message)
+                sub_ctx.ack_message(message)
+              end
+            rescue => e
+              nack_message(e, message)
+              error_handler.call(e, message) unless error_handler.nil?
+            end
+          end
+        end
+
         def start_subscription
           @sub_ctx.with_channel do |ch|
             queue = destination.bunny_queue(@sub_ctx.channel)
@@ -151,41 +218,9 @@ module MessageDriver
             @bunny_consumer = queue.subscribe(options.merge(manual_ack: true)) do |delivery_info, properties, payload|
               adapter.broker.client.with_adapter_context(@sub_ctx) do
                 message = @sub_ctx.args_to_message(delivery_info, properties, payload)
-                handle_message(message)
+                @message_handler.call(message)
               end
             end
-          end
-        end
-
-        def handle_message(message)
-          begin
-            case @ack_mode
-            when :auto
-              consumer.call(message)
-              @sub_ctx.ack_message(message)
-            when :manual
-              consumer.call(message)
-            when :transactional
-              adapter.broker.client.with_message_transaction do
-                consumer.call(message)
-                @sub_ctx.ack_message(message)
-              end
-            end
-          rescue => e
-            if [:auto, :transactional].include? @ack_mode
-              requeue = true
-              if e.is_a?(DontRequeue) || (options[:retry_redelivered] == false && message.redelivered?)
-                requeue = false
-              end
-              if @sub_ctx.valid?
-                begin
-                  @sub_ctx.nack_message(message, requeue: requeue)
-                rescue => e
-                  logger.error exception_to_str(e)
-                end
-              end
-            end
-            @error_handler.call(e, message) unless @error_handler.nil?
           end
         end
       end
