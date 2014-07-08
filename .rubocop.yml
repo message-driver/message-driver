@@ -10,6 +10,9 @@ AllCops:
 Style/AccessorMethodName:
   Enabled: false
 
+Style/Encoding:
+  Enabled: false
+
 Style/BlockNesting:
   Max: 4
 

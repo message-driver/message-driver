@@ -8,6 +8,9 @@ require 'cucumber/rake/task'
 
 require 'coveralls/rake/task'
 
+require 'rubocop/rake_task'
+RuboCop::RakeTask.new
+
 namespace :spec do
   desc 'Run unit specs'
   RSpec::Core::RakeTask.new(:units) do |t|
@@ -46,7 +49,7 @@ end
 
 Coveralls::RakeTask.new
 desc 'run with code coverage'
-task ci: ['spec:all', 'coveralls:push']
+task ci: ['spec:all', 'coveralls:push', 'rubocop']
 
 namespace :undertest do
   BrokerConfig.all_adapters.each do |adapter|
@@ -57,4 +60,4 @@ namespace :undertest do
   end
 end
 
-task default: ['spec:all']
+task default: ['spec:all', 'rubocop']

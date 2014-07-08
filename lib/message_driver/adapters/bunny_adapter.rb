@@ -291,7 +291,7 @@ module MessageDriver
         end
 
         def wait_for_confirms(channel)
-          #FIXME make the thread-safety of this better once https://github.com/ruby-amqp/bunny/issues/227 is fixed
+          #FIXME: make the thread-safety of this better once https://github.com/ruby-amqp/bunny/issues/227 is fixed
           channel.wait_for_confirms until channel.unconfirmed_set.empty?
         end
         private :wait_for_confirms
