@@ -1,5 +1,10 @@
 #!/bin/bash
 
-rabbitmqctl delete_vhost message-driver-test
-rabbitmqctl add_vhost message-driver-test
-rabbitmqctl set_permissions -p message-driver-test guest ".*" ".*" ".*"
+#vhost="message-driver-test-$ADAPTER-$(rbenv version-name)"
+vhost="message-driver-test"
+
+echo $vhost
+
+rabbitmqctl delete_vhost $vhost
+rabbitmqctl add_vhost $vhost
+rabbitmqctl set_permissions -p $vhost guest ".*" ".*" ".*"
