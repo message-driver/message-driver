@@ -23,11 +23,6 @@ Style/Documentation:
 Style/GuardClause:
   Enabled: false
 
-# Offense count: 170
-# Configuration parameters: AllowURI.
-Style/LineLength:
-  Enabled: false
-
 # Offense count: 15
 # Configuration parameters: CountComments.
 Style/MethodLength:

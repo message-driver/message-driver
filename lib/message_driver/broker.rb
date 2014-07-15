@@ -21,7 +21,8 @@ module MessageDriver
       def broker(name = DEFAULT_BROKER_NAME)
         result = brokers[name]
         if result.nil?
-          fail BrokerNotConfigured, "There is no broker named #{name} configured. The configured brokers are #{brokers.keys}"
+          fail BrokerNotConfigured,
+               "There is no broker named #{name} configured. The configured brokers are #{brokers.keys}"
         end
         result
       end
@@ -128,7 +129,9 @@ module MessageDriver
 
     def find_destination(destination_name)
       destination = @destinations[destination_name]
-      fail MessageDriver::NoSuchDestinationError, "no destination #{destination_name} has been configured" if destination.nil?
+      if destination.nil?
+        fail MessageDriver::NoSuchDestinationError, "no destination #{destination_name} has been configured"
+      end
       destination
     end
 
@@ -161,7 +164,11 @@ module MessageDriver
       adapter_method = "#{adapter_name}_adapter"
 
       unless respond_to?(adapter_method)
-        fail "the adapter #{adapter_name} must provide MessageDriver::Broker##{adapter_method} that returns the adapter class"
+        fail ['the adapter',
+              adapter_name,
+              'must provide',
+              "MessageDriver::Broker##{adapter_method}",
+              'that returns the adapter class'].join(' ')
       end
 
       send(adapter_method)

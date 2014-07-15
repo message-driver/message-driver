@@ -111,7 +111,8 @@ module MessageDriver
         required = Gem::Requirement.create('~> 1.3.1')
         current = Gem::Version.create(Stomp::Version::STRING)
         unless required.satisfied_by? current
-          fail MessageDriver::Error, 'stomp 1.3.1 or a later version of the 1.3.x series is required for the stomp adapter'
+          fail MessageDriver::Error,
+               'stomp 1.3.1 or a later version of the 1.3.x series is required for the stomp adapter'
         end
       end
     end

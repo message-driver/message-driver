@@ -90,7 +90,8 @@ module MessageDriver
     end
 
     def with_adapter_context(adapter_context)
-      old_ctx, Thread.current[adapter_context_key] = fetch_context_wrapper(false), build_context_wrapper(adapter_context)
+      old_ctx = fetch_context_wrapper(false)
+      Thread.current[adapter_context_key] = build_context_wrapper(adapter_context)
       begin
         yield
       ensure

@@ -10,7 +10,12 @@ module MessageDriver
 
   module Adapters
     class BunnyAdapter < Base
-      NETWORK_ERRORS = [Bunny::TCPConnectionFailed, Bunny::ConnectionClosedError, Bunny::ConnectionLevelException, Bunny::NetworkErrorWrapper, Bunny::NetworkFailure, IOError].freeze
+      NETWORK_ERRORS = [Bunny::TCPConnectionFailed,
+                        Bunny::ConnectionClosedError,
+                        Bunny::ConnectionLevelException,
+                        Bunny::NetworkErrorWrapper,
+                        Bunny::NetworkFailure,
+                        IOError].freeze
 
       class Message < MessageDriver::Message::Base
         attr_reader :delivery_info
@@ -48,8 +53,12 @@ module MessageDriver
       class QueueDestination < Destination
         def after_initialize(adapter_context)
           if @dest_options[:no_declare]
-            fail MessageDriver::Error, 'server-named queues must be declared, but you provided :no_declare => true' if @name.empty?
-            fail MessageDriver::Error, 'queues with bindings must be declared, but you provided :no_declare => true' if @dest_options[:bindings]
+            if @name.empty?
+              fail MessageDriver::Error, 'server-named queues must be declared, but you provided :no_declare => true'
+            end
+            if @dest_options[:bindings]
+              fail MessageDriver::Error, 'queues with bindings must be declared, but you provided :no_declare => true'
+            end
           else
             adapter_context.with_channel(false) do |ch|
               bunny_queue(ch, true)
@@ -116,7 +125,10 @@ module MessageDriver
         attr_reader :sub_ctx, :error_handler
 
         def start
-          fail MessageDriver::Error, 'subscriptions are only supported with QueueDestinations' unless destination.is_a? QueueDestination
+          unless destination.is_a? QueueDestination
+            fail MessageDriver::Error,
+                 'subscriptions are only supported with QueueDestinations'
+          end
           @sub_ctx = adapter.new_subscription_context(self)
           @error_handler = options[:error_handler]
           @message_handler =  case options[:ack]
@@ -287,13 +299,19 @@ module MessageDriver
         end
 
         def begin_transaction(options = {})
-          fail MessageDriver::TransactionError, "you can't begin another transaction, you are already in one!" if in_transaction?
+          if in_transaction?
+            fail MessageDriver::TransactionError,
+                 "you can't begin another transaction, you are already in one!"
+          end
           @in_transaction = true
           @in_confirms_transaction = true if options[:type] == :confirm_and_wait
         end
 
         def commit_transaction(channel_commit = false)
-          fail MessageDriver::TransactionError, "you can't finish the transaction unless you already in one!" if !in_transaction? && !channel_commit
+          if !in_transaction? && !channel_commit
+            fail MessageDriver::TransactionError,
+                 "you can't finish the transaction unless you already in one!"
+          end
           begin
             if @in_confirms_transaction
               wait_for_confirms(@channel) unless @rollback_only

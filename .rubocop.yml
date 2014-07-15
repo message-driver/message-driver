@@ -8,6 +8,7 @@ AllCops:
     - 'Rakefile'
   Exclude:
     - 'lib/vendor/**/*.rb'
+    - 'vendor/**/*'
 
 Style/AccessorMethodName:
   Enabled: false
@@ -33,3 +34,9 @@ Style/TrivialAccessors:
 Style/RegexpLiteral:
   Exclude:
     - 'Guardfile'
+
+Style/LineLength:
+  AllowURI: true
+  Max: 120
+  Include:
+    - 'lib/**/*.rb'
