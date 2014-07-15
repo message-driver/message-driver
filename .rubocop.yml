@@ -6,6 +6,8 @@ AllCops:
     - '**/Gemfile'
     - 'Guardfile'
     - 'Rakefile'
+  Exclude:
+    - 'lib/vendor/**/*.rb'
 
 Style/AccessorMethodName:
   Enabled: false
@@ -22,3 +24,12 @@ Style/FileName:
 
 Style/NumericLiterals:
   Enabled: false
+
+Style/TrivialAccessors:
+  ExactNameMatch: true
+  AllowPredicates: true
+  AllowDSLWriters: true
+
+Style/RegexpLiteral:
+  Exclude:
+    - 'Guardfile'

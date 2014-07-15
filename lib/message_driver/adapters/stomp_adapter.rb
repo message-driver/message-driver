@@ -48,9 +48,7 @@ module MessageDriver
         # end
 
         def create_destination(name, dest_options = {}, message_props = {})
-          unless name.start_with?('/')
-            name = "/queue/#{name}"
-          end
+          name = "/queue/#{name}" unless name.start_with?('/')
           Destination.new(adapter, name, dest_options, message_props)
         end
 
@@ -98,9 +96,7 @@ module MessageDriver
 
       def stop
         super
-        if @connection
-          @connection.disconnect
-        end
+        @connection.disconnect if @connection
       end
 
       private

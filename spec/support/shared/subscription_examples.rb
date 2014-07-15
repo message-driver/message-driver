@@ -8,10 +8,10 @@ shared_examples 'subscriptions are not supported' do
   describe '#subscribe' do
     it 'raises an error' do
       destination = double('destination')
-      consumer = lambda { |_| }
-      expect {
+      consumer = ->(_) {}
+      expect do
         subject.subscribe(destination, &consumer)
-      }.to raise_error "#subscribe is not supported by #{subject.adapter.class}"
+      end.to raise_error "#subscribe is not supported by #{subject.adapter.class}"
     end
   end
 end
@@ -36,9 +36,7 @@ shared_examples 'subscriptions are supported' do |subscription_type|
 
   describe '#subscribe' do
     before do
-      if destination.respond_to? :purge
-        destination.purge
-      end
+      destination.purge if destination.respond_to? :purge
     end
 
     let(:subscription) { adapter_context.subscribe(destination, &consumer) }

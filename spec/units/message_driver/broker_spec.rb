@@ -152,9 +152,9 @@ module MessageDriver
       it "raises and error if you don't provide a MessageDriver::Adapters::Base" do
         adapter = Hash.new
 
-        expect {
+        expect do
           described_class.new(adapter: adapter)
-        }.to raise_error(/adapter must be a MessageDriver::Adapters::Base/)
+        end.to raise_error(/adapter must be a MessageDriver::Adapters::Base/)
       end
 
       it 'starts off with the adapter not stopped' do
@@ -267,7 +267,7 @@ module MessageDriver
       end
 
       describe '#consumer' do
-        let(:consumer_double) { lambda { |_| } }
+        let(:consumer_double) { ->(_) {} }
         it 'saves the provided consumer' do
           broker.consumer(:my_consumer, &consumer_double)
           expect(broker.consumers[:my_consumer]).to be(consumer_double)
@@ -283,7 +283,7 @@ module MessageDriver
       end
 
       describe '#find_consumer' do
-        let(:consumer_double) { lambda { |_| } }
+        let(:consumer_double) { ->(_) {} }
         it 'finds the previously defined consumer' do
           my_consumer = broker.consumer(:my_consumer, &consumer_double)
           expect(broker.find_consumer(:my_consumer)).to be(my_consumer)

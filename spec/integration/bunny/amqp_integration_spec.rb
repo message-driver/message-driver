@@ -61,9 +61,9 @@ describe 'AMQP Integration', :bunny, type: :integration do
     it 'raises a MessageDriver::ConnectionError' do
       dest = create_destination('test_queue')
       disrupt_connection
-      expect {
+      expect do
         dest.publish('Reconnection Test')
-      }.to raise_error(MessageDriver::ConnectionError) do |err|
+      end.to raise_error(MessageDriver::ConnectionError) do |err|
         expect(err.nested).to be_a Bunny::NetworkErrorWrapper
       end
     end
@@ -71,9 +71,9 @@ describe 'AMQP Integration', :bunny, type: :integration do
     it 'seemlessly reconnects' do
       dest = create_destination('seemless.reconnect.queue')
       disrupt_connection
-      expect {
+      expect do
         dest.publish('Reconnection Test 1')
-      }.to raise_error(MessageDriver::ConnectionError)
+      end.to raise_error(MessageDriver::ConnectionError)
       dest = create_destination('seemless.reconnect.queue')
       dest.publish('Reconnection Test 2')
       msg = dest.pop_message

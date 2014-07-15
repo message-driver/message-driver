@@ -107,9 +107,7 @@ module MessageDriver
     end
 
     def restart
-      unless stopped?
-        @adapter.stop
-      end
+      @adapter.stop unless stopped?
       @adapter = resolve_adapter(@configuration[:adapter], @configuration)
       @stopped = false
     end

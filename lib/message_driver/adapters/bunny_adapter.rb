@@ -206,9 +206,7 @@ module MessageDriver
         def start_subscription
           @sub_ctx.with_channel do |ch|
             queue = destination.bunny_queue(@sub_ctx.channel)
-            if options.key? :prefetch_size
-              ch.prefetch(options[:prefetch_size])
-            end
+            ch.prefetch(options[:prefetch_size]) if options.key? :prefetch_size
             @bunny_consumer = queue.subscribe(options.merge(manual_ack: true)) do |delivery_info, properties, payload|
               adapter.broker.client.with_adapter_context(@sub_ctx) do
                 message = @sub_ctx.args_to_message(delivery_info, properties, payload)
@@ -272,14 +270,14 @@ module MessageDriver
         end
 
         def create_destination(name, dest_options = {}, message_props = {})
-          dest = case type = dest_options.delete(:type)
-          when :exchange
-            ExchangeDestination.new(adapter, name, dest_options, message_props)
-          when :queue, nil
-            QueueDestination.new(adapter, name, dest_options, message_props)
-          else
-            fail MessageDriver::Error, "invalid destination type #{type}"
-          end
+          dest =  case type = dest_options.delete(:type)
+                  when :exchange
+                    ExchangeDestination.new(adapter, name, dest_options, message_props)
+                  when :queue, nil
+                    QueueDestination.new(adapter, name, dest_options, message_props)
+                  else
+                    fail MessageDriver::Error, "invalid destination type #{type}"
+                  end
           dest.after_initialize(self)
           dest
         end
