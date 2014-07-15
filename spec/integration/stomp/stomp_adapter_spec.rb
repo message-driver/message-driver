@@ -15,18 +15,18 @@ module MessageDriver::Adapters
         shared_examples 'raises a stomp error' do
           it 'raises an error' do
             stub_const('Stomp::Version::STRING', version)
-            expect {
+            expect do
               described_class.new(broker, connection_attrs)
-            }.to raise_error MessageDriver::Error, 'stomp 1.3.1 or a later version of the 1.3.x series is required for the stomp adapter'
+            end.to raise_error MessageDriver::Error, 'stomp 1.3.1 or a later version of the 1.3.x series is required for the stomp adapter'
           end
         end
         shared_examples "doesn't raise a stomp error" do
           it "doesn't raise an an error" do
             stub_const('Stomp::Version::STRING', version)
             adapter = nil
-            expect {
+            expect do
               adapter = described_class.new(broker, connection_attrs)
-            }.to_not raise_error
+            end.to_not raise_error
           end
         end
         %w(1.1.0 1.2.9 1.3.0 1.4.0).each do |v|
@@ -44,26 +44,26 @@ module MessageDriver::Adapters
       end
 
       describe 'the resulting config' do
-        let(:connection_attrs) { {hosts: [{host: 'my_host'}]} }
+        let(:connection_attrs) { { hosts: [{ host: 'my_host' }] } }
         subject(:config) { described_class.new(broker, connection_attrs).config }
 
         its([:connect_headers]) { should eq(:"accept-version" => '1.1,1.2') }
         its([:hosts]) { should eq(connection_attrs[:hosts]) }
 
         context 'when vhost is specified' do
-          let(:connection_attrs) { {hosts: [{host: 'my_host'}], vhost: 'my_vhost'} }
+          let(:connection_attrs) { { hosts: [{ host: 'my_host' }], vhost: 'my_vhost' } }
 
           it { should_not have_key(:vhost) }
           its([:connect_headers]) { should eq(:"accept-version" => '1.1,1.2', :"host" => 'my_vhost') }
         end
 
         context 'when there are things in the connect_headers' do
-          let(:connection_attrs) { {hosts: [{host: 'my_host'}], connect_headers: {'foo' => 'bar'}} }
+          let(:connection_attrs) { { hosts: [{ host: 'my_host' }], connect_headers: { 'foo' => 'bar' } } }
 
           its([:connect_headers]) { should eq(:"accept-version" => '1.1,1.2', 'foo' => 'bar') }
 
           context 'and accept-version is one of the parameters' do
-            let(:connection_attrs) { {hosts: [{host: 'my_host'}], connect_headers: {'foo' => 'bar', :"accept-version" => 'foo!'}} }
+            let(:connection_attrs) { { hosts: [{ host: 'my_host' }], connect_headers: { 'foo' => 'bar', :"accept-version" => 'foo!' } } }
 
             its([:connect_headers]) { should eq(:"accept-version" => '1.1,1.2', 'foo' => 'bar') }
           end

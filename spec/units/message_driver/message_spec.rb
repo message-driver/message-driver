@@ -4,8 +4,8 @@ module MessageDriver::Message
   describe Base do
     describe '#initialize' do
       let(:body) { 'The message body' }
-      let(:headers) { { foo: :bar, bar: :baz} }
-      let(:properties) { {persistent: true, client_ack: true} }
+      let(:headers) { { foo: :bar, bar: :baz } }
+      let(:properties) { { persistent: true, client_ack: true } }
       let(:ctx) { double('adapter_context') }
 
       context 'sets the body, header and properites on initialization' do

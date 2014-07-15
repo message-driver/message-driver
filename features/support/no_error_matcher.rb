@@ -8,6 +8,6 @@ RSpec::Matchers.define :have_no_errors do
     filtered = (err.backtrace || []).reject do |line|
       Cucumber::Ast::StepInvocation::BACKTRACE_FILTER_PATTERNS.find { |p| line =~ p }
     end
-    (["#{err.class}: #{err}"]+filtered).join("\n  ")
+    (["#{err.class}: #{err}"] + filtered).join("\n  ")
   end
 end

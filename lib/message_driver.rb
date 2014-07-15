@@ -17,7 +17,7 @@ module MessageDriver
   end
 
   def logger
-    @__logger ||= Logger.new(STDOUT).tap{|l| l.level = Logger::INFO}
+    @__logger ||= Logger.new(STDOUT).tap { |l| l.level = Logger::INFO }
   end
 
   def logger=(logger)

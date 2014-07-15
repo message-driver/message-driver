@@ -4,7 +4,7 @@ module MessageDriver
       include Logging
       attr_reader :adapter, :destination, :consumer, :options
 
-      def initialize(adapter, destination, consumer, options={})
+      def initialize(adapter, destination, consumer, options = {})
         @adapter = adapter
         @destination = destination
         @consumer = consumer
@@ -12,7 +12,7 @@ module MessageDriver
       end
 
       def unsubscribe
-        raise 'must be implemented in subclass'
+        fail 'must be implemented in subclass'
       end
     end
   end

@@ -47,8 +47,8 @@ module MessageDriver
 
         describe '#dynamic_destination' do
           let(:dest_name) { 'my_new_queue' }
-          let(:dest_options) { {type: 2} }
-          let(:message_props) { {expires: 'soon'} }
+          let(:dest_options) { { type: 2 } }
+          let(:message_props) { { expires: 'soon' } }
           let(:created_dest) { double('created destination') }
           before do
             adapter_context.stub(:create_destination) { created_dest }
@@ -72,8 +72,8 @@ module MessageDriver
         describe '#publish' do
           let(:destination) { broker.destination(:my_queue, 'my_queue', exclusive: true) }
           let(:body) { 'my message' }
-          let(:headers) { {foo: :bar} }
-          let(:properties) { {bar: :baz} }
+          let(:headers) { { foo: :bar } }
+          let(:properties) { { bar: :baz } }
           before do
             adapter_context.stub(:publish)
           end
@@ -97,9 +97,9 @@ module MessageDriver
           context "when the destination can't be found" do
             let(:bad_dest_name) { :not_a_queue }
             it 'raises a MessageDriver:NoSuchDestinationError' do
-              expect {
+              expect do
                 subject.publish(bad_dest_name, body, headers, properties)
-              }.to raise_error(MessageDriver::NoSuchDestinationError, /#{bad_dest_name}/)
+              end.to raise_error(MessageDriver::NoSuchDestinationError, /#{bad_dest_name}/)
               adapter_context.should_not have_received(:publish)
             end
           end
@@ -108,7 +108,7 @@ module MessageDriver
         describe '#pop_message' do
           let(:expected) { double(MessageDriver::Message) }
           let(:destination) { broker.destination(:my_queue, 'my_queue', exclusive: true) }
-          let(:options) { {foo: :bar} }
+          let(:options) { { foo: :bar } }
           before do
             adapter_context.stub(:pop_message)
           end
@@ -127,9 +127,9 @@ module MessageDriver
           context "when the destination can't be found" do
             let(:bad_dest_name) { :not_a_queue }
             it 'raises a MessageDriver:NoSuchDestinationError' do
-              expect {
+              expect do
                 subject.pop_message(bad_dest_name, options)
-              }.to raise_error(MessageDriver::NoSuchDestinationError, /#{bad_dest_name}/)
+              end.to raise_error(MessageDriver::NoSuchDestinationError, /#{bad_dest_name}/)
               adapter_context.should_not have_received(:pop_message)
             end
           end
@@ -163,20 +163,20 @@ module MessageDriver
               adapter_context.stub(:supports_transactions?) { true }
             end
             it 'delegates to the adapter context' do
-              expect { |blk|
+              expect do |blk|
                 subject.with_message_transaction(&blk)
-              }.to yield_control
+              end.to yield_control
               adapter_context.should have_received(:begin_transaction)
               adapter_context.should have_received(:commit_transaction)
             end
 
             context 'when the block raises an error' do
               it 'calls rollback instead of commit and raises the error' do
-                expect {
+                expect do
                   subject.with_message_transaction do
-                    raise 'having a tough time'
+                    fail 'having a tough time'
                   end
-                }.to raise_error 'having a tough time'
+                end.to raise_error 'having a tough time'
                 adapter_context.should have_received(:begin_transaction)
                 adapter_context.should_not have_received(:commit_transaction)
                 adapter_context.should have_received(:rollback_transaction)
@@ -186,11 +186,11 @@ module MessageDriver
                 it 'logs the error from the rollback and raises the original error' do
                   allow(logger).to receive(:error)
                   adapter_context.stub(:rollback_transaction).and_raise('rollback failed!')
-                  expect {
+                  expect do
                     subject.with_message_transaction do
-                      raise 'having a tough time'
+                      fail 'having a tough time'
                     end
-                  }.to raise_error 'having a tough time'
+                  end.to raise_error 'having a tough time'
                   expect(logger).to have_received(:error).with(match('rollback failed!'))
                 end
               end
@@ -198,24 +198,24 @@ module MessageDriver
 
             context 'when the transactions are nested' do
               it 'only starts and commits once' do
-                expect { |blk|
+                expect do |blk|
                   subject.with_message_transaction do
                     subject.with_message_transaction(&blk)
                   end
-                }.to yield_control
+                end.to yield_control
                 adapter_context.should have_received(:begin_transaction).once
                 adapter_context.should have_received(:commit_transaction).once
               end
 
               context 'when the block raises an error' do
                 it 'calls rollback instead of commit and raises the error' do
-                  expect {
+                  expect do
                     subject.with_message_transaction do
                       subject.with_message_transaction do
-                        raise 'having a tough time'
+                        fail 'having a tough time'
                       end
                     end
-                  }.to raise_error 'having a tough time'
+                  end.to raise_error 'having a tough time'
                   adapter_context.should have_received(:begin_transaction).once
                   adapter_context.should_not have_received(:commit_transaction)
                   adapter_context.should have_received(:rollback_transaction).once
@@ -229,18 +229,18 @@ module MessageDriver
               adapter_context.stub(:supports_transactions?) { false }
             end
             it "run the block on it's own" do
-              expect { |blk|
+              expect do |blk|
                 subject.with_message_transaction(&blk)
-              }.to yield_control
+              end.to yield_control
               adapter_context.should_not have_received(:begin_transaction)
               adapter_context.should_not have_received(:commit_transaction)
               adapter_context.should_not have_received(:rollback_transaction)
             end
             it 'logs a warning' do
               allow(logger).to receive(:debug)
-              expect { |blk|
+              expect do |blk|
                 subject.with_message_transaction(&blk)
-              }.to yield_control
+              end.to yield_control
               expect(logger).to have_received(:debug).with('this adapter does not support transactions')
             end
           end
@@ -248,7 +248,7 @@ module MessageDriver
 
         describe '#ack_message' do
           let(:message) { double('message') }
-          let(:options) { {foo: :bar} }
+          let(:options) { { foo: :bar } }
           before do
             allow(message).to receive(:ack)
           end
@@ -264,7 +264,7 @@ module MessageDriver
 
         describe '#nack_message' do
           let(:message) { double('message') }
-          let(:options) { {foo: :bar} }
+          let(:options) { { foo: :bar } }
           before do
             allow(message).to receive(:nack)
           end
@@ -280,7 +280,7 @@ module MessageDriver
 
         describe '#subscribe' do
           let(:destination) { broker.destination(:my_queue, 'my_queue', exclusive: true) }
-          let(:consumer_double) { lambda do |_| end }
+          let(:consumer_double) { lambda { |_| } }
 
           before do
             adapter_context.stub(:subscribe)
@@ -295,7 +295,7 @@ module MessageDriver
           end
 
           it 'passes the options through' do
-            options = {foo: :bar}
+            options = { foo: :bar }
             adapter_context.should_receive(:subscribe).with(destination, options) do |&blk|
               expect(blk).to be(consumer_double)
             end
@@ -312,9 +312,9 @@ module MessageDriver
           context "when the destination can't be found" do
             let(:bad_dest_name) { :not_a_queue }
             it 'raises a MessageDriver:NoSuchDestinationError' do
-              expect {
+              expect do
                 subject.subscribe(bad_dest_name, :my_consumer)
-              }.to raise_error(MessageDriver::NoSuchDestinationError, /#{bad_dest_name}/)
+              end.to raise_error(MessageDriver::NoSuchDestinationError, /#{bad_dest_name}/)
               adapter_context.should_not have_received(:subscribe)
             end
           end
@@ -322,9 +322,9 @@ module MessageDriver
           context "when the consumer can't be found" do
             let(:bad_consumer_name) { :not_a_consumer }
             it 'raises a MessageDriver:NoSuchConsumerError' do
-              expect {
+              expect do
                 subject.subscribe(destination, bad_consumer_name)
-              }.to raise_error(MessageDriver::NoSuchConsumerError, /#{bad_consumer_name}/)
+              end.to raise_error(MessageDriver::NoSuchConsumerError, /#{bad_consumer_name}/)
               adapter_context.should_not have_received(:subscribe)
             end
           end
@@ -332,7 +332,7 @@ module MessageDriver
 
         describe '#subscribe_with' do
           let(:destination) { broker.destination(:my_queue, 'my_queue', exclusive: true) }
-          let(:consumer_double) { lambda do |_| end }
+          let(:consumer_double) { lambda { |_| } }
 
           before do
             adapter_context.stub(:subscribe)
@@ -346,7 +346,7 @@ module MessageDriver
           end
 
           it 'passes the options through' do
-            options = {foo: :bar}
+            options = { foo: :bar }
             adapter_context.should_receive(:subscribe).with(destination, options) do |&blk|
               expect(blk).to be(consumer_double)
             end
@@ -363,9 +363,9 @@ module MessageDriver
           context "when the destination can't be found" do
             let(:bad_dest_name) { :not_a_queue }
             it 'raises a MessageDriver:NoSuchDestinationError' do
-              expect {
+              expect do
                 subject.subscribe_with(bad_dest_name, &consumer_double)
-              }.to raise_error(MessageDriver::NoSuchDestinationError, /#{bad_dest_name}/)
+              end.to raise_error(MessageDriver::NoSuchDestinationError, /#{bad_dest_name}/)
               adapter_context.should_not have_received(:subscribe)
             end
           end

@@ -12,7 +12,7 @@ module MessageDriver
         @properties = properties
       end
 
-      def ack(options={})
+      def ack(options = {})
         if ctx.supports_client_acks?
           ctx.ack_message(self, options)
         else
@@ -20,7 +20,7 @@ module MessageDriver
         end
       end
 
-      def nack(options={})
+      def nack(options = {})
         if ctx.supports_client_acks?
           ctx.nack_message(self, options)
         else

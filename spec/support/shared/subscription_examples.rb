@@ -8,7 +8,7 @@ shared_examples 'subscriptions are not supported' do
   describe '#subscribe' do
     it 'raises an error' do
       destination = double('destination')
-      consumer = lambda do |_| end
+      consumer = lambda { |_| }
       expect {
         subject.subscribe(destination, &consumer)
       }.to raise_error "#subscribe is not supported by #{subject.adapter.class}"
@@ -62,9 +62,9 @@ shared_examples 'subscriptions are supported' do |subscription_type|
       describe '#unsubscribe' do
         it "makes it so messages don't go to the consumer any more" do
           subscription.unsubscribe
-          expect {
+          expect do
             destination.publish('should not be consumed')
-          }.to_not change{messages.size}
+          end.to_not change { messages.size }
         end
       end
     end
@@ -76,10 +76,10 @@ shared_examples 'subscriptions are supported' do |subscription_type|
       end
 
       it 'plays the messages into the consumer' do
-        expect {
+        expect do
           subscription
           pause_if_needed
-        }.to change{messages.size}.from(0).to(2)
+        end.to change { messages.size }.from(0).to(2)
         bodies = messages.map(&:body)
         expect(bodies).to include(message1)
         expect(bodies).to include(message2)
@@ -87,10 +87,10 @@ shared_examples 'subscriptions are supported' do |subscription_type|
 
       it 'removes the messages from the queue' do
         pause_if_needed
-        expect {
+        expect do
           subscription
           pause_if_needed
-        }.to change{destination.message_count}.from(2).to(0)
+        end.to change { destination.message_count }.from(2).to(0)
       end
     end
 
@@ -100,12 +100,12 @@ shared_examples 'subscriptions are supported' do |subscription_type|
       end
 
       it 'consumers the message into the consumer instead of putting them on the queue' do
-        expect {
-          expect {
+        expect do
+          expect do
             subject.publish(destination, message1)
             pause_if_needed
-          }.to change{messages.length}.from(0).to(1)
-        }.to_not change{destination.message_count}
+          end.to change { messages.length }.from(0).to(1)
+        end.to_not change { destination.message_count }
         expect(messages[0].body).to eq(message1)
       end
     end
@@ -114,7 +114,7 @@ shared_examples 'subscriptions are supported' do |subscription_type|
       let(:error) { RuntimeError.new('oh nos!') }
       let(:consumer) do
         lambda do |_|
-          raise error
+          fail error
         end
       end
 
@@ -125,10 +125,10 @@ shared_examples 'subscriptions are supported' do |subscription_type|
 
       it 'keeps processing the messages' do
         pause_if_needed
-        expect {
+        expect do
           subscription
           pause_if_needed
-        }.to change{destination.message_count}.from(2).to(0)
+        end.to change { destination.message_count }.from(2).to(0)
       end
 
       context 'an error_handler is provided' do

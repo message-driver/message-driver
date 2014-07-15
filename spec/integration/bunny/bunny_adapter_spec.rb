@@ -13,18 +13,18 @@ module MessageDriver::Adapters
         shared_examples 'raises an error' do
           it 'raises an error' do
             stub_const('Bunny::VERSION', version)
-            expect {
+            expect do
               described_class.new(broker, valid_connection_attrs)
-            }.to raise_error MessageDriver::Error, 'bunny 1.2.2 or later is required for the bunny adapter'
+            end.to raise_error MessageDriver::Error, 'bunny 1.2.2 or later is required for the bunny adapter'
           end
         end
         shared_examples "doesn't raise an error" do
           it "doesn't raise an an error" do
             stub_const('Bunny::VERSION', version)
             adapter = nil
-            expect {
+            expect do
               adapter = described_class.new(broker, valid_connection_attrs)
-            }.to_not raise_error
+            end.to_not raise_error
           end
         end
         %w(0.8.0  0.9.0 0.9.8 0.10.7 1.0.3 1.1.2 1.2.1).each do |v|
@@ -128,7 +128,7 @@ module MessageDriver::Adapters
         end
 
         shared_examples 'supports publisher confirmations' do
-          let(:properties) { {persistent: false, confirm: true} }
+          let(:properties) { { persistent: false, confirm: true } }
           it 'switches the channel to confirms mode' do
             expect(adapter_context.channel.using_publisher_confirms?).to eq(true)
           end
@@ -161,16 +161,16 @@ module MessageDriver::Adapters
               expect(subject.dest_options).to_not have_key :type
             end
             it 'ensures the queue is declared' do
-              expect {
+              expect do
                 connection.with_channel do |ch|
                   ch.queue(dest_name, passive: true)
                 end
-              }.to_not raise_error
+              end.to_not raise_error
             end
             context 'publishing a message' do
               let(:body) { 'Testing the QueueDestination' }
-              let(:headers) { {'foo' => 'bar'} }
-              let(:properties) { {persistent: false} }
+              let(:headers) { { 'foo' => 'bar' } }
+              let(:properties) { { persistent: false } }
               before do
                 subject.publish(body, headers, properties)
               end
@@ -191,13 +191,13 @@ module MessageDriver::Adapters
             let(:exchange) { adapter_context.create_destination('amq.direct', type: :exchange) }
 
             it "raises an exception if you don't provide a source" do
-              expect {
-                adapter_context.create_destination('bad_bind_queue', type: :queue, exclusive: true, bindings: [{args: {routing_key: 'test_exchange_bind'}}])
-              }.to raise_error MessageDriver::Error, /must provide a source/
+              expect do
+                adapter_context.create_destination('bad_bind_queue', type: :queue, exclusive: true, bindings: [{ args: { routing_key: 'test_exchange_bind' } }])
+              end.to raise_error MessageDriver::Error, /must provide a source/
             end
 
             it 'routes message to the queue through the exchange' do
-              destination = adapter_context.create_destination(dest_name, type: :queue, exclusive: true, bindings: [{source: 'amq.direct', args: {routing_key: 'test_queue_bind'}}])
+              destination = adapter_context.create_destination(dest_name, type: :queue, exclusive: true, bindings: [{ source: 'amq.direct', args: { routing_key: 'test_queue_bind' } }])
               exchange.publish('test queue bindings', {}, routing_key: 'test_queue_bind')
               message = destination.pop_message
               expect(message).to_not be_nil
@@ -214,17 +214,17 @@ module MessageDriver::Adapters
 
             context 'with a server-named queue' do
               it 'raises an error' do
-                expect {
+                expect do
                   adapter_context.create_destination('', no_declare: true, type: :queue, exclusive: true)
-                }.to raise_error MessageDriver::Error, 'server-named queues must be declared, but you provided :no_declare => true'
+                end.to raise_error MessageDriver::Error, 'server-named queues must be declared, but you provided :no_declare => true'
               end
             end
 
             context 'with bindings' do
               it 'raises an error' do
-                expect {
-                  adapter_context.create_destination('tmp_queue', no_declare: true, bindings: [{source: 'amq.fanout'}], type: :queue, exclusive: true)
-                }.to raise_error MessageDriver::Error, 'queues with bindings must be declared, but you provided :no_declare => true'
+                expect do
+                  adapter_context.create_destination('tmp_queue', no_declare: true, bindings: [{ source: 'amq.fanout' }], type: :queue, exclusive: true)
+                end.to raise_error MessageDriver::Error, 'queues with bindings must be declared, but you provided :no_declare => true'
               end
             end
           end
@@ -243,15 +243,15 @@ module MessageDriver::Adapters
             end
 
             it 'raises an error when pop_message is called' do
-              expect {
+              expect do
                 subject.pop_message(dest_name)
-              }.to raise_error MessageDriver::Error, "You can't pop a message off an exchange"
+              end.to raise_error MessageDriver::Error, "You can't pop a message off an exchange"
             end
 
             context 'publishing a message' do
               let(:body) { 'Testing the ExchangeDestination' }
-              let(:headers) { {'foo' => 'bar'} }
-              let(:properties) { {persistent: false} }
+              let(:headers) { { 'foo' => 'bar' } }
+              let(:properties) { { persistent: false } }
               before { connection.with_channel { |ch| ch.fanout(dest_name, auto_delete: true) } }
               let!(:queue) do
                 q = nil
@@ -283,8 +283,8 @@ module MessageDriver::Adapters
             let(:dest_name) { 'my.cool.exchange' }
 
             it "creates the exchange if you include 'declare' in the options" do
-              exchange = adapter_context.create_destination(dest_name, type: :exchange, declare: {type: :fanout, auto_delete: true})
-              queue = adapter_context.create_destination('', type: :queue, exclusive: true, bindings: [{source: dest_name}])
+              exchange = adapter_context.create_destination(dest_name, type: :exchange, declare: { type: :fanout, auto_delete: true })
+              queue = adapter_context.create_destination('', type: :queue, exclusive: true, bindings: [{ source: dest_name }])
               exchange.publish('test declaring exchange')
               message = queue.pop_message
               expect(message).to_not be_nil
@@ -292,9 +292,9 @@ module MessageDriver::Adapters
             end
 
             it "raises an error if you don't provide a type" do
-              expect {
-                adapter_context.create_destination(dest_name, type: :exchange, declare: {auto_delete: true})
-              }.to raise_error MessageDriver::Error, /you must provide a valid exchange type/
+              expect do
+                adapter_context.create_destination(dest_name, type: :exchange, declare: { auto_delete: true })
+              end.to raise_error MessageDriver::Error, /you must provide a valid exchange type/
             end
 
           end
@@ -304,14 +304,14 @@ module MessageDriver::Adapters
             let(:exchange) { adapter_context.create_destination('amq.direct', type: :exchange) }
 
             it "raises an exception if you don't provide a source" do
-              expect {
-                adapter_context.create_destination('amq.fanout', type: :exchange, bindings: [{args: {routing_key: 'test_exchange_bind'}}])
-              }.to raise_error MessageDriver::Error, /must provide a source/
+              expect do
+                adapter_context.create_destination('amq.fanout', type: :exchange, bindings: [{ args: { routing_key: 'test_exchange_bind' } }])
+              end.to raise_error MessageDriver::Error, /must provide a source/
             end
 
             it 'routes message to the queue through the exchange' do
-              adapter_context.create_destination('amq.fanout', type: :exchange, bindings: [{source: 'amq.direct', args: {routing_key: 'test_exchange_bind'}}])
-              destination = adapter_context.create_destination(dest_name, type: :queue, exclusive: true, bindings: [{source: 'amq.fanout'}])
+              adapter_context.create_destination('amq.fanout', type: :exchange, bindings: [{ source: 'amq.direct', args: { routing_key: 'test_exchange_bind' } }])
+              destination = adapter_context.create_destination(dest_name, type: :queue, exclusive: true, bindings: [{ source: 'amq.fanout' }])
               exchange.publish('test exchange bindings', {}, routing_key: 'test_exchange_bind')
               message = destination.pop_message
               expect(message).to_not be_nil
@@ -330,9 +330,9 @@ module MessageDriver::Adapters
 
         context 'the type is invalid' do
           it 'raises in an error' do
-            expect {
+            expect do
               adapter_context.create_destination('my_dest', type: :foo_bar)
-            }.to raise_error MessageDriver::Error, "invalid destination type #{:foo_bar}"
+            end.to raise_error MessageDriver::Error, "invalid destination type #{:foo_bar}"
           end
         end
       end
@@ -341,12 +341,12 @@ module MessageDriver::Adapters
         context 'the destination is an ExchangeDestination' do
           let(:dest_name) { 'my_dest' }
           let(:destination) { adapter_context.create_destination(dest_name, type: :exchange) }
-          let(:consumer) { lambda do |_|; end }
+          let(:consumer) { lambda { |_|; } }
 
           it 'raises an error' do
-            expect {
+            expect do
               adapter_context.subscribe(destination, &consumer)
-            }.to raise_error MessageDriver::Error, /QueueDestination/
+            end.to raise_error MessageDriver::Error, /QueueDestination/
           end
         end
       end

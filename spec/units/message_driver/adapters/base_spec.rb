@@ -10,9 +10,9 @@ module MessageDriver::Adapters
 
     describe '#new_context' do
       it 'raises an error' do
-        expect {
+        expect do
           subject.new_context
-        }.to raise_error 'Must be implemented in subclass'
+        end.to raise_error 'Must be implemented in subclass'
       end
     end
 
@@ -28,25 +28,25 @@ module MessageDriver::Adapters
 
       describe '#create_destination' do
         it 'raises an error' do
-          expect {
+          expect do
             subject.create_destination('foo')
-          }.to raise_error 'Must be implemented in subclass'
+          end.to raise_error 'Must be implemented in subclass'
         end
       end
 
       describe '#publish' do
         it 'raises an error' do
-          expect {
+          expect do
             subject.publish(:destination, foo: 'bar')
-          }.to raise_error 'Must be implemented in subclass'
+          end.to raise_error 'Must be implemented in subclass'
         end
       end
 
       describe '#pop_message' do
         it 'raises an error' do
-          expect {
+          expect do
             subject.pop_message(:destination)
-          }.to raise_error 'Must be implemented in subclass'
+          end.to raise_error 'Must be implemented in subclass'
         end
       end
 

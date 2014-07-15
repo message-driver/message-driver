@@ -10,7 +10,7 @@ module MessageDriver
       end
 
       def initialize(_broker, _configuration)
-        raise 'Must be implemented in subclass'
+        fail 'Must be implemented in subclass'
       end
 
       def new_context
@@ -20,11 +20,11 @@ module MessageDriver
       end
 
       def build_context
-        raise 'Must be implemented in subclass'
+        fail 'Must be implemented in subclass'
       end
 
       def reset_after_tests
-        #does nothing, can be overridden by adapters that want to support testing scenarios
+        # does nothing, can be overridden by adapters that want to support testing scenarios
       end
 
       def stop
@@ -47,20 +47,20 @@ module MessageDriver
         @valid = true
       end
 
-      def publish(_destination, _body, _headers={}, _properties={})
-        raise 'Must be implemented in subclass'
+      def publish(_destination, _body, _headers = {}, _properties = {})
+        fail 'Must be implemented in subclass'
       end
 
-      def pop_message(_destination, _options={})
-        raise 'Must be implemented in subclass'
+      def pop_message(_destination, _options = {})
+        fail 'Must be implemented in subclass'
       end
 
-      def subscribe(_destination, _options={}, &_consumer)
-        raise "#subscribe is not supported by #{adapter.class}"
+      def subscribe(_destination, _options = {}, &_consumer)
+        fail "#subscribe is not supported by #{adapter.class}"
       end
 
-      def create_destination(_name, _dest_options={}, _message_props={})
-        raise 'Must be implemented in subclass'
+      def create_destination(_name, _dest_options = {}, _message_props = {})
+        fail 'Must be implemented in subclass'
       end
 
       def valid?

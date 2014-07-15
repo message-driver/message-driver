@@ -18,12 +18,10 @@ module MessageDriver
         end
 
         def deliver_message(message)
-          begin
-            consumer.call(message)
-          rescue => e
-            unless options[:error_handler].nil?
-              options[:error_handler].call(e, message)
-            end
+          consumer.call(message)
+        rescue => e
+          unless options[:error_handler].nil?
+            options[:error_handler].call(e, message)
           end
         end
       end
@@ -37,11 +35,11 @@ module MessageDriver
           message_queue.size
         end
 
-        def pop_message(_options={})
+        def pop_message(_options = {})
           message_queue.shift
         end
 
-        def subscribe(options={}, &consumer)
+        def subscribe(options = {}, &consumer)
           subscription = Subscription.new(adapter, self, consumer, options)
           adapter.set_subscription_for(name, subscription)
           until (msg = pop_message).nil?
@@ -50,7 +48,7 @@ module MessageDriver
           subscription
         end
 
-        def publish(body, headers={}, properties={})
+        def publish(body, headers = {}, properties = {})
           msg = Message.new(nil, body, headers, properties)
           sub = subscription
           if sub.nil?
@@ -67,10 +65,10 @@ module MessageDriver
         end
       end
 
-      def initialize(broker, _config={})
+      def initialize(broker, _config = {})
         @broker = broker
         @destinations = {}
-        @message_store = Hash.new { |h,k| h[k] = [] }
+        @message_store = Hash.new { |h, k| h[k] = [] }
         @subscriptions = {}
       end
 
@@ -78,7 +76,7 @@ module MessageDriver
         InMemoryContext.new(self)
       end
 
-      def create_destination(name, dest_options={}, message_props={})
+      def create_destination(name, dest_options = {}, message_props = {})
         destination = Destination.new(self, name, dest_options, message_props)
         @destinations[name] = destination
       end
@@ -88,15 +86,15 @@ module MessageDriver
 
         def_delegators :adapter, :create_destination
 
-        def publish(destination, body, headers={}, properties={})
+        def publish(destination, body, headers = {}, properties = {})
           destination.publish(body, headers, properties)
         end
 
-        def pop_message(destination, options={})
+        def pop_message(destination, options = {})
           destination.pop_message(options)
         end
 
-        def subscribe(destination, options={}, &consumer)
+        def subscribe(destination, options = {}, &consumer)
           destination.subscribe(options, &consumer)
         end
 

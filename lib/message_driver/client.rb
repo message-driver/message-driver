@@ -5,35 +5,35 @@ module MessageDriver
     include Logging
     extend self
 
-    def publish(destination, body, headers={}, properties={})
+    def publish(destination, body, headers = {}, properties = {})
       dest = find_destination(destination)
       current_adapter_context.publish(dest, body, headers, properties)
     end
 
-    def pop_message(destination, options={})
+    def pop_message(destination, options = {})
       dest = find_destination(destination)
       current_adapter_context.pop_message(dest, options)
     end
 
-    def subscribe(destination_name, consumer_name, options={})
+    def subscribe(destination_name, consumer_name, options = {})
       consumer =  find_consumer(consumer_name)
       subscribe_with(destination_name, options, &consumer)
     end
 
-    def subscribe_with(destination_name, options={}, &consumer)
+    def subscribe_with(destination_name, options = {}, &consumer)
       destination = find_destination(destination_name)
       current_adapter_context.subscribe(destination, options, &consumer)
     end
 
-    def dynamic_destination(dest_name, dest_options={}, message_props={})
+    def dynamic_destination(dest_name, dest_options = {}, message_props = {})
       current_adapter_context.create_destination(dest_name, dest_options, message_props)
     end
 
-    def ack_message(message, options={})
+    def ack_message(message, options = {})
       message.ack(options)
     end
 
-    def nack_message(message, options={})
+    def nack_message(message, options = {})
       message.nack(options)
     end
 
@@ -54,7 +54,7 @@ module MessageDriver
       broker.find_consumer(consumer)
     end
 
-    def with_message_transaction(options={})
+    def with_message_transaction(options = {})
       wrapper = fetch_context_wrapper
       wrapper.increment_transaction_depth
       begin
@@ -84,7 +84,7 @@ module MessageDriver
       end
     end
 
-    def current_adapter_context(initialize=true)
+    def current_adapter_context(initialize = true)
       ctx = fetch_context_wrapper(initialize)
       ctx.nil? ? nil : ctx.ctx
     end
@@ -132,7 +132,7 @@ module MessageDriver
 
     private
 
-    def fetch_context_wrapper(initialize=true)
+    def fetch_context_wrapper(initialize = true)
       wrapper = Thread.current[adapter_context_key]
       if wrapper.nil? || !wrapper.valid?
         if initialize
@@ -149,7 +149,7 @@ module MessageDriver
       Thread.current[adapter_context_key] = wrapper
     end
 
-    def build_context_wrapper(ctx=adapter.new_context)
+    def build_context_wrapper(ctx = adapter.new_context)
       ContextWrapper.new(ctx)
     end
 

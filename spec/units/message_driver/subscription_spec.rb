@@ -15,9 +15,9 @@ module MessageDriver::Subscription
 
     describe '#unsubscribe' do
       it 'raises an error' do
-        expect {
+        expect do
           subscription.unsubscribe
-        }.to raise_error('must be implemented in subclass')
+        end.to raise_error('must be implemented in subclass')
       end
     end
   end

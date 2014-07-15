@@ -5,7 +5,7 @@ require 'message_driver'
 
 require File.join(File.dirname(__FILE__), '..', 'test_lib', 'broker_config')
 
-Dir['./spec/support/**/*.rb'].sort.each {|f| require f}
+Dir['./spec/support/**/*.rb'].sort.each { |f| require f }
 
 RSpec.configure do |c|
   c.treat_symbols_as_metadata_keys_with_true_values = true
@@ -23,7 +23,7 @@ RSpec.configure do |c|
     MessageDriver::Broker.reset
   end
 
-  c.filter_run_excluding :no_ci if ENV['CI']=='true' && ENV['ADAPTER'] && ENV['ADAPTER'].start_with?('bunny')
+  c.filter_run_excluding :no_ci if ENV['CI'] == 'true' && ENV['ADAPTER'] && ENV['ADAPTER'].start_with?('bunny')
   if c.inclusion_filter[:all_adapters] == true
     BrokerConfig.unconfigured_adapters.each do |a|
       c.filter_run_excluding a

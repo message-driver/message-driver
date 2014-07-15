@@ -15,11 +15,9 @@ class TestRunner
   end
 
   def run_test_code(src)
-    begin
-      instance_eval(src, current_feature_file)
-    rescue => e
-      @raised_error = e
-    end
+    instance_eval(src, current_feature_file)
+  rescue => e
+    @raised_error = e
   end
 
   def fetch_messages(destination_name)
@@ -49,25 +47,25 @@ class TestRunner
   def fetch_destination(destination)
     case destination
     when String, Symbol
-      MessageDriver::Client[self.broker_name].find_destination(destination)
+      MessageDriver::Client[broker_name].find_destination(destination)
     when MessageDriver::Destination::Base
       destination
     else
-      raise "didn't understand destination #{destination.inspect}"
+      fail "didn't understand destination #{destination.inspect}"
     end
   end
 
   def fetch_current_adapter_context
-    MessageDriver::Client[self.broker_name].current_adapter_context
+    MessageDriver::Client[broker_name].current_adapter_context
   end
 
   def publish_table_to_destination(destination, table)
     table.hashes.each do |msg|
-      destination.publish(msg[:body], msg[:headers]||{}, msg[:properties]||{})
+      destination.publish(msg[:body], msg[:headers] || {}, msg[:properties] || {})
     end
   end
 
-  def pause_if_needed(seconds=0.1)
+  def pause_if_needed(seconds = 0.1)
     seconds *= 10 if ENV['CI'] == 'true'
     case BrokerConfig.current_adapter
     when :in_memory

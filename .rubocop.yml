@@ -19,3 +19,6 @@ Style/BlockNesting:
 Style/FileName:
   Exclude:
     - 'lib/message-driver.rb'
+
+Style/NumericLiterals:
+  Enabled: false

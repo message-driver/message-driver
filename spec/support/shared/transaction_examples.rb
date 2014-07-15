@@ -26,18 +26,18 @@ shared_examples 'transactions are supported' do
 
   it 'raises a MessageDriver::TransactionError error if you begin two transactions' do
     subject.begin_transaction
-    expect {
+    expect do
       subject.begin_transaction
-    }.to raise_error MessageDriver::TransactionError
+    end.to raise_error MessageDriver::TransactionError
   end
   it 'raises a MessageDriver::TransactionError error if you commit outside of a transaction' do
-    expect {
+    expect do
       subject.commit_transaction
-    }.to raise_error MessageDriver::TransactionError
+    end.to raise_error MessageDriver::TransactionError
   end
   it 'raises a MessageDriver::TransactionError error if you rollback outside of a transaction' do
-    expect {
+    expect do
       subject.rollback_transaction
-    }.to raise_error MessageDriver::TransactionError
+    end.to raise_error MessageDriver::TransactionError
   end
 end

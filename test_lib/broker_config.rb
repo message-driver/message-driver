@@ -12,17 +12,17 @@ class BrokerConfig
           continuation_timeout: 10000
         }
       when 'in_memory'
-        {adapter: :in_memory}
+        { adapter: :in_memory }
       when 'stomp'
         {
           adapter: :stomp,
           vhost: vhost,
-          hosts: [{host: 'localhost', login: 'guest', passcode: 'guest'}],
+          hosts: [{ host: 'localhost', login: 'guest', passcode: 'guest' }],
           reliable: false,
           max_reconnect_attempts: 1
         }
       else
-        {adapter: :in_memory}
+        { adapter: :in_memory }
       end
     end
 

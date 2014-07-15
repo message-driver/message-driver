@@ -10,7 +10,7 @@ end
 STRING_OR_SYM = Transform(/^:?\w+$/) do |str|
   case str
   when /^:/
-    str.slice(1, str.length-1).to_sym
+    str.slice(1, str.length - 1).to_sym
   else
     str
   end

@@ -43,24 +43,24 @@ module MessageDriver
 
         def_delegators :adapter, :with_connection, :poll_timeout
 
-        #def subscribe(destination, consumer)
-        #destination.subscribe(&consumer)
-        #end
+        # def subscribe(destination, consumer)
+        # destination.subscribe(&consumer)
+        # end
 
-        def create_destination(name, dest_options={}, message_props={})
+        def create_destination(name, dest_options = {}, message_props = {})
           unless name.start_with?('/')
             name = "/queue/#{name}"
           end
           Destination.new(adapter, name, dest_options, message_props)
         end
 
-        def publish(destination, body, headers={}, _properties={})
+        def publish(destination, body, headers = {}, _properties = {})
           with_connection do |connection|
             connection.publish(destination.name, body, headers)
           end
         end
 
-        def pop_message(destination, options={})
+        def pop_message(destination, options = {})
           with_connection do |connection|
             sub_id = connection.uuid
             msg = nil
@@ -90,12 +90,10 @@ module MessageDriver
       end
 
       def with_connection
-        begin
-          @connection ||= open_connection
-          yield @connection
-        rescue SystemCallError, IOError => e
-          raise MessageDriver::ConnectionError.new(e)
-        end
+        @connection ||= open_connection
+        yield @connection
+      rescue SystemCallError, IOError => e
+        raise MessageDriver::ConnectionError.new(e)
       end
 
       def stop
@@ -109,7 +107,7 @@ module MessageDriver
 
       def open_connection
         conn = Stomp::Connection.new(@config)
-        raise MessageDriver::ConnectionError, conn.connection_frame.to_s unless conn.open?
+        fail MessageDriver::ConnectionError, conn.connection_frame.to_s unless conn.open?
         conn
       end
 
@@ -117,7 +115,7 @@ module MessageDriver
         required = Gem::Requirement.create('~> 1.3.1')
         current = Gem::Version.create(Stomp::Version::STRING)
         unless required.satisfied_by? current
-          raise MessageDriver::Error, 'stomp 1.3.1 or a later version of the 1.3.x series is required for the stomp adapter'
+          fail MessageDriver::Error, 'stomp 1.3.1 or a later version of the 1.3.x series is required for the stomp adapter'
         end
       end
     end

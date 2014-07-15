@@ -35,7 +35,7 @@ module FirewallHelper
   def run_commands(step)
     COMMANDS[os][step].each do |cmd|
       result = system(cmd)
-      raise "command `#{cmd}` failed!" unless result
+      fail "command `#{cmd}` failed!" unless result
     end
   end
 

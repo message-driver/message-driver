@@ -9,7 +9,7 @@ module MessageDriver
     class << self
       def configure(name = DEFAULT_BROKER_NAME, options)
         if brokers.keys.include? name
-          raise BrokerAlreadyConfigured, "there is already a broker named #{name} configured"
+          fail BrokerAlreadyConfigured, "there is already a broker named #{name} configured"
         end
         brokers[name] = new(name, options)
       end
@@ -21,7 +21,7 @@ module MessageDriver
       def broker(name = DEFAULT_BROKER_NAME)
         result = brokers[name]
         if result.nil?
-          raise BrokerNotConfigured, "There is no broker named #{name} configured. The configured brokers are #{brokers.keys}"
+          fail BrokerNotConfigured, "There is no broker named #{name} configured. The configured brokers are #{brokers.keys}"
         end
         result
       end
@@ -65,11 +65,11 @@ module MessageDriver
       private
 
       def brokers
-        @brokers ||= { }
+        @brokers ||= {}
       end
 
       def clients
-        @clients ||= { }
+        @clients ||= {}
       end
 
       def each_broker
@@ -114,29 +114,29 @@ module MessageDriver
       @stopped = false
     end
 
-    def dynamic_destination(dest_name, dest_options={}, message_props={})
+    def dynamic_destination(dest_name, dest_options = {}, message_props = {})
       client.dynamic_destination(dest_name, dest_options, message_props)
     end
 
-    def destination(key, dest_name, dest_options={}, message_props={})
-      dest = self.dynamic_destination(dest_name, dest_options, message_props)
+    def destination(key, dest_name, dest_options = {}, message_props = {})
+      dest = dynamic_destination(dest_name, dest_options, message_props)
       @destinations[key] = dest
     end
 
     def consumer(key, &block)
-      raise MessageDriver::Error, 'you must provide a block' unless block_given?
+      fail MessageDriver::Error, 'you must provide a block' unless block_given?
       @consumers[key] = block
     end
 
     def find_destination(destination_name)
       destination = @destinations[destination_name]
-      raise MessageDriver::NoSuchDestinationError, "no destination #{destination_name} has been configured" if destination.nil?
+      fail MessageDriver::NoSuchDestinationError, "no destination #{destination_name} has been configured" if destination.nil?
       destination
     end
 
     def find_consumer(consumer_name)
       consumer = @consumers[consumer_name]
-      raise MessageDriver::NoSuchConsumerError, "no consumer #{consumer_name} has been configured" if consumer.nil?
+      fail MessageDriver::NoSuchConsumerError, "no consumer #{consumer_name} has been configured" if consumer.nil?
       consumer
     end
 
@@ -145,7 +145,7 @@ module MessageDriver
     def resolve_adapter(adapter, options)
       case adapter
       when nil
-        raise 'you must specify an adapter'
+        fail 'you must specify an adapter'
       when Symbol, String
         resolve_adapter(find_adapter_class(adapter), options)
       when Class
@@ -153,7 +153,7 @@ module MessageDriver
       when MessageDriver::Adapters::Base
         adapter
       else
-        raise "adapter must be a MessageDriver::Adapters::Base, but this object is a #{adapter.class}"
+        fail "adapter must be a MessageDriver::Adapters::Base, but this object is a #{adapter.class}"
       end
     end
 
@@ -163,7 +163,7 @@ module MessageDriver
       adapter_method = "#{adapter_name}_adapter"
 
       unless respond_to?(adapter_method)
-        raise "the adapter #{adapter_name} must provide MessageDriver::Broker##{adapter_method} that returns the adapter class"
+        fail "the adapter #{adapter_name} must provide MessageDriver::Broker##{adapter_method} that returns the adapter class"
       end
 
       send(adapter_method)
