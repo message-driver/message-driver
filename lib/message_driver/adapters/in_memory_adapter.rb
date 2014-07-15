@@ -14,7 +14,7 @@ module MessageDriver
 
       class Subscription < MessageDriver::Subscription::Base
         def unsubscribe
-          adapter.remove_subscription_for(destination.name)
+          adapter.remove_subscription_for(destination.name, self)
         end
 
         def deliver_message(message)
@@ -35,13 +35,17 @@ module MessageDriver
           message_queue.size
         end
 
+        def consumer_count
+          adapter.consumer_count_for(name)
+        end
+
         def pop_message(_options = {})
           message_queue.shift
         end
 
         def subscribe(options = {}, &consumer)
           subscription = Subscription.new(adapter, self, consumer, options)
-          adapter.set_subscription_for(name, subscription)
+          adapter.add_subscription_for(name, subscription)
           until (msg = pop_message).nil?
             subscription.deliver_message(msg)
           end
@@ -69,7 +73,7 @@ module MessageDriver
         @broker = broker
         @destinations = {}
         @message_store = Hash.new { |h, k| h[k] = [] }
-        @subscriptions = {}
+        @subscriptions = Hash.new { |h, k| h[k] = [] }
       end
 
       def build_context
@@ -120,15 +124,21 @@ module MessageDriver
       end
 
       def subscription_for(name)
-        @subscriptions[name]
+        sub = @subscriptions[name].shift
+        @subscriptions[name].push sub
+        sub
       end
 
-      def set_subscription_for(name, subscription)
-        @subscriptions[name] = subscription
+      def add_subscription_for(name, subscription)
+        @subscriptions[name].push subscription
       end
 
-      def remove_subscription_for(name)
-        @subscriptions.delete(name)
+      def remove_subscription_for(name, subscription)
+        @subscriptions[name].delete(subscription)
+      end
+
+      def consumer_count_for(name)
+        @subscriptions[name].size
       end
     end
   end

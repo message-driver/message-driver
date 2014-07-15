@@ -61,23 +61,27 @@ module MessageDriver
             end
           else
             adapter_context.with_channel(false) do |ch|
-              bunny_queue(ch, true)
+              bunny_queue(ch, init: true)
             end
           end
         end
 
-        def bunny_queue(channel, initialize = false)
-          queue = channel.queue(@name, @dest_options)
-          if initialize
-            @name = queue.name
-            if (bindings = @dest_options[:bindings])
-              bindings.each do |bnd|
-                fail MessageDriver::Error, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
-                queue.bind(bnd[:source], bnd[:args] || {})
-              end
+        def bunny_queue(channel, options = {})
+          opts = @dest_options.dup
+          opts.merge!(passive: options[:passive]) if options.key? :passive
+          queue = channel.queue(@name, opts)
+          handle_queue_init(queue) if options.fetch(:init, false)
+          queue
+        end
+
+        def handle_queue_init(queue)
+          @name = queue.name
+          if (bindings = @dest_options[:bindings])
+            bindings.each do |bnd|
+              fail MessageDriver::Error, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
+              queue.bind(bnd[:source], bnd[:args] || {})
             end
           end
-          queue
         end
 
         def exchange_name
@@ -90,7 +94,17 @@ module MessageDriver
 
         def message_count
           adapter.broker.client.current_adapter_context.with_channel(false) do |ch|
-            ch.queue(@name, @dest_options.merge(passive: true)).message_count
+            bunny_queue(ch, passive: true).message_count
+          end
+        end
+
+        def subscribe(options = {}, &consumer)
+          adapter.broker.client.current_adapter_context.subscribe(self, options, &consumer)
+        end
+
+        def consumer_count
+          adapter.broker.client.current_adapter_context.with_channel(false) do |ch|
+            bunny_queue(ch, passive: true).consumer_count
           end
         end
 

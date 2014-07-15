@@ -1,5 +1,11 @@
 # Changelog
 
+## master
+
+* add support for checking consumer counts on a queue in bunny and in_memory adapters
+* in_memory adapter now supports multiple subscribers per queue, and does a round-robin
+  through them when sending messages to consumers
+
 ## 0.4.0 - 2014-07-03
 
 * require bunny 1.2.2 or later

@@ -40,3 +40,32 @@ shared_examples 'supports #message_count' do
     end.to change { destination.message_count }.by(2)
   end
 end
+
+shared_examples "doesn't support #consumer_count" do
+  describe '#consumer_count' do
+    it 'raises an error' do
+      expect do
+        destination.consumer_count
+      end.to raise_error "#consumer_count is not supported by #{destination.class}"
+    end
+  end
+end
+
+shared_examples 'supports #consumer_count' do
+  describe '#consumer_count' do
+    it "reports it's consumer count" do
+      consumer1 = ->(_) {}
+      consumer2 = ->(_) {}
+      sub1 = nil
+      sub2 = nil
+      expect do
+        sub1 = destination.subscribe(&consumer1)
+        sub2 = destination.subscribe(&consumer2)
+      end.to change { destination.consumer_count }.by(2)
+      expect do
+        sub1.unsubscribe
+        sub2.unsubscribe
+      end.to change { destination.consumer_count }.by(-2)
+    end
+  end
+end

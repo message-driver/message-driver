@@ -33,6 +33,7 @@ module MessageDriver
 
           it_behaves_like 'a destination'
           include_examples 'supports #message_count'
+          include_examples 'supports #consumer_count'
         end
 
         context 'when creating two destinations for the same queue' do

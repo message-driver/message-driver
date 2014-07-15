@@ -26,8 +26,12 @@ module MessageDriver
         fail "#message_count is not supported by #{self.class}"
       end
 
-      def subscribe(&_consumer)
+      def subscribe(_options = {}, &_consumer)
         fail "#subscribe is not supported by #{self.class}"
+      end
+
+      def consumer_count
+        fail "#consumer_count is not supported by #{self.class}"
       end
     end
   end

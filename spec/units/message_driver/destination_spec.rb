@@ -8,6 +8,7 @@ module MessageDriver
       it 'needs some real tests'
 
       include_examples "doesn't support #message_count"
+      include_examples "doesn't support #consumer_count"
 
       describe '#subscribe' do
         it 'raises an error' do

@@ -12,6 +12,11 @@ Given 'I create a subscription' do |src|
   expect(test_runner).to have_no_errors
 end
 
+Given 'I create some subscriptions' do |src|
+  test_runner.run_test_code(src)
+  expect(test_runner).to have_no_errors
+end
+
 When 'I cancel the subscription' do
   test_runner.run_test_code('@subscription.unsubscribe')
   step 'I allow for processing'

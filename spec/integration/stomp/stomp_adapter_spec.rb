@@ -112,6 +112,7 @@ module MessageDriver
 
             it_behaves_like 'a destination'
             include_examples "doesn't support #message_count"
+            include_examples "doesn't support #consumer_count"
 
             describe 'pop_message' do
               context 'when there is a message on the queue' do

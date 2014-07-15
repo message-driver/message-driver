@@ -156,6 +156,7 @@ module MessageDriver
               its(:name) { should eq(dest_name) }
 
               include_examples 'supports #message_count'
+              include_examples 'supports #consumer_count'
 
               it "strips off the type so it isn't set on the destination" do
                 expect(subject.dest_options).to_not have_key :type
@@ -243,6 +244,7 @@ module MessageDriver
 
               it { should be_a BunnyAdapter::ExchangeDestination }
               include_examples "doesn't support #message_count"
+              include_examples "doesn't support #consumer_count"
 
               it "strips off the type so it isn't set on the destination" do
                 expect(subject.dest_options).to_not have_key :type
