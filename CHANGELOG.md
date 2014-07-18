@@ -5,6 +5,7 @@
 * add support for checking consumer counts on a queue in bunny and in_memory adapters
 * in_memory adapter now supports multiple subscribers per queue, and does a round-robin
   through them when sending messages to consumers
+* upgrade to rspec 3
 
 ## 0.4.0 - 2014-07-03
 
