@@ -22,7 +22,7 @@ module MessageDriver
         described_class.configure(broker_name, options)
         expect do
           described_class.configure(broker_name, options)
-        end.to raise_error MessageDriver::BrokerAlreadyConfigured, match('default')
+        end.to raise_error MessageDriver::BrokerAlreadyConfigured, /default/
       end
 
       context 'when configurating multiple brokers' do

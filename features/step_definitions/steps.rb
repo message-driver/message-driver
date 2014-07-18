@@ -59,14 +59,14 @@ end
 Then(/^I expect to find (#{NUMBER}) messages? on (#{STRING_OR_SYM})$/) do |count, destination|
   expect(test_runner).to have_no_errors
   messages = test_runner.fetch_messages(destination)
-  expect(messages).to have(count).items, "expected #{count} messages, but got these instead: #{messages.map(&:body)}"
+  expect(messages.size).to eq(count), "expected #{count} messages, but got these instead: #{messages.map(&:body)}"
 end
 
 Then(/^I expect to find the following (#{NUMBER}) messages? on (#{STRING_OR_SYM})$/) do |count, destination, table|
   expect(test_runner).to have_no_errors
   messages = test_runner.fetch_messages(destination)
   expect(messages).to match_message_table(table)
-  expect(messages).to have(count).items
+  expect(messages.size).to eq(count)
 end
 
 Then(/^I expect to find the following message on (#{STRING_OR_SYM})$/) do |destination, table|

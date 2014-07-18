@@ -7,6 +7,6 @@ Then(/^I expect to find (#{NUMBER}) messages? on the dynamic destination "(#{STR
   expect(test_runner).to have_no_errors
   dest = MessageDriver::Client[test_runner.broker_name].dynamic_destination(destination, passive: true)
   messages = test_runner.fetch_messages(dest)
-  expect(messages).to have(count).items
+  expect(messages.size).to eq(count)
   expect(messages).to match_message_table(table)
 end
