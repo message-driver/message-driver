@@ -10,7 +10,7 @@ module MessageDriver
       it 'calls new, passing in the options and saves the instance' do
         options = { foo: :bar }
         result = double(described_class).as_null_object
-        described_class.should_receive(:new).with(described_class::DEFAULT_BROKER_NAME, options).and_return(result)
+        expect(described_class).to receive(:new).with(described_class::DEFAULT_BROKER_NAME, options).and_return(result)
 
         described_class.configure(options)
 

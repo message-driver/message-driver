@@ -51,11 +51,23 @@ shared_examples 'subscriptions are supported' do |subscription_type|
     context 'the subscription' do
       subject { subscription }
 
-      it { should be_a MessageDriver::Subscription::Base }
-      it { should be_a subscription_type }
-      its(:adapter) { should be adapter }
-      its(:destination) { should be destination }
-      its(:consumer) { should be consumer }
+      it { is_expected.to be_a MessageDriver::Subscription::Base }
+      it { is_expected.to be_a subscription_type }
+
+      describe '#adapter' do
+        subject { super().adapter }
+        it { is_expected.to be adapter }
+      end
+
+      describe '#destination' do
+        subject { super().destination }
+        it { is_expected.to be destination }
+      end
+
+      describe '#consumer' do
+        subject { super().consumer }
+        it { is_expected.to be consumer }
+      end
 
       describe '#unsubscribe' do
         it "makes it so messages don't go to the consumer any more" do

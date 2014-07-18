@@ -1,10 +1,13 @@
 shared_examples 'an adapter context' do
-  it { should be_a MessageDriver::Adapters::ContextBase }
+  it { is_expected.to be_a MessageDriver::Adapters::ContextBase }
 
-  its(:adapter) { should be adapter }
+  describe '#adapter' do
+    subject { super().adapter }
+    it { is_expected.to be adapter }
+  end
 
   it 'is initially valid' do
-    should be_valid
+    is_expected.to be_valid
   end
 
   describe '#invalidate' do

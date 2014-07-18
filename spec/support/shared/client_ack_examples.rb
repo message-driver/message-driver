@@ -5,8 +5,8 @@ shared_examples 'client acks are supported' do
     end
   end
 
-  it { should respond_to :ack_message }
-  it { should respond_to :nack_message }
+  it { is_expected.to respond_to :ack_message }
+  it { is_expected.to respond_to :nack_message }
 end
 
 shared_examples 'client acks are not supported' do

@@ -1,5 +1,8 @@
 shared_examples 'a destination' do
-  its(:adapter) { should be adapter }
+  describe '#adapter' do
+    subject { super().adapter }
+    it { is_expected.to be adapter }
+  end
 
   describe '#pop_message' do
     let(:body) { 'The message body' }
@@ -13,10 +16,22 @@ shared_examples 'a destination' do
     context 'the result' do
       subject(:message) { destination.pop_message }
 
-      it { should be_a MessageDriver::Message::Base }
-      its(:body) { should eq(body) }
-      its(:headers) { should include(headers) }
-      its(:properties) { should_not be_nil }
+      it { is_expected.to be_a MessageDriver::Message::Base }
+
+      describe '#body' do
+        subject { super().body }
+        it { is_expected.to eq(body) }
+      end
+
+      describe '#headers' do
+        subject { super().headers }
+        it { is_expected.to include(headers) }
+      end
+
+      describe '#properties' do
+        subject { super().properties }
+        it { is_expected.not_to be_nil }
+      end
     end
   end
 end

@@ -29,7 +29,7 @@ module MessageDriver
         describe 'the resulting destination' do
           subject(:destination) { adapter.create_destination('my_test_dest') }
 
-          it { should be_a InMemoryAdapter::Destination }
+          it { is_expected.to be_a InMemoryAdapter::Destination }
 
           it_behaves_like 'a destination'
           include_examples 'supports #message_count'

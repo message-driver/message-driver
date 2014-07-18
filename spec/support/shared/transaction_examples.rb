@@ -13,10 +13,10 @@ shared_examples 'transactions are supported' do
     end
   end
 
-  it { should respond_to :begin_transaction }
-  it { should respond_to :commit_transaction }
-  it { should respond_to :rollback_transaction }
-  it { should respond_to :in_transaction? }
+  it { is_expected.to respond_to :begin_transaction }
+  it { is_expected.to respond_to :commit_transaction }
+  it { is_expected.to respond_to :rollback_transaction }
+  it { is_expected.to respond_to :in_transaction? }
 
   describe '#in_transaction?' do
     it "returns false if you aren't in a transaction" do

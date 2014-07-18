@@ -12,10 +12,25 @@ module MessageDriver
         context 'sets the body, header and properites on initialization' do
           subject { described_class.new(ctx, body, headers, properties) }
 
-          its(:ctx) { should be(ctx) }
-          its(:body) { should eq(body) }
-          its(:headers) { should eq(headers) }
-          its(:properties) { should eq(properties) }
+          describe '#ctx' do
+            subject { super().ctx }
+            it { is_expected.to be(ctx) }
+          end
+
+          describe '#body' do
+            subject { super().body }
+            it { is_expected.to eq(body) }
+          end
+
+          describe '#headers' do
+            subject { super().headers }
+            it { is_expected.to eq(headers) }
+          end
+
+          describe '#properties' do
+            subject { super().properties }
+            it { is_expected.to eq(properties) }
+          end
         end
       end
 

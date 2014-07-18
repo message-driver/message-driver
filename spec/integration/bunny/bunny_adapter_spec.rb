@@ -123,7 +123,7 @@ module MessageDriver
               let(:dest_name) { 'my_dest' }
               subject(:result) { adapter_context.create_destination(dest_name, exclusive: true) }
 
-              it { should be_a BunnyAdapter::QueueDestination }
+              it { is_expected.to be_a BunnyAdapter::QueueDestination }
             end
           end
 
@@ -140,9 +140,17 @@ module MessageDriver
           context 'the type is queue' do
             context 'and there is no destination name given' do
               subject(:destination) { adapter_context.create_destination('', type: :queue, exclusive: true) }
-              it { should be_a BunnyAdapter::QueueDestination }
-              its(:name) { should be_a String }
-              its(:name) { should_not be_empty }
+              it { is_expected.to be_a BunnyAdapter::QueueDestination }
+
+              describe '#name' do
+                subject { super().name }
+                it { is_expected.to be_a String }
+              end
+
+              describe '#name' do
+                subject { super().name }
+                it { is_expected.not_to be_empty }
+              end
             end
             context 'the resulting destination' do
               let(:dest_name) { 'my_dest' }
@@ -151,9 +159,17 @@ module MessageDriver
                 destination
               end
 
-              it { should be_a BunnyAdapter::QueueDestination }
-              its(:name) { should be_a String }
-              its(:name) { should eq(dest_name) }
+              it { is_expected.to be_a BunnyAdapter::QueueDestination }
+
+              describe '#name' do
+                subject { super().name }
+                it { is_expected.to be_a String }
+              end
+
+              describe '#name' do
+                subject { super().name }
+                it { is_expected.to eq(dest_name) }
+              end
 
               include_examples 'supports #message_count'
               include_examples 'supports #consumer_count'
@@ -242,7 +258,7 @@ module MessageDriver
               let(:dest_name) { 'my_dest' }
               subject(:destination) { adapter_context.create_destination(dest_name, type: :exchange) }
 
-              it { should be_a BunnyAdapter::ExchangeDestination }
+              it { is_expected.to be_a BunnyAdapter::ExchangeDestination }
               include_examples "doesn't support #message_count"
               include_examples "doesn't support #consumer_count"
 

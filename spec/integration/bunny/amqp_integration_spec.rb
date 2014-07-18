@@ -19,7 +19,7 @@ describe 'AMQP Integration', :bunny, type: :integration do
     it 'raises a MessageDriver::WrappedError error' do
       expect do
         broker.dynamic_destination('not.a.queue', passive: true)
-      end.to raise_error(MessageDriver::WrappedError) { |err| err.nested.should be_a Bunny::ChannelLevelException }
+      end.to raise_error(MessageDriver::WrappedError) { |err| expect(err.nested).to be_a Bunny::ChannelLevelException }
     end
 
     it 'reestablishes the channel transparently' do

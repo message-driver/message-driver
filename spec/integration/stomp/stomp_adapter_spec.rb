@@ -48,25 +48,42 @@ module MessageDriver
           let(:connection_attrs) { { hosts: [{ host: 'my_host' }] } }
           subject(:config) { described_class.new(broker, connection_attrs).config }
 
-          its([:connect_headers]) { should eq(:"accept-version" => '1.1,1.2') }
-          its([:hosts]) { should eq(connection_attrs[:hosts]) }
+          describe '[:connect_headers]' do
+            subject { super()[:connect_headers] }
+            it { is_expected.to eq(:"accept-version" => '1.1,1.2') }
+          end
+
+          describe '[:hosts]' do
+            subject { super()[:hosts] }
+            it { is_expected.to eq(connection_attrs[:hosts]) }
+          end
 
           context 'when vhost is specified' do
             let(:connection_attrs) { { hosts: [{ host: 'my_host' }], vhost: 'my_vhost' } }
 
-            it { should_not have_key(:vhost) }
-            its([:connect_headers]) { should eq(:"accept-version" => '1.1,1.2', :"host" => 'my_vhost') }
+            it { is_expected.not_to have_key(:vhost) }
+
+            describe '[:connect_headers]' do
+              subject { super()[:connect_headers] }
+              it { is_expected.to eq(:"accept-version" => '1.1,1.2', :"host" => 'my_vhost') }
+            end
           end
 
           context 'when there are things in the connect_headers' do
             let(:connection_attrs) { { hosts: [{ host: 'my_host' }], connect_headers: { 'foo' => 'bar' } } }
 
-            its([:connect_headers]) { should eq(:"accept-version" => '1.1,1.2', 'foo' => 'bar') }
+            describe '[:connect_headers]' do
+              subject { super()[:connect_headers] }
+              it { is_expected.to eq(:"accept-version" => '1.1,1.2', 'foo' => 'bar') }
+            end
 
             context 'and accept-version is one of the parameters' do
               let(:connection_attrs) { { hosts: [{ host: 'my_host' }], connect_headers: { 'foo' => 'bar', :"accept-version" => 'foo!' } } }
 
-              its([:connect_headers]) { should eq(:"accept-version" => '1.1,1.2', 'foo' => 'bar') }
+              describe '[:connect_headers]' do
+                subject { super()[:connect_headers] }
+                it { is_expected.to eq(:"accept-version" => '1.1,1.2', 'foo' => 'bar') }
+              end
             end
           end
         end
@@ -108,7 +125,7 @@ module MessageDriver
             let(:dest_name) { '/queue/stomp_destination_spec' }
             subject(:destination) { adapter_context.create_destination(dest_name) }
 
-            it { should be_a StompAdapter::Destination }
+            it { is_expected.to be_a StompAdapter::Destination }
 
             it_behaves_like 'a destination'
             include_examples "doesn't support #message_count"
