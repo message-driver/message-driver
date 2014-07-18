@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module MessageDriver
   module Adapters
-    describe Base do
+    RSpec.describe Base do
       class TestAdapter < Base
         def initialize(_configuration)
         end

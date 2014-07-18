@@ -4,7 +4,7 @@ require 'message_driver/adapters/stomp_adapter'
 
 module MessageDriver
   module Adapters
-    describe StompAdapter, :stomp, type: :integration do
+    RSpec.describe StompAdapter, :stomp, type: :integration do
 
       let(:valid_connection_attrs) { BrokerConfig.config }
 

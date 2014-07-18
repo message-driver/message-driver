@@ -1,4 +1,4 @@
-shared_examples 'an adapter context' do
+RSpec.shared_examples 'an adapter context' do
   it { is_expected.to be_a MessageDriver::Adapters::ContextBase }
 
   describe '#adapter' do

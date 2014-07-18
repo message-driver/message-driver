@@ -1,4 +1,4 @@
-shared_examples 'subscriptions are not supported' do
+RSpec.shared_examples 'subscriptions are not supported' do
   describe '#supports_subscriptions?' do
     it 'returns false' do
       expect(subject.supports_subscriptions?).to eq(false)
@@ -16,7 +16,7 @@ shared_examples 'subscriptions are not supported' do
   end
 end
 
-shared_examples 'subscriptions are supported' do |subscription_type|
+RSpec.shared_examples 'subscriptions are supported' do |subscription_type|
   describe '#supports_subscriptions?' do
     it 'returns true' do
       expect(subject.supports_subscriptions?).to eq(true)

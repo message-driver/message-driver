@@ -33,4 +33,6 @@ RSpec.configure do |c|
   else
     c.run_all_when_everything_filtered = true
   end
+
+  config.expose_dsl_globally = false
 end

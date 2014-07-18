@@ -1,4 +1,4 @@
-shared_examples 'client acks are supported' do
+RSpec.shared_examples 'client acks are supported' do
   describe '#supports_client_acks' do
     it 'returns true' do
       expect(subject.supports_client_acks?).to eq(true)
@@ -9,7 +9,7 @@ shared_examples 'client acks are supported' do
   it { is_expected.to respond_to :nack_message }
 end
 
-shared_examples 'client acks are not supported' do
+RSpec.shared_examples 'client acks are not supported' do
   describe '#supports_client_acks' do
     it 'returns false' do
       expect(subject.supports_client_acks?).to eq(false)

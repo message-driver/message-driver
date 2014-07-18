@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'AMQP Integration', :bunny, type: :integration do
+RSpec.describe 'AMQP Integration', :bunny, type: :integration do
   let!(:broker) { MessageDriver::Broker.configure BrokerConfig.config }
 
   context "when a queue can't be found" do

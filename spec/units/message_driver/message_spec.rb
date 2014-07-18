@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module MessageDriver
   module Message
-    describe Base do
+    RSpec.describe Base do
       describe '#initialize' do
         let(:body) { 'The message body' }
         let(:headers) { { foo: :bar, bar: :baz } }

@@ -4,7 +4,7 @@ require 'message_driver/adapters/in_memory_adapter'
 
 module MessageDriver
   module Adapters
-    describe InMemoryAdapter, :in_memory, type: :integration do
+    RSpec.describe InMemoryAdapter, :in_memory, type: :integration do
       let(:broker) { double(Broker) }
       subject(:adapter) { described_class.new(broker) }
 

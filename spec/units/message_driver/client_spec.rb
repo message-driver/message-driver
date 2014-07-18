@@ -3,7 +3,7 @@ require 'spec_helper'
 require 'message_driver/adapters/in_memory_adapter'
 
 module MessageDriver
-  describe Client do
+  RSpec.describe Client do
     class TestPublisher
       include Client
     end
@@ -41,7 +41,7 @@ module MessageDriver
       end
 
       context 'with a given adapter_context' do
-        around(:each) do |example|
+        around(:example) do |example|
           subject.with_adapter_context(adapter_context, &example)
         end
 

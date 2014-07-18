@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'message_driver/adapters/in_memory_adapter'
 
 module MessageDriver
-  describe Broker do
+  RSpec.describe Broker do
     let(:broker_name) { described_class::DEFAULT_BROKER_NAME }
     let(:options) { { adapter: :in_memory } }
 

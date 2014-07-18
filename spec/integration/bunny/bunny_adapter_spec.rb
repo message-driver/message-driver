@@ -4,7 +4,7 @@ require 'message_driver/adapters/bunny_adapter'
 
 module MessageDriver
   module Adapters
-    describe BunnyAdapter, :bunny, type: :integration do
+    RSpec.describe BunnyAdapter, :bunny, type: :integration do
       let(:valid_connection_attrs) { BrokerConfig.config }
 
       describe '#initialize' do
@@ -90,7 +90,7 @@ module MessageDriver
       describe BunnyAdapter::BunnyContext do
         include_context 'a connected bunny adapter'
         subject(:adapter_context) { adapter.new_context }
-        around(:each) do |ex|
+        around(:example) do |ex|
           MessageDriver::Client.with_adapter_context(adapter_context) do
             ex.run
           end

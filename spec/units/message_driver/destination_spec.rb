@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module MessageDriver
   module Destination
-    describe Base do
+    RSpec.describe Base do
       subject(:destination) { Base.new(nil, nil, nil, nil) }
 
       it 'needs some real tests'

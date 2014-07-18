@@ -1,4 +1,4 @@
-shared_examples 'a destination' do
+RSpec.shared_examples 'a destination' do
   describe '#adapter' do
     it { expect(subject.adapter).to be adapter }
   end
@@ -32,7 +32,7 @@ shared_examples 'a destination' do
   end
 end
 
-shared_examples "doesn't support #message_count" do
+RSpec.shared_examples "doesn't support #message_count" do
   describe '#message_count' do
     it 'raises an error' do
       expect do
@@ -42,7 +42,7 @@ shared_examples "doesn't support #message_count" do
   end
 end
 
-shared_examples 'supports #message_count' do
+RSpec.shared_examples 'supports #message_count' do
   it "reports it's message_count" do
     expect do
       destination.publish('msg1')
@@ -52,7 +52,7 @@ shared_examples 'supports #message_count' do
   end
 end
 
-shared_examples "doesn't support #consumer_count" do
+RSpec.shared_examples "doesn't support #consumer_count" do
   describe '#consumer_count' do
     it 'raises an error' do
       expect do
@@ -62,7 +62,7 @@ shared_examples "doesn't support #consumer_count" do
   end
 end
 
-shared_examples 'supports #consumer_count' do
+RSpec.shared_examples 'supports #consumer_count' do
   describe '#consumer_count' do
     it "reports it's consumer count" do
       consumer1 = ->(_) {}

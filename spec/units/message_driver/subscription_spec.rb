@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module MessageDriver
   module Subscription
-    describe Base do
+    RSpec.describe Base do
       let(:adapter) { double(MessageDriver::Adapters::Base) }
       let(:destination) { double(MessageDriver::Destination::Base) }
       let(:consumer) { double('a consumer') }

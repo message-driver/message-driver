@@ -1,4 +1,4 @@
-shared_examples 'an adapter' do
+RSpec.shared_examples 'an adapter' do
   describe '#new_context' do
     it 'returns a MessageDriver::Adapters::ContextBase' do
       expect(subject.new_context).to be_a MessageDriver::Adapters::ContextBase
