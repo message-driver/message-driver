@@ -29,17 +29,20 @@ namespace :spec do
     t.cucumber_opts = cucumber_opts
   end
 
-  desc 'run all the specs'
   task all: [:units, :integrations, :features]
+end
 
-  desc 'run all the specs for each adapter'
-  task :all_adapters do
-    current_adapter = BrokerConfig.current_adapter
-    BrokerConfig.all_adapters.each do |adapter|
-      set_adapter_under_test(adapter)
-      system('rake spec:all')
-    end
-    set_adapter_under_test(current_adapter)
+desc 'run all the specs'
+task spec: ['rabbitmq:reset_vhost', 'spec:all']
+
+namespace :rabbitmq do
+  desc 'Reset rabbit vhost'
+  task :reset_vhost do
+    rabbitmqctl = ENV['CI'] ? 'sudo rabbitmqctl' : 'rabbitmqctl'
+    vhost = ENV['VHOST'] || 'message-driver-test'
+    system "#{rabbitmqctl} delete_vhost #{vhost}"
+    system "#{rabbitmqctl} add_vhost #{vhost}"
+    system "#{rabbitmqctl} set_permissions -p #{vhost} guest \".*\" \".*\" \".*\""
   end
 end
 
@@ -49,7 +52,7 @@ end
 
 Coveralls::RakeTask.new
 desc 'run with code coverage'
-task ci: ['spec:all', 'coveralls:push', 'rubocop']
+task ci: ['spec', 'rubocop', 'coveralls:push']
 
 namespace :undertest do
   BrokerConfig.all_adapters.each do |adapter|
@@ -60,4 +63,4 @@ namespace :undertest do
   end
 end
 
-task default: ['spec:all']
+task default: [:spec, :rubocop]
