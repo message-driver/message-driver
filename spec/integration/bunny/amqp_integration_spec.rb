@@ -9,7 +9,6 @@ describe 'AMQP Integration', :bunny, type: :integration do
       expect do
         broker.dynamic_destination(queue_name, passive: true)
       end.to raise_error(MessageDriver::QueueNotFound) do |err|
-        expect(err.queue_name).to eq(queue_name)
         expect(err.nested).to be_a Bunny::NotFound
       end
     end
@@ -37,66 +36,6 @@ describe 'AMQP Integration', :bunny, type: :integration do
           expect do
             broker.dynamic_destination('not.a.queue', passive: true)
           end.to raise_error(MessageDriver::WrappedError)
-          expect do
-            broker.dynamic_destination('', exclusive: true)
-          end.to raise_error(MessageDriver::TransactionRollbackOnly)
-        end
-        expect do
-          broker.dynamic_destination('', exclusive: true)
-        end.to_not raise_error
-      end
-    end
-  end
-
-  context 'when the broker connection fails', pending: 'these spec are busted' do
-    def disrupt_connection
-      # yes, this is very implementation specific
-      broker.adapter.connection.instance_variable_get(:@transport).close
-    end
-
-    def create_destination(queue_name)
-      broker.dynamic_destination(queue_name, exclusive: true)
-    end
-
-    it 'raises a MessageDriver::ConnectionError' do
-      dest = create_destination('test_queue')
-      disrupt_connection
-      expect do
-        dest.publish('Reconnection Test')
-      end.to raise_error(MessageDriver::ConnectionError) do |err|
-        expect(err.nested).to be_a Bunny::NetworkErrorWrapper
-      end
-    end
-
-    it 'seemlessly reconnects' do
-      dest = create_destination('seemless.reconnect.queue')
-      disrupt_connection
-      expect do
-        dest.publish('Reconnection Test 1')
-      end.to raise_error(MessageDriver::ConnectionError)
-      dest = create_destination('seemless.reconnect.queue')
-      dest.publish('Reconnection Test 2')
-      msg = dest.pop_message
-      expect(msg).to_not be_nil
-      expect(msg.body).to eq('Reconnection Test 2')
-    end
-
-    context 'when in a transaction' do
-      it 'raises a MessageDriver::ConnectionError' do
-        expect do
-          MessageDriver::Client.with_message_transaction do
-            disrupt_connection
-            broker.dynamic_destination('', exclusive: true)
-          end
-        end.to raise_error(MessageDriver::ConnectionError)
-      end
-
-      it 'sets the channel_context as rollback-only until the transaction is finished' do
-        MessageDriver::Client.with_message_transaction do
-          disrupt_connection
-          expect do
-            broker.dynamic_destination('', exclusive: true)
-          end.to raise_error(MessageDriver::ConnectionError)
           expect do
             broker.dynamic_destination('', exclusive: true)
           end.to raise_error(MessageDriver::TransactionRollbackOnly)

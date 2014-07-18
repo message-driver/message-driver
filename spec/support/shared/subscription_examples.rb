@@ -55,18 +55,15 @@ shared_examples 'subscriptions are supported' do |subscription_type|
       it { is_expected.to be_a subscription_type }
 
       describe '#adapter' do
-        subject { super().adapter }
-        it { is_expected.to be adapter }
+        it { expect(subject.adapter).to be adapter }
       end
 
       describe '#destination' do
-        subject { super().destination }
-        it { is_expected.to be destination }
+        it { expect(subject.destination).to be destination }
       end
 
       describe '#consumer' do
-        subject { super().consumer }
-        it { is_expected.to be consumer }
+        it { expect(subject.consumer).to be consumer }
       end
 
       describe '#unsubscribe' do

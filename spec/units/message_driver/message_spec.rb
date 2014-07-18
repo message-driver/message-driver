@@ -13,23 +13,19 @@ module MessageDriver
           subject { described_class.new(ctx, body, headers, properties) }
 
           describe '#ctx' do
-            subject { super().ctx }
-            it { is_expected.to be(ctx) }
+            it { expect(subject.ctx).to be(ctx) }
           end
 
           describe '#body' do
-            subject { super().body }
-            it { is_expected.to eq(body) }
+            it { expect(subject.body).to eq(body) }
           end
 
           describe '#headers' do
-            subject { super().headers }
-            it { is_expected.to eq(headers) }
+            it { expect(subject.headers).to eq(headers) }
           end
 
           describe '#properties' do
-            subject { super().properties }
-            it { is_expected.to eq(properties) }
+            it { expect(subject.properties).to eq(properties) }
           end
         end
       end

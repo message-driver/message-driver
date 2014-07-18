@@ -2,8 +2,7 @@ shared_examples 'an adapter context' do
   it { is_expected.to be_a MessageDriver::Adapters::ContextBase }
 
   describe '#adapter' do
-    subject { super().adapter }
-    it { is_expected.to be adapter }
+    it { expect(subject.adapter).to be adapter }
   end
 
   it 'is initially valid' do

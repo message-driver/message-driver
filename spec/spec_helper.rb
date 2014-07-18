@@ -10,18 +10,17 @@ require File.join(File.dirname(__FILE__), '..', 'test_lib', 'broker_config')
 Dir['./spec/support/**/*.rb'].sort.each { |f| require f }
 
 RSpec.configure do |c|
-  c.treat_symbols_as_metadata_keys_with_true_values = true
-  c.order = 'random'
+  c.order = :random
   c.filter_run :focus
 
   c.reporter.message("Acceptance Tests running with broker config: #{BrokerConfig.config}")
 
   spec_logger = Logger.new(STDOUT).tap { |l| l.level = Logger::FATAL }
-  c.before(:each) do
+  c.before(:example) do
     MessageDriver.logger = spec_logger
   end
 
-  c.after(:each) do
+  c.after(:example) do
     MessageDriver::Broker.reset
   end
 

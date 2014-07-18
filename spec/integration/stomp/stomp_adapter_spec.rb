@@ -48,41 +48,34 @@ module MessageDriver
           let(:connection_attrs) { { hosts: [{ host: 'my_host' }] } }
           subject(:config) { described_class.new(broker, connection_attrs).config }
 
-          describe '[:connect_headers]' do
-            subject { super()[:connect_headers] }
-            it { is_expected.to eq(:"accept-version" => '1.1,1.2') }
-          end
-
-          describe '[:hosts]' do
-            subject { super()[:hosts] }
-            it { is_expected.to eq(connection_attrs[:hosts]) }
+          it 'has the expected values' do
+            is_expected.to eq(
+              connect_headers: { :"accept-version" => '1.1,1.2' },
+              hosts: connection_attrs[:hosts]
+            )
           end
 
           context 'when vhost is specified' do
             let(:connection_attrs) { { hosts: [{ host: 'my_host' }], vhost: 'my_vhost' } }
 
-            it { is_expected.not_to have_key(:vhost) }
-
-            describe '[:connect_headers]' do
-              subject { super()[:connect_headers] }
-              it { is_expected.to eq(:"accept-version" => '1.1,1.2', :"host" => 'my_vhost') }
+            it 'has the vhost value in the connect headers' do
+              is_expected.not_to have_key(:vhost)
+              is_expected.to include(connect_headers: { :'accept-version' => '1.1,1.2', host: 'my_vhost' })
             end
           end
 
           context 'when there are things in the connect_headers' do
             let(:connection_attrs) { { hosts: [{ host: 'my_host' }], connect_headers: { 'foo' => 'bar' } } }
 
-            describe '[:connect_headers]' do
-              subject { super()[:connect_headers] }
-              it { is_expected.to eq(:"accept-version" => '1.1,1.2', 'foo' => 'bar') }
+            it 'passes them through' do
+              is_expected.to include(connect_headers: { :'accept-version' => '1.1,1.2', 'foo' => 'bar' })
             end
 
             context 'and accept-version is one of the parameters' do
               let(:connection_attrs) { { hosts: [{ host: 'my_host' }], connect_headers: { 'foo' => 'bar', :"accept-version" => 'foo!' } } }
 
-              describe '[:connect_headers]' do
-                subject { super()[:connect_headers] }
-                it { is_expected.to eq(:"accept-version" => '1.1,1.2', 'foo' => 'bar') }
+              it 'overrides it' do
+                is_expected.to include(connect_headers: { :'accept-version' => '1.1,1.2', 'foo' => 'bar' })
               end
             end
           end

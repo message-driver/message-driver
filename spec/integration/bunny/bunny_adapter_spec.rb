@@ -143,15 +143,13 @@ module MessageDriver
               it { is_expected.to be_a BunnyAdapter::QueueDestination }
 
               describe '#name' do
-                subject { super().name }
-                it { is_expected.to be_a String }
-              end
-
-              describe '#name' do
-                subject { super().name }
-                it { is_expected.not_to be_empty }
+                it 'is a non-empty String' do
+                  expect(subject.name).to be_a String
+                  expect(subject.name).not_to be_empty
+                end
               end
             end
+
             context 'the resulting destination' do
               let(:dest_name) { 'my_dest' }
               subject(:destination) { adapter_context.create_destination(dest_name, type: :queue, exclusive: true) }
@@ -162,13 +160,10 @@ module MessageDriver
               it { is_expected.to be_a BunnyAdapter::QueueDestination }
 
               describe '#name' do
-                subject { super().name }
-                it { is_expected.to be_a String }
-              end
-
-              describe '#name' do
-                subject { super().name }
-                it { is_expected.to eq(dest_name) }
+                it 'is the destination name' do
+                  expect(subject.name).to be_a String
+                  expect(subject.name).to eq(dest_name)
+                end
               end
 
               include_examples 'supports #message_count'

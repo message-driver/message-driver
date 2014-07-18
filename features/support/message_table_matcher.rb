@@ -16,7 +16,7 @@ RSpec::Matchers.define :match_message_table do |expected_tbl|
     @actual == expected_hash
   end
 
-  failure_message_for_should do |_|
+  failure_message do |_|
     "expected #{expected_hash} and got #{@actual}"
   end
 
