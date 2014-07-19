@@ -13,7 +13,7 @@ RSpec::Matchers.define :match_message_table do |expected_tbl|
 
   match do |messages|
     @actual = messages_to_hash(messages)
-    @actual == expected_hash
+    expect(@actual).to match_array(expected_hash)
   end
 
   failure_message do |_|
