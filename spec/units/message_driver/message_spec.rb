@@ -27,6 +27,19 @@ module MessageDriver
           describe '#properties' do
             it { expect(subject.properties).to eq(properties) }
           end
+
+          describe '#raw_body' do
+            it 'defaults to the body' do
+              expect(subject.raw_body).to eq(subject.body)
+            end
+
+            it 'can be provided in the constructor' do
+              msg = described_class.new(ctx, body, headers, properties, 'my_raw_body')
+
+              expect(msg.raw_body).to eq('my_raw_body')
+              expect(msg.body).to eq(body)
+            end
+          end
         end
       end
 

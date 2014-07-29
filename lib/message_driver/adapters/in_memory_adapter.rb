@@ -40,29 +40,38 @@ module MessageDriver
         end
 
         def pop_message(_options = {})
-          message_queue.shift
+          message = message_queue.shift
+          if message.nil?
+            nil
+          else
+            raw_body = message.body
+            b, h, p = middleware.on_consume(message.body, message.headers, message.properties)
+            Message.new(nil, b, h, p, raw_body)
+          end
         end
 
         def subscribe(options = {}, &consumer)
           subscription = Subscription.new(adapter, self, consumer, options)
           adapter.add_subscription_for(name, subscription)
-          until (msg = pop_message).nil?
-            subscription.deliver_message(msg)
-          end
+          deliver_messages(subscription)
           subscription
         end
 
         def publish(body, headers = {}, properties = {})
-          msg = Message.new(nil, body, headers, properties)
-          sub = subscription
-          if sub.nil?
-            message_queue << msg
-          else
-            sub.deliver_message(msg)
-          end
+          raw_body = body
+          b, h, p = middleware.on_publish(body, headers, properties)
+          msg = Message.new(nil, b, h, p, raw_body)
+          message_queue << msg
+          deliver_messages(subscription) if subscription
         end
 
         private
+
+        def deliver_messages(sub)
+          until (msg = pop_message).nil?
+            sub.deliver_message(msg)
+          end
+        end
 
         def message_queue
           adapter.message_queue_for(name)

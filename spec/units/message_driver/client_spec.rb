@@ -75,23 +75,23 @@ module MessageDriver
           let(:headers) { { foo: :bar } }
           let(:properties) { { bar: :baz } }
           before do
-            allow(adapter_context).to receive(:publish)
+            allow(destination).to receive(:publish)
           end
 
-          it 'delegates to the adapter_context' do
+          it 'delegates to the destination' do
             subject.publish(destination, body, headers, properties)
-            expect(adapter_context).to have_received(:publish).with(destination, body, headers, properties)
+            expect(destination).to have_received(:publish).with(body, headers, properties)
           end
 
-          it 'only requires destination and body' do
+          it 'only requires the body' do
             subject.publish(destination, body)
-            expect(adapter_context).to have_received(:publish).with(destination, body, {}, {})
+            expect(destination).to have_received(:publish).with(body, {}, {})
           end
 
           it 'looks up the destination if necessary' do
             destination
             subject.publish(:my_queue, body, headers, properties)
-            expect(adapter_context).to have_received(:publish).with(destination, body, headers, properties)
+            expect(destination).to have_received(:publish).with(body, headers, properties)
           end
 
           context "when the destination can't be found" do
@@ -100,7 +100,7 @@ module MessageDriver
               expect do
                 subject.publish(bad_dest_name, body, headers, properties)
               end.to raise_error(MessageDriver::NoSuchDestinationError, /#{bad_dest_name}/)
-              expect(adapter_context).not_to have_received(:publish)
+              expect(destination).not_to have_received(:publish)
             end
           end
         end
@@ -110,18 +110,18 @@ module MessageDriver
           let(:destination) { broker.destination(:my_queue, 'my_queue', exclusive: true) }
           let(:options) { { foo: :bar } }
           before do
-            allow(adapter_context).to receive(:pop_message)
+            allow(destination).to receive(:pop_message)
           end
 
           it 'delegates to the adapter_context' do
             subject.pop_message(destination, options)
-            expect(adapter_context).to have_received(:pop_message).with(destination, options)
+            expect(destination).to have_received(:pop_message).with(options)
           end
 
           it 'looks up the destination if necessary' do
             destination
             subject.pop_message(:my_queue, options)
-            expect(adapter_context).to have_received(:pop_message).with(destination, options)
+            expect(destination).to have_received(:pop_message).with(options)
           end
 
           context "when the destination can't be found" do
@@ -130,12 +130,12 @@ module MessageDriver
               expect do
                 subject.pop_message(bad_dest_name, options)
               end.to raise_error(MessageDriver::NoSuchDestinationError, /#{bad_dest_name}/)
-              expect(adapter_context).not_to have_received(:pop_message)
+              expect(destination).not_to have_received(:pop_message)
             end
           end
 
-          it 'requires the destination and returns the message' do
-            expect(adapter_context).to receive(:pop_message).with(destination, {}).and_return(expected)
+          it 'requires just the destination and returns the message' do
+            expect(destination).to receive(:pop_message).with({}).and_return(expected)
 
             actual = subject.pop_message(destination)
 
@@ -143,7 +143,7 @@ module MessageDriver
           end
 
           it 'passes the options through and returns the message' do
-            expect(adapter_context).to receive(:pop_message).with(destination, options).and_return(expected)
+            expect(destination).to receive(:pop_message).with(options).and_return(expected)
 
             actual = subject.pop_message(destination, options)
 

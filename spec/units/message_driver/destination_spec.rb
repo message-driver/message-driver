@@ -5,7 +5,9 @@ module MessageDriver
     RSpec.describe Base do
       subject(:destination) { Base.new(nil, nil, nil, nil) }
 
-      it 'needs some real tests'
+      describe '#middlware' do
+        it { expect(subject.middleware).to be_a Middleware::MiddlewareStack }
+      end
 
       include_examples "doesn't support #message_count"
       include_examples "doesn't support #consumer_count"

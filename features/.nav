@@ -13,6 +13,9 @@
   - transactional_ack_consumers.feature
   - prefetch_size.feature
   - subscribe_with_a_block.feature
+- middleware (Middlewares)
+  - middleware_basics.feature
+  - middleware_order.feature
 - amqp_specific_features (AMQP-Specific Features):
   - declaring_amqp_destinations.feature
   - binding_amqp_destinations.feature

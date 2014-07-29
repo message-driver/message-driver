@@ -6,13 +6,11 @@ module MessageDriver
     extend self
 
     def publish(destination, body, headers = {}, properties = {})
-      dest = find_destination(destination)
-      current_adapter_context.publish(dest, body, headers, properties)
+      find_destination(destination).publish(body, headers, properties)
     end
 
     def pop_message(destination, options = {})
-      dest = find_destination(destination)
-      current_adapter_context.pop_message(dest, options)
+      find_destination(destination).pop_message(options)
     end
 
     def subscribe(destination_name, consumer_name, options = {})

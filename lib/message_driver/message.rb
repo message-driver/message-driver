@@ -3,13 +3,14 @@ module MessageDriver
     class Base
       include Logging
 
-      attr_reader :ctx, :body, :headers, :properties
+      attr_reader :ctx, :body, :raw_body, :headers, :properties
 
-      def initialize(ctx, body, headers, properties)
+      def initialize(ctx, body, headers, properties, raw_body = nil)
         @ctx = ctx
         @body = body
         @headers = headers
         @properties = properties
+        @raw_body = raw_body.nil? ? body : raw_body
       end
 
       def ack(options = {})

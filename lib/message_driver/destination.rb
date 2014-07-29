@@ -11,11 +11,11 @@ module MessageDriver
       end
 
       def publish(body, headers = {}, properties = {})
-        adapter.broker.client.publish(self, body, headers, properties)
+        current_adapter_context.publish(self, body, headers, properties)
       end
 
       def pop_message(options = {})
-        adapter.broker.client.pop_message(self, options)
+        current_adapter_context.pop_message(self, options)
       end
 
       def after_initialize(_adapter_context)
@@ -32,6 +32,20 @@ module MessageDriver
 
       def consumer_count
         fail "#consumer_count is not supported by #{self.class}"
+      end
+
+      def middleware
+        @middleware ||= Middleware::MiddlewareStack.new(self)
+      end
+
+      private
+
+      def current_adapter_context
+        adapter.broker.client.current_adapter_context
+      end
+
+      def client
+        @client ||= adapter.broker.client
       end
     end
   end

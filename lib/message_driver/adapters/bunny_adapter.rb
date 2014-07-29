@@ -20,8 +20,12 @@ module MessageDriver
       class Message < MessageDriver::Message::Base
         attr_reader :delivery_info
 
-        def initialize(ctx, delivery_info, properties, payload)
-          super(ctx, payload, properties[:headers] || {}, properties)
+        def initialize(ctx, delivery_info, properties, payload, destination)
+          raw_body = payload
+          raw_headers = properties[:headers]
+          raw_headers = {} if raw_headers.nil?
+          b, h, p = destination.middleware.on_consume(payload, raw_headers, properties)
+          super(ctx, b, h, p, raw_body)
           @delivery_info = delivery_info
         end
 
@@ -35,10 +39,11 @@ module MessageDriver
       end
 
       class Destination < MessageDriver::Destination::Base
-        def publish_params(headers, properties)
-          props = @message_props.merge(properties)
-          props[:headers] = headers if headers
-          [exchange_name, routing_key(properties), props]
+        def publish_params(body, headers, properties)
+          b, h, p = middleware.on_publish(body, headers, properties)
+          props = @message_props.merge(p)
+          props[:headers] = h if h
+          [b, exchange_name, routing_key(properties), props]
         end
 
         def exchange_name
@@ -235,7 +240,7 @@ module MessageDriver
             ch.prefetch(options[:prefetch_size]) if options.key? :prefetch_size
             @bunny_consumer = queue.subscribe(options.merge(manual_ack: true)) do |delivery_info, properties, payload|
               adapter.broker.client.with_adapter_context(@sub_ctx) do
-                message = @sub_ctx.args_to_message(delivery_info, properties, payload)
+                message = @sub_ctx.args_to_message(delivery_info, properties, payload, destination)
                 @message_handler.call(message)
               end
             end
@@ -368,7 +373,7 @@ module MessageDriver
         end
 
         def publish(destination, body, headers = {}, properties = {})
-          exchange, routing_key, props = *destination.publish_params(headers, properties)
+          body, exchange, routing_key, props = *destination.publish_params(body, headers, properties)
           confirm = props.delete(:confirm)
           confirm = false if confirm.nil?
           with_channel(true) do |ch|
@@ -390,7 +395,7 @@ module MessageDriver
             if message.nil? || message[0].nil?
               nil
             else
-              args_to_message(*message)
+              args_to_message(*message, destination)
             end
           end
         end
@@ -484,8 +489,8 @@ module MessageDriver
           end
         end
 
-        def args_to_message(delivery_info, properties, payload)
-          Message.new(self, delivery_info, properties, payload)
+        def args_to_message(delivery_info, properties, payload, destination)
+          Message.new(self, delivery_info, properties, payload, destination)
         end
 
         private

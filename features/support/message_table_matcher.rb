@@ -14,6 +14,7 @@ RSpec::Matchers.define :match_message_table do |expected_tbl|
   match do |messages|
     @actual = messages_to_hash(messages)
     expect(@actual).to match_array(expected_hash)
+    true
   end
 
   failure_message do |_|
