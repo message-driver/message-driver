@@ -15,9 +15,10 @@ rvm:
   - rbx-2
 env:
   - ADAPTER=in_memory
-  - ADAPTER=stomp
   - ADAPTER=bunny:1.2.2
   - ADAPTER=bunny:1.3.1
+  - ADAPTER=bunny:1.4.0
+  - ADAPTER=stomp
 matrix:
   allow_failures:
     - rvm: jruby-19mode
