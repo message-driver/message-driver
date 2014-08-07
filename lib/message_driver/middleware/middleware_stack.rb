@@ -14,14 +14,14 @@ module MessageDriver
         @middlewares.dup.freeze
       end
 
-      def append(middleware_class)
-        middleware = build_middleware(middleware_class)
+      def append(middleware_class, *args)
+        middleware = build_middleware(middleware_class, *args)
         @middlewares << middleware
         middleware
       end
 
-      def prepend(middleware_class)
-        middleware = build_middleware(middleware_class)
+      def prepend(middleware_class, *args)
+        middleware = build_middleware(middleware_class, *args)
         @middlewares.unshift middleware
         middleware
       end
@@ -48,8 +48,13 @@ module MessageDriver
 
       private
 
-      def build_middleware(middleware_class)
-        middleware_class.new(destination)
+      def build_middleware(middleware_type, *args)
+        case middleware_type
+        when Hash
+          BlockMiddleware.new(destination, middleware_type)
+        else
+          middleware_type.new(destination, *args)
+        end
       end
     end
   end

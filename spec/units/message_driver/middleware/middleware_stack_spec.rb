@@ -60,6 +60,41 @@ module MessageDriver
         it 'returns the instantiated middleware' do
           expect(subject.public_send(op, Top)).to be top
         end
+
+        context 'with a parameterizable middleware' do
+          class Paramed < Base
+            attr_reader :foo, :bar
+            def initialize(destination, foo, bar)
+              super(destination)
+              @foo = foo
+              @bar = bar
+            end
+          end
+
+          it 'passes the extra values to the middleware initializer' do
+            subject.public_send(op, Paramed, 27, 'a parameter value')
+            middleware = subject.middlewares.first
+            expect(middleware).to be_an_instance_of Paramed
+            expect(middleware.foo).to eq(27)
+            expect(middleware.bar).to eq('a parameter value')
+          end
+        end
+
+        context 'with a hash of blocks' do
+          let(:on_publish) { ->(b, h, p) { [b, h, p] } }
+          let(:on_consume) { ->(b, h, p) { [b, h, p] } }
+          before do
+            expect(on_publish).not_to eq(on_consume)
+            expect(on_publish).not_to be(on_consume)
+          end
+          it 'builds a BlockMiddleware with the provied on_publish and on_consume blocks' do
+            subject.public_send(op, on_publish: on_publish, on_consume: on_consume)
+            middleware = subject.middlewares.first
+            expect(middleware).to be_an_instance_of BlockMiddleware
+            expect(middleware.on_publish_block).to be on_publish
+            expect(middleware.on_consume_block).to be on_consume
+          end
+        end
       end
 
       describe '#append' do
