@@ -1,8 +1,5 @@
-if ENV['CI']
-  require 'coveralls'
-  Coveralls.wear!
-end
-
+ENV['COMMAND_NAME'] = 'features'
+require File.join(File.dirname(__FILE__), '..', '..', 'test_lib', 'coverage')
 require File.join(File.dirname(__FILE__), '..', '..', 'test_lib', 'broker_config')
 
 require 'aruba/cucumber'
