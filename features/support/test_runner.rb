@@ -1,14 +1,18 @@
+require 'forwardable'
+
 class TestRunner
   include MessageDriver::Client
   include RSpec::Matchers
+  extend Forwardable
 
   attr_accessor :raised_error
   attr_accessor :current_feature_file
-  attr_accessor :broker_name
 
-  def broker_name
-    @broker_name ||= MessageDriver::Broker::DEFAULT_BROKER_NAME
+  def provider
+    @provider ||= Provider.new
   end
+
+  def_delegators :provider, :broker_name, :broker_name=, :fetch_messages, :fetch_destination, :fetch_current_adapter_context, :purge_destination, :pause_if_needed
 
   def run_config_code(src)
     instance_eval(src, current_feature_file)
@@ -20,57 +24,9 @@ class TestRunner
     @raised_error = e
   end
 
-  def fetch_messages(destination_name)
-    destination = fetch_destination(destination_name)
-    pause_if_needed
-    result = []
-    loop do
-      msg = destination.pop_message
-      if msg.nil?
-        break
-      else
-        result << msg
-      end
-    end
-    result
-  end
-
-  def purge_destination(destination_name)
-    destination = fetch_destination(destination_name)
-    if destination.respond_to? :purge
-      destination.purge
-    else
-      fetch_messages(destination)
-    end
-  end
-
-  def fetch_destination(destination)
-    case destination
-    when String, Symbol
-      MessageDriver::Client[broker_name].find_destination(destination)
-    when MessageDriver::Destination::Base
-      destination
-    else
-      fail "didn't understand destination #{destination.inspect}"
-    end
-  end
-
-  def fetch_current_adapter_context
-    MessageDriver::Client[broker_name].current_adapter_context
-  end
-
   def publish_table_to_destination(destination, table)
     table.hashes.each do |msg|
       destination.publish(msg[:body], msg[:headers] || {}, msg[:properties] || {})
-    end
-  end
-
-  def pause_if_needed(seconds = 0.1)
-    seconds *= 10 if ENV['CI'] == 'true'
-    case BrokerConfig.current_adapter
-    when :in_memory
-    else
-      sleep seconds
     end
   end
 end

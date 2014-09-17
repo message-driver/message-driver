@@ -99,3 +99,11 @@ end
 Before do |current_scenario|
   test_runner.current_feature_file = current_scenario.feature.file
 end
+
+Before '@read_queues_directly' do
+  test_runner.provider.read_queues_directly = true
+end
+
+After '@read_queues_directly' do
+  test_runner.provider.read_queues_directly = false
+end

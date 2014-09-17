@@ -1,4 +1,5 @@
 @bunny
+@read_queues_directly
 Feature: Server-Named Destinations
   AMQP brokers allow you to create queues that are named by the server. Here's
   how you do it with message_driver.

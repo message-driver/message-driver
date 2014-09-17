@@ -1,4 +1,5 @@
 @bunny
+@read_queues_directly
 Feature: Binding AMQP destinations to exchanges
   Background:
     Given the following broker configuration

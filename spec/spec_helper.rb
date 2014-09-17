@@ -4,6 +4,8 @@ require File.join(File.dirname(__FILE__), '..', 'test_lib', 'broker_config')
 
 require 'message_driver'
 
+BrokerConfig.setup_provider
+
 Dir['./spec/support/**/*.rb'].sort.each { |f| require f }
 
 RSpec.configure do |c|

@@ -30,6 +30,7 @@ require File.expand_path('../test_lib/broker_config', __FILE__)
 
 adapter = BrokerConfig.current_adapter.to_s
 version = BrokerConfig.adapter_version
+provider = BrokerConfig.provider
 
 case adapter
 when 'in_memory'
@@ -40,6 +41,11 @@ else
   else
     gem adapter.to_s, "~> #{version}"
   end
+end
+
+case provider
+when :rabbitmq
+  gem 'rabbitmq_http_api_client', '> 1.3.0', github: 'soupmattt/rabbitmq_http_api_client', branch: :master
 end
 
 gem 'coveralls', require: false

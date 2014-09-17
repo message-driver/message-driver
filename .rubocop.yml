@@ -10,14 +10,20 @@ AllCops:
     - 'lib/vendor/**/*.rb'
     - 'vendor/**/*'
 
+Metrics/BlockNesting:
+  Max: 4
+
+Metrics/LineLength:
+  AllowURI: true
+  Max: 120
+  Include:
+    - 'lib/**/*.rb'
+
 Style/AccessorMethodName:
   Enabled: false
 
 Style/Encoding:
   Enabled: false
-
-Style/BlockNesting:
-  Max: 4
 
 Style/FileName:
   Exclude:
@@ -26,17 +32,11 @@ Style/FileName:
 Style/NumericLiterals:
   Enabled: false
 
-Style/TrivialAccessors:
-  ExactNameMatch: true
-  AllowPredicates: true
-  AllowDSLWriters: true
-
 Style/RegexpLiteral:
   Exclude:
     - 'Guardfile'
 
-Style/LineLength:
-  AllowURI: true
-  Max: 120
-  Include:
-    - 'lib/**/*.rb'
+Style/TrivialAccessors:
+  ExactNameMatch: true
+  AllowPredicates: true
+  AllowDSLWriters: true

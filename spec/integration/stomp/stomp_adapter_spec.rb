@@ -124,6 +124,26 @@ module MessageDriver
             include_examples "doesn't support #message_count"
             include_examples "doesn't support #consumer_count"
 
+            describe '#queue_path' do
+              it 'equals name' do
+                expect(subject.queue_path).to eq(subject.name)
+              end
+
+              context "when name does not start with '/'" do
+                let(:dest_name) { 'stomp_destination_spec' }
+                it 'prepends /queue' do
+                  expect(subject.queue_path).to eq("/queue/#{dest_name}")
+                end
+              end
+
+              context "when the name does start with a '/'" do
+                let(:dest_name) { '/stomp_destination_spec' }
+                it 'equals the name' do
+                  expect(subject.queue_path).to eq(dest_name)
+                end
+              end
+            end
+
             describe 'pop_message' do
               context 'when there is a message on the queue' do
                 let(:body) { 'Testing stomp pop_message' }

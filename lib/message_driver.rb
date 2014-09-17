@@ -13,6 +13,7 @@ require 'message_driver/client'
 
 module MessageDriver
   module_function
+
   def configure(broker_name = Broker::DEFAULT_BROKER_NAME, options)
     Broker.configure(broker_name, options)
   end

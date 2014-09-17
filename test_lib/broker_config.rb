@@ -26,6 +26,21 @@ class BrokerConfig
       end
     end
 
+    def provider
+      case current_adapter
+      when :bunny, :stomp
+        :rabbitmq
+      when :in_memory
+        :in_memory
+      else
+        current_adapter
+      end
+    end
+
+    def setup_provider
+      require_relative "provider/#{provider}"
+    end
+
     def all_adapters
       %w(in_memory bunny stomp)
     end

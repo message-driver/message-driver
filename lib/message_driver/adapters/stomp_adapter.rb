@@ -19,6 +19,11 @@ module MessageDriver
       end
 
       class Destination < MessageDriver::Destination::Base
+        def queue_path
+          @queue_path ||= begin
+            name.start_with?('/') ? name : "/queue/#{name}"
+          end
+        end
       end
 
       attr_reader :config, :poll_timeout
@@ -48,13 +53,12 @@ module MessageDriver
         # end
 
         def create_destination(name, dest_options = {}, message_props = {})
-          name = "/queue/#{name}" unless name.start_with?('/')
           Destination.new(adapter, name, dest_options, message_props)
         end
 
         def publish(destination, body, headers = {}, _properties = {})
           with_connection do |connection|
-            connection.publish(destination.name, body, headers)
+            connection.publish(destination.queue_path, body, headers)
           end
         end
 
@@ -63,7 +67,7 @@ module MessageDriver
             sub_id = connection.uuid
             msg = nil
             count = 0
-            connection.subscribe(destination.name, options, sub_id)
+            connection.subscribe(destination.queue_path, options, sub_id)
             while msg.nil? && count < max_poll_count
               msg = connection.poll
               if msg.nil?
@@ -71,7 +75,7 @@ module MessageDriver
                 sleep 0.1
               end
             end
-            connection.unsubscribe(destination.name, options, sub_id)
+            connection.unsubscribe(destination.queue_path, options, sub_id)
             Message.new(self, msg) if msg
           end
         end
