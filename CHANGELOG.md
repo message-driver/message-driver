@@ -1,11 +1,13 @@
 # Changelog
 
-## master
+## 0.5.0 - 2014-09-17
 
 * add support for checking consumer counts on a queue in bunny and in_memory adapters
 * in_memory adapter now supports multiple subscribers per queue, and does a round-robin
   through them when sending messages to consumers
 * upgrade to rspec 3
+* Middleware can now be used to automatically pre/post-process messages as they are published to
+  or consumed from a destination
 
 ## 0.4.0 - 2014-07-03
 
@@ -17,7 +19,7 @@
 * Support for handling multiple broker connections
 * require bunny 1.1.3 or later
 * make bunny connections as lazily initialized as possible
-* bunny transaction start lazily
+* bunny transactions start lazily
 
 ## 0.2.2 - 2014-02-21
 

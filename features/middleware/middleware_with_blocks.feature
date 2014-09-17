@@ -1,6 +1,6 @@
 @bunny
 @in_memory
-Feature: Middleware with blocks
+Feature: Middleware with Blocks
 
   You can also create middleware by passing a hash with blocks as the input to
   append or prepend

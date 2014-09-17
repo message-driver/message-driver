@@ -1,5 +1,5 @@
 @all_adapters
-Feature: Stuff gets logged if you set a logger
+Feature: Logging
 
   You can configure the logger by setting it on `MessageDriver.logger`.
   If you don't provide a logger, then an info level logger will be created
