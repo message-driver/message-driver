@@ -24,5 +24,4 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rspec', '~> 3.1.0'
   gem.add_development_dependency 'cucumber'
   gem.add_development_dependency 'aruba'
-  gem.add_development_dependency 'rubocop'
 end

@@ -7,6 +7,8 @@ platform :rbx do
   gem 'rubysl'
 end
 
+gem 'rubocop', platform: [:ruby_20, :ruby_21]
+
 group :tools do
   gem 'guard', platform: [:mri_20, :mri_21]
   gem 'guard-bundler', platform: [:mri_20, :mri_21]
@@ -15,7 +17,7 @@ group :tools do
   gem 'guard-rubocop', platform: [:mri_20, :mri_21]
   gem 'pry'
   gem 'pry-byebug', platform: [:mri_20, :mri_21]
-  gem 'pry-stack_explorer', platform: [:mri_20, :mri_21]
+  gem 'pry-stack_explorer', platform: [:ruby_20, :ruby_21]
   group :darwin do
     gem 'ruby_gntp'
     gem 'rb-fsevent'

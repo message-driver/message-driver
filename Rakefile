@@ -8,8 +8,13 @@ require 'cucumber/rake/task'
 
 require 'coveralls/rake/task'
 
-require 'rubocop/rake_task'
-RuboCop::RakeTask.new
+begin
+  require 'rubocop/rake_task'
+  RuboCop::RakeTask.new
+rescue LoadError
+  puts 'rubocop not present'
+  task 'rubocop'
+end
 
 namespace :spec do
   desc 'Run unit specs'
