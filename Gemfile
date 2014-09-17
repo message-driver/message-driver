@@ -45,7 +45,7 @@ end
 
 case provider
 when :rabbitmq
-  gem 'rabbitmq_http_api_client', '> 1.3.0', github: 'soupmattt/rabbitmq_http_api_client', branch: :master
+  gem 'rabbitmq_http_api_client', '> 1.3.0', github: 'soupmatt/rabbitmq_http_api_client', branch: :master
 end
 
 gem 'coveralls', require: false
