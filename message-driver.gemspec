@@ -5,7 +5,7 @@ require 'message_driver/version'
 
 Gem::Specification.new do |gem|
   gem.name          = 'message-driver'
-  gem.version       = Message::Driver::VERSION
+  gem.version       = MessageDriver::VERSION
   gem.authors       = ['Matt Campbell']
   gem.email         = ['message-driver@soupmatt.com']
   gem.description   = 'Easy message queues for ruby using AMQ, STOMP and others'
