@@ -40,6 +40,23 @@ end
 desc 'run all the specs'
 task spec: ['rabbitmq:reset_vhost', 'spec:all']
 
+begin
+  require 'yard'
+  require 'launchy'
+
+  YARD::Rake::YardocTask.new(:docs)
+  namespace :docs do
+
+    desc "open the documentation for this gem in your browser"
+    task :open => [:docs] do
+      Launchy.open("file:///#{File.join(Dir.pwd, "doc", "index.html")}")
+    end
+  end
+rescue LoadError
+  puts "couldn't load yard gems, doc tasks not available"
+  task :docs
+end
+
 namespace :rabbitmq do
   desc 'Reset rabbit vhost'
   task :reset_vhost do
