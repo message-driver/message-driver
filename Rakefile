@@ -47,9 +47,9 @@ begin
   YARD::Rake::YardocTask.new(:docs)
   namespace :docs do
 
-    desc "open the documentation for this gem in your browser"
-    task :open => [:docs] do
-      Launchy.open("file:///#{File.join(Dir.pwd, "doc", "index.html")}")
+    desc 'open the documentation for this gem in your browser'
+    task open: [:docs] do
+      Launchy.open("file:///#{File.join(Dir.pwd, 'doc', 'index.html')}")
     end
   end
 rescue LoadError
