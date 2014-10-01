@@ -23,10 +23,6 @@ Metrics/MethodLength:
 Metrics/PerceivedComplexity:
   Enabled: false
 
-# Offense count: 63
-Style/Documentation:
-  Enabled: false
-
 # Offense count: 9
 # Configuration parameters: MinBodyLength.
 Style/GuardClause:

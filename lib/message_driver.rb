@@ -11,13 +11,18 @@ require 'message_driver/subscription'
 require 'message_driver/adapters/base'
 require 'message_driver/client'
 
+# Easy message queues for ruby
 module MessageDriver
   module_function
 
-  def configure(broker_name = Broker::DEFAULT_BROKER_NAME, options)
-    Broker.configure(broker_name, options)
+  # (see MessageDriver::Broker.configure)
+  def configure(name = Broker::DEFAULT_BROKER_NAME, options)
+    Broker.configure(name, options)
   end
 
+  # @!attribute [rw] logger
+  # defaults to an +INFO+ level logger that logs to +STDOUT+
+  # @return [Logger] the logger +MessageDriver+ will use for logging.
   def logger
     @__logger ||= Logger.new(STDOUT).tap { |l| l.level = Logger::INFO }
   end

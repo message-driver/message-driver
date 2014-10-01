@@ -4,9 +4,18 @@ module MessageDriver
 
     DEFAULT_BROKER_NAME = :default
 
-    attr_reader :adapter, :configuration, :destinations, :consumers, :name
+    attr_reader :adapter
+    attr_reader :configuration
+    attr_reader :name
+
+    # @private
+    attr_reader :destinations, :consumers
 
     class << self
+      # @overload configure(options)
+      # @overload configure(name, options)
+      # @param name [Symbol] when configuring multiple brokers, this symbol will differentiate between brokers
+      # @param options [Hash] options to be passed to the adapter class
       def configure(name = DEFAULT_BROKER_NAME, options)
         if brokers.keys.include? name
           fail BrokerAlreadyConfigured, "there is already a broker named #{name} configured"
@@ -14,10 +23,11 @@ module MessageDriver
         brokers[name] = new(name, options)
       end
 
-      def define(name = DEFAULT_BROKER_NAME)
-        yield broker(name)
-      end
-
+      # @overload broker
+      # @overload broker(name)
+      # @param name [Symbol] the name of the broker you wish to define
+      # @return [Broker] the specified broker
+      # @raise [BrokerNotConfigured] if a broker by that name has not yet been configured
       def broker(name = DEFAULT_BROKER_NAME)
         result = brokers[name]
         if result.nil?
@@ -27,6 +37,17 @@ module MessageDriver
         result
       end
 
+      # Yields the specified broker so that destinations and consumers can be defined on it.
+      # @overload define
+      # @overload define(name)
+      # @param (see #broker)
+      # @yield [Broker] the specified broker
+      # @raise (see #broker)
+      def define(name = DEFAULT_BROKER_NAME)
+        yield broker(name)
+      end
+
+      # @private
       def client(name)
         unless (result = clients[name])
           result = clients[name] = Client.for_broker(name)
@@ -34,24 +55,32 @@ module MessageDriver
         result
       end
 
+      # stops all the brokers
+      # @see #stop
       def stop_all
         each_broker do |brk|
           brk.stop
         end
       end
 
+      # restarts all the brokers
+      # @see #restart
       def restart_all
         each_broker do |brk|
           brk.restart
         end
       end
 
+      # Resets all the brokers for testing purposes.
+      # @see Adapter::Base#reset_after_tests
       def reset_after_tests
         each_broker do |brk|
           brk.adapter.reset_after_tests
         end
       end
 
+      # Stops and un-configures all the brokers
+      # @see #stop
       def reset
         each_broker do |brk|
           begin
@@ -80,6 +109,7 @@ module MessageDriver
       end
     end
 
+    # @private
     def initialize(name = DEFAULT_BROKER_NAME, options)
       @name = name
       @adapter = resolve_adapter(options[:adapter], options)
@@ -90,27 +120,31 @@ module MessageDriver
       logger.debug 'MessageDriver configured successfully!'
     end
 
-    def logger
-      MessageDriver.logger
-    end
-
+    # @return [MessageDriver::Client] the client module for this broker
     def client
       @client ||= self.class.client(name)
     end
 
+    # stops the adapter for this Broker
+    # @see Adapters::Base#stop
     def stop
       @adapter.stop
       @stopped = true
     end
 
+    # @return [Boolean] true if the broker is currently stopped
     def stopped?
       @stopped
     end
 
+    # Restarts the Broker, stopping it first if needed. This results in a new
+    #   adapter instance being constructed.
+    # @return [Adapter::Base] the newly constructed adapter
     def restart
       @adapter.stop unless stopped?
       @adapter = resolve_adapter(@configuration[:adapter], @configuration)
       @stopped = false
+      @adapter
     end
 
     def dynamic_destination(dest_name, dest_options = {}, message_props = {})

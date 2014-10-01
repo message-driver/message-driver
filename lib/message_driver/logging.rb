@@ -1,6 +1,7 @@
 module MessageDriver
+  # @private
   module Logging
-    extend self
+    module_function
 
     def logger
       MessageDriver.logger

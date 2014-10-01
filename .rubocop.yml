@@ -22,6 +22,9 @@ Metrics/LineLength:
 Style/AccessorMethodName:
   Enabled: false
 
+Style/Documentation:
+  Enabled: false
+
 Style/Encoding:
   Enabled: false
 

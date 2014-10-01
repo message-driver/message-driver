@@ -5,12 +5,55 @@ module MessageDriver
     include Logging
     extend self
 
+    # @!group Defining and Looking up Destinations
+
+    def dynamic_destination(dest_name, dest_options = {}, message_props = {})
+      current_adapter_context.create_destination(dest_name, dest_options, message_props)
+    end
+
+    def find_destination(destination)
+      case destination
+      when Destination::Base
+        destination
+      else
+        broker.find_destination(destination)
+      end
+    end
+
+    # @!endgroup
+
+    # @!group Defining and Looking Up Consumers
+
+    def consumer(key, &block)
+      broker.consumer(key, &block)
+    end
+
+    def find_consumer(consumer)
+      broker.find_consumer(consumer)
+    end
+
+    # @!endgroup
+
+    # @!group Sending Messages
+
     def publish(destination, body, headers = {}, properties = {})
       find_destination(destination).publish(body, headers, properties)
     end
 
+    # @!endgroup
+
+    # @!group Receiving Messages
+
     def pop_message(destination, options = {})
       find_destination(destination).pop_message(options)
+    end
+
+    def ack_message(message, options = {})
+      message.ack(options)
+    end
+
+    def nack_message(message, options = {})
+      message.nack(options)
     end
 
     def subscribe(destination_name, consumer_name, options = {})
@@ -23,34 +66,9 @@ module MessageDriver
       current_adapter_context.subscribe(destination, options, &consumer)
     end
 
-    def dynamic_destination(dest_name, dest_options = {}, message_props = {})
-      current_adapter_context.create_destination(dest_name, dest_options, message_props)
-    end
+    # @!endgroup
 
-    def ack_message(message, options = {})
-      message.ack(options)
-    end
-
-    def nack_message(message, options = {})
-      message.nack(options)
-    end
-
-    def consumer(key, &block)
-      broker.consumer(key, &block)
-    end
-
-    def find_destination(destination)
-      case destination
-      when Destination::Base
-        destination
-      else
-        broker.find_destination(destination)
-      end
-    end
-
-    def find_consumer(consumer)
-      broker.find_consumer(consumer)
-    end
+    # @!group Transaction Management
 
     def with_message_transaction(options = {})
       wrapper = fetch_context_wrapper
@@ -82,11 +100,15 @@ module MessageDriver
       end
     end
 
+    # @!endgroup
+
+    # @private
     def current_adapter_context(initialize = true)
       ctx = fetch_context_wrapper(initialize)
       ctx.nil? ? nil : ctx.ctx
     end
 
+    # @private
     def with_adapter_context(adapter_context)
       old_ctx = fetch_context_wrapper(false)
       Thread.current[adapter_context_key] = build_context_wrapper(adapter_context)
@@ -97,6 +119,7 @@ module MessageDriver
       end
     end
 
+    # @private
     def clear_context
       wrapper = fetch_context_wrapper(false)
       unless wrapper.nil?
@@ -105,14 +128,17 @@ module MessageDriver
       end
     end
 
+    # @return [Broker] the broker associated with this Client module
     def broker
       Broker.broker(broker_name)
     end
 
+    # @return [symbol] the name of the broker associated with this Client module
     def broker_name
       Broker::DEFAULT_BROKER_NAME
     end
 
+    # @private
     def for_broker(name)
       Module.new do
         include Client
