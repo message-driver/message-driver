@@ -133,7 +133,7 @@ module MessageDriver
       Broker.broker(broker_name)
     end
 
-    # @return [symbol] the name of the broker associated with this Client module
+    # @return [Symbol] the name of the broker associated with this Client module
     def broker_name
       Broker::DEFAULT_BROKER_NAME
     end
@@ -151,6 +151,11 @@ module MessageDriver
     end
     module_function :for_broker
 
+    # @return [Client] the client for the specified broker
+    # @example
+    #   class MyClass
+    #     include MessageDriver::Client[:my_broker]
+    #   end
     def [](index)
       Broker.client(index)
     end
@@ -186,6 +191,7 @@ module MessageDriver
       @__adapter_context_key ||= "#{broker_name}_adapter_context".to_sym
     end
 
+    # @private
     class ContextWrapper
       extend Forwardable
 
