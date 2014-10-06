@@ -161,6 +161,10 @@ module MessageDriver
       @consumers[key] = block
     end
 
+    # Find a previously declared Destination
+    # @param destination_name [Symbol] the name of the destination
+    # @return [Destination::Base] the requested destination
+    # @raise [MessageDriver::NoSuchDestinationError] if there is no destination with that name
     def find_destination(destination_name)
       destination = @destinations[destination_name]
       if destination.nil?

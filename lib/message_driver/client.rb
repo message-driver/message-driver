@@ -1,6 +1,24 @@
 require 'forwardable'
 
 module MessageDriver
+  # The client module is the primary client API for MessageDriver. It can either be
+  # included in a class that is using it, or used directly.
+  #
+  # @example Included as a Module
+  #   class MyClass
+  #     include MessageDriver::Client
+  #
+  #     def do_work
+  #       publish(:my_destination, 'Hi Mom!')
+  #     end
+  #   end
+  #
+  # @example Used Directly
+  #   class DirectClass
+  #     def use_directly
+  #       MesageDriver::Client.find_destination(:my_queue)
+  #     end
+  #   end
   module Client
     include Logging
     extend self
@@ -11,12 +29,15 @@ module MessageDriver
       current_adapter_context.create_destination(dest_name, dest_options, message_props)
     end
 
-    def find_destination(destination)
-      case destination
+    # (see MessageDriver::Broker#find_destination)
+    # @note if +destination_name+ is a {Destination::Base}, +find_destination+ will just
+    #   return that destination back
+    def find_destination(destination_name)
+      case destination_name
       when Destination::Base
-        destination
+        destination_name
       else
-        broker.find_destination(destination)
+        broker.find_destination(destination_name)
       end
     end
 
