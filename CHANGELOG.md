@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1 - 2014-10-08
+
+* put version constant under correct module
+
 ## 0.5.0 - 2014-09-17
 
 * add support for checking consumer counts on a queue in bunny and in_memory adapters
