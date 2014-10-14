@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.0.dev - (current master)
+
+* official support for bunny 1.5.x
+* drop support for bunny < 1.4
+
 ## 0.5.2 - 2014-10-14
 
 * fix deprecation warning with bunny 1.5.0
