@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2 - 2014-10-14
+
+* fix deprecation warning with bunny 1.5.0
+
 ## 0.5.1 - 2014-10-08
 
 * put version constant under correct module
