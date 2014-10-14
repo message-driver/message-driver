@@ -33,7 +33,7 @@ module MessageDriver
               include_examples 'raises an error'
             end
           end
-          %w(1.2.2 1.3.2 1.4.0).each do |v|
+          %w(1.2.2 1.3.2 1.4.0 1.5.0).each do |v|
             context "bunny version #{v}" do
               let(:version) { v }
               include_examples "doesn't raise an error"
@@ -77,6 +77,27 @@ module MessageDriver
 
       it_behaves_like 'an adapter' do
         include_context 'a connected bunny adapter'
+      end
+
+      describe '#ack_key' do
+        include_context 'a connected bunny adapter'
+
+        context 'when bunny version is 1.5.0 or later' do
+          before do
+            stub_const('Bunny::VERSION', '1.5.0')
+          end
+          it 'should be :manual_ack' do
+            expect(adapter.ack_key).to eq(:manual_ack)
+          end
+        end
+        context 'when bunny version earlier than 1.5.0' do
+          before do
+            stub_const('Bunny::VERSION', '1.4.1')
+          end
+          it 'should be :manual_ack' do
+            expect(adapter.ack_key).to eq(:ack)
+          end
+        end
       end
 
       describe '#new_context' do
