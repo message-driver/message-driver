@@ -150,7 +150,7 @@ module MessageDriver
           end
           @sub_ctx = adapter.new_subscription_context(self)
           @error_handler = options[:error_handler]
-          @message_handler =  case options[:ack]
+          @message_handler =  case options.delete(:ack)
                               when :auto, nil
                                 AutoAckHandler.new(self)
                               when :manual
@@ -238,7 +238,8 @@ module MessageDriver
           @sub_ctx.with_channel do |ch|
             queue = destination.bunny_queue(@sub_ctx.channel)
             ch.prefetch(options[:prefetch_size]) if options.key? :prefetch_size
-            @bunny_consumer = queue.subscribe(options.merge(manual_ack: true)) do |delivery_info, properties, payload|
+            sub_opts = options.merge(adapter.ack_key => true)
+            @bunny_consumer = queue.subscribe(sub_opts) do |delivery_info, properties, payload|
               adapter.broker.client.with_adapter_context(@sub_ctx) do
                 message = @sub_ctx.args_to_message(delivery_info, properties, payload, destination)
                 @message_handler.call(message)
@@ -252,7 +253,10 @@ module MessageDriver
         validate_bunny_version
         @broker = broker
         @config = config
+        @ack_key = Bunny::VERSION >= '1.5.0' ? :manual_ack : :ack
       end
+
+      attr_reader :ack_key
 
       def connection(ensure_started = true)
         if ensure_started
@@ -391,7 +395,7 @@ module MessageDriver
           with_channel(false) do |ch|
             queue = ch.queue(destination.name, passive: true)
 
-            message = queue.pop(ack: options.fetch(:client_ack, false))
+            message = queue.pop(adapter.ack_key => options.fetch(:client_ack, false))
             if message.nil? || message[0].nil?
               nil
             else
