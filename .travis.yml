@@ -19,6 +19,7 @@ env:
   - ADAPTER=bunny:1.5.0
   - ADAPTER=stomp
 matrix:
+  fast_finish: true
   allow_failures:
     - rvm: jruby-19mode
       env: ADAPTER=stomp
