@@ -117,6 +117,10 @@ module MessageDriver
           end
         end
 
+        after(:example) do
+          adapter_context.invalidate
+        end
+
         it_behaves_like 'an adapter context'
         it_behaves_like 'transactions are supported'
         it_behaves_like 'client acks are supported'
@@ -387,6 +391,88 @@ module MessageDriver
               expect do
                 adapter_context.subscribe(destination, &consumer)
               end.to raise_error MessageDriver::Error, /QueueDestination/
+            end
+          end
+        end
+
+        context 'during a transaction with a transactional context' do
+          let(:channel) { adapter_context.ensure_channel }
+          let(:destination) { MessageDriver::Client.dynamic_destination('tx.test.queue') }
+          before do
+            adapter_context.ensure_transactional_channel
+            destination.purge
+          end
+
+          context 'when nothing occurs' do
+            it 'does not send a commit to the broker' do
+              allow(channel).to receive(:tx_commit).and_call_original
+              MessageDriver::Client.with_message_transaction do
+              end
+              expect(channel).not_to have_received(:tx_commit)
+            end
+          end
+
+          context 'when a queue is declared' do
+            it 'does not send a commit to the broker' do
+              allow(channel).to receive(:tx_commit).and_call_original
+              MessageDriver::Client.with_message_transaction do
+                MessageDriver::Client.dynamic_destination('', exclusive: true)
+              end
+              expect(channel).not_to have_received(:tx_commit)
+            end
+          end
+
+          context 'when a message is published' do
+            it 'does send a commit to the broker' do
+              allow(channel).to receive(:tx_commit).and_call_original
+              MessageDriver::Client.with_message_transaction do
+                destination.publish('test message')
+              end
+              expect(channel).to have_received(:tx_commit).once
+              expect(destination.message_count).to eq(1)
+            end
+          end
+
+          context 'when a message is popped' do
+            it 'does not send a commit to the broker' do
+              destination.publish('test message')
+              allow(channel).to receive(:tx_commit).and_call_original
+              MessageDriver::Client.with_message_transaction do
+                msg = destination.pop_message(client_ack: true)
+                expect(msg).not_to be_nil
+                expect(msg.body).to eq('test message')
+              end
+              expect(channel).not_to have_received(:tx_commit)
+            end
+          end
+
+          context 'when a message is acked' do
+            it 'does send a commit to the broker' do
+              destination.publish('test message')
+              allow(channel).to receive(:tx_commit).and_call_original
+              MessageDriver::Client.with_message_transaction do
+                msg = destination.pop_message(client_ack: true)
+                expect(msg).not_to be_nil
+                expect(msg.body).to eq('test message')
+                msg.ack
+              end
+              expect(channel).to have_received(:tx_commit).once
+              expect(destination.message_count).to eq(0)
+            end
+          end
+
+          context 'when a message is nacked' do
+            it 'does send a commit to the broker' do
+              destination.publish('test message')
+              allow(channel).to receive(:tx_commit).and_call_original
+              MessageDriver::Client.with_message_transaction do
+                msg = destination.pop_message(client_ack: true)
+                expect(msg).not_to be_nil
+                expect(msg.body).to eq('test message')
+                msg.nack
+              end
+              expect(channel).to have_received(:tx_commit).once
+              expect(destination.message_count).to eq(1)
             end
           end
         end
