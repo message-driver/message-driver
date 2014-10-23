@@ -5,6 +5,11 @@
 * official support for bunny 1.5.x
 * drop support for bunny < 1.4
 
+## 0.5.3 = 2014-10-23
+
+* In bunny adapter, avoid sending a tx_commit if we haven't done anything requiring
+  a commit inside the transaction block.
+
 ## 0.5.2 - 2014-10-14
 
 * fix deprecation warning with bunny 1.5.0
