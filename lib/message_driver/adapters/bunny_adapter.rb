@@ -302,6 +302,7 @@ module MessageDriver
           @rollback_only = false
           @need_channel_reset = false
           @in_transaction = false
+          @require_commit = false
         end
 
         def create_destination(name, dest_options = {}, message_props = {})
@@ -330,8 +331,8 @@ module MessageDriver
           @in_confirms_transaction = true if options[:type] == :confirm_and_wait
         end
 
-        def commit_transaction(channel_commit = false)
-          if !in_transaction? && !channel_commit
+        def commit_transaction
+          if !in_transaction? && !@require_commit
             fail MessageDriver::TransactionError,
                  "you can't finish the transaction unless you already in one!"
           end
@@ -339,7 +340,7 @@ module MessageDriver
             if @in_confirms_transaction
               wait_for_confirms(@channel) unless @rollback_only
             else
-              if is_transactional? && valid? && !@need_channel_reset
+              if is_transactional? && valid? && !@need_channel_reset && @require_commit
                 handle_errors do
                   if @rollback_only
                     @channel.tx_rollback
@@ -353,6 +354,7 @@ module MessageDriver
             @rollback_only = false
             @in_transaction = false
             @in_confirms_transaction = false
+            @require_commit = false
           end
         end
 
@@ -415,7 +417,7 @@ module MessageDriver
         end
 
         def nack_message(message, options = {})
-          requeue = options[:requeue].is_a?(FalseClass) ? false : true
+          requeue = options.fetch(:requeue, true)
           with_channel(true) do |ch|
             ch.reject(message.delivery_tag, requeue)
           end
@@ -471,24 +473,39 @@ module MessageDriver
           raise MessageDriver::ConnectionError.new(e.to_s, e)
         end
 
+        def ensure_channel
+          @channel = adapter.connection.create_channel if @channel.nil?
+          reset_channel if @need_channel_reset
+          @channel
+        end
+
+        def ensure_transactional_channel
+          ensure_channel
+          make_channel_transactional
+        end
+
+        def make_channel_transactional
+          unless is_transactional?
+            @channel.tx_select
+            @is_transactional = true
+          end
+        end
+
         def with_channel(require_commit = true)
           fail MessageDriver::TransactionRollbackOnly if @rollback_only
           fail MessageDriver::Error, 'this adapter context is not valid!' unless valid?
-          @channel = adapter.connection.create_channel if @channel.nil?
-          reset_channel if @need_channel_reset
+          ensure_channel
+          @require_commit ||= require_commit
           if in_transaction?
             if @in_confirms_transaction
               @channel.confirm_select unless @channel.using_publisher_confirmations?
             else
-              unless is_transactional?
-                @channel.tx_select
-                @is_transactional = true
-              end
+              make_channel_transactional
             end
           end
           handle_errors do
             result = yield @channel
-            commit_transaction(true) if require_commit && is_transactional? && !in_transaction?
+            commit_transaction if require_commit && is_transactional? && !in_transaction?
             result
           end
         end
@@ -504,6 +521,7 @@ module MessageDriver
             @channel = adapter.connection.create_channel
             @is_transactional = false
             @rollback_only = true if in_transaction?
+            @require_commit
           end
           @need_channel_reset = false
         end
