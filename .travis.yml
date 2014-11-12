@@ -17,6 +17,7 @@ env:
   - ADAPTER=in_memory
   - ADAPTER=bunny:1.4.1
   - ADAPTER=bunny:1.5.0
+  - ADAPTER=bunny:1.6.3
   - ADAPTER=stomp
 matrix:
   fast_finish: true
