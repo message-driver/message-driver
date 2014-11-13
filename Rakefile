@@ -10,7 +10,9 @@ require 'coveralls/rake/task'
 
 begin
   require 'rubocop/rake_task'
-  RuboCop::RakeTask.new
+  RuboCop::RakeTask.new do |t|
+    t.fail_on_error = false
+  end
 rescue LoadError
   puts 'rubocop not present'
   task 'rubocop'
