@@ -1,5 +1,4 @@
 language: ruby
-cache: bundler
 bundler_args: --without tools darwin
 services:
   - rabbitmq
@@ -7,6 +6,7 @@ before_script:
   - ci/travis_setup
 script: bundle exec rake ci
 rvm:
+  - 2.2
   - 2.1
   - 2.0.0
   - 1.9.3
@@ -24,3 +24,4 @@ matrix:
   allow_failures:
     - rvm: jruby-19mode
       env: ADAPTER=stomp
+    - rvm: 2.2
