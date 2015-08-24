@@ -15,7 +15,7 @@ module MessageDriver
               stub_const('Bunny::VERSION', version)
               expect do
                 described_class.new(broker, valid_connection_attrs)
-              end.to raise_error MessageDriver::Error, 'bunny 1.4.0 or later is required for the bunny adapter'
+              end.to raise_error MessageDriver::Error, 'bunny 1.7.1 or later is required for the bunny adapter'
             end
           end
           shared_examples "doesn't raise an error" do
@@ -27,13 +27,13 @@ module MessageDriver
               end.to_not raise_error
             end
           end
-          %w(0.8.0 0.9.0 0.9.8 0.10.7 1.0.3 1.1.2 1.2.1 1.2.2 1.3.0).each do |v|
+          %w(0.8.0 0.9.0 0.9.8 0.10.7 1.0.3 1.1.2 1.2.1 1.2.2 1.3.0 1.4.1 1.6.2).each do |v|
             context "bunny version #{v}" do
               let(:version) { v }
               include_examples 'raises an error'
             end
           end
-          %w(1.4.0 1.4.1 1.5.0).each do |v|
+          %w(1.7.1 2.0.1 2.1.0).each do |v|
             context "bunny version #{v}" do
               let(:version) { v }
               include_examples "doesn't raise an error"
@@ -82,21 +82,8 @@ module MessageDriver
       describe '#ack_key' do
         include_context 'a connected bunny adapter'
 
-        context 'when bunny version is 1.5.0 or later' do
-          before do
-            stub_const('Bunny::VERSION', '1.5.0')
-          end
-          it 'should be :manual_ack' do
-            expect(adapter.ack_key).to eq(:manual_ack)
-          end
-        end
-        context 'when bunny version earlier than 1.5.0' do
-          before do
-            stub_const('Bunny::VERSION', '1.4.1')
-          end
-          it 'should be :manual_ack' do
-            expect(adapter.ack_key).to eq(:ack)
-          end
+        it 'should be :manual_ack' do
+          expect(adapter.ack_key).to eq(:manual_ack)
         end
       end
 

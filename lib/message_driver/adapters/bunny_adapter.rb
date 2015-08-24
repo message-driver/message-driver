@@ -253,7 +253,7 @@ module MessageDriver
         validate_bunny_version
         @broker = broker
         @config = config
-        @ack_key = Bunny::VERSION >= '1.5.0' ? :manual_ack : :ack
+        @ack_key = :manual_ack
       end
 
       attr_reader :ack_key
@@ -536,10 +536,10 @@ module MessageDriver
       end
 
       def validate_bunny_version
-        required = Gem::Requirement.create('>= 1.4.0')
+        required = Gem::Requirement.create('>= 1.7.1')
         current = Gem::Version.create(Bunny::VERSION)
         unless required.satisfied_by? current
-          fail MessageDriver::Error, 'bunny 1.4.0 or later is required for the bunny adapter'
+          fail MessageDriver::Error, 'bunny 1.7.1 or later is required for the bunny adapter'
         end
       end
     end

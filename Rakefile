@@ -76,7 +76,7 @@ end
 
 Coveralls::RakeTask.new
 desc 'run with code coverage'
-task ci: ['spec', 'rubocop', 'coveralls:push']
+task ci: ['spec', 'coveralls:push']
 
 namespace :undertest do
   BrokerConfig.all_adapters.each do |adapter|
@@ -87,4 +87,4 @@ namespace :undertest do
   end
 end
 
-task default: [:spec, :rubocop]
+task default: [:spec]

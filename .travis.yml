@@ -15,10 +15,9 @@ rvm:
   - rbx-2
 env:
   - ADAPTER=in_memory
-  - ADAPTER=bunny:1.4.1
-  - ADAPTER=bunny:1.5.0
-  - ADAPTER=bunny:1.6.3
   - ADAPTER=bunny:1.7.0
+  - ADAPTER=bunny:2.0.1
+  - ADAPTER=bunny:2.1.0
   - ADAPTER=stomp
 matrix:
   fast_finish: true
@@ -26,3 +25,16 @@ matrix:
     - rvm: jruby-19mode
       env: ADAPTER=stomp
     - rvm: 2.2
+  exclude:
+    - rvm: 1.9.2
+      env: ADAPTER=bunny:2.0.1
+    - rvm: 1.9.3
+      env: ADAPTER=bunny:2.0.1
+    - rvm: jruby-19mode
+      env: ADAPTER=bunny:2.0.1
+    - rvm: 1.9.2
+      env: ADAPTER=bunny:2.1.0
+    - rvm: 1.9.3
+      env: ADAPTER=bunny:2.1.0
+    - rvm: jruby-19mode
+      env: ADAPTER=bunny:2.1.0
