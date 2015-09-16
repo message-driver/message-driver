@@ -9,6 +9,7 @@ class BrokerConfig
         {
           adapter: :bunny,
           vhost: vhost,
+          timeout: 5000,
           continuation_timeout: 10000
         }
       when 'in_memory'

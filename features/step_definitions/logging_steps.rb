@@ -4,7 +4,7 @@ LOG_FILE_NAME = 'cucumber_log_file.log'
 
 Given(/^I am logging to a log file(?: at the (#{STRING_OR_SYM}) level)?$/) do |level|
   step "an empty file named \"#{LOG_FILE_NAME}\""
-  in_current_dir do
+  cd('.') do
     @logger = Logger.new(LOG_FILE_NAME)
   end
   step "I set the log level to #{level || 'info'}"

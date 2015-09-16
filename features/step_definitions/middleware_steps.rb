@@ -1,6 +1,6 @@
 Given('I have a middleware class') do |src|
   write_file('feature_middleware.rb', src)
-  in_current_dir { load './feature_middleware.rb' }
+  cd('.') { load './feature_middleware.rb' }
 end
 
 When(/^I append middleware "(.*?)" to (#{STRING_OR_SYM})$/) do |class_name, dest_name|
