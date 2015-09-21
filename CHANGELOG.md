@@ -2,8 +2,9 @@
 
 ## 0.6.0.dev - (current master)
 
-* official support for bunny 1.5.x
-* drop support for bunny < 1.4
+* official support for bunny 2.x
+* drop support for bunny < 1.7
+* improved API documentation (still a WIP)
 
 ## 0.5.3 = 2014-10-23
 
