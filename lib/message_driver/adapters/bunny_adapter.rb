@@ -338,7 +338,9 @@ module MessageDriver
           end
           begin
             if @in_confirms_transaction
-              wait_for_confirms(@channel) unless @rollback_only
+              unless @rollback_only || @channel.nil?
+                @channel.wait_for_confirms
+              end
             else
               if is_transactional? && valid? && !@need_channel_reset && @require_commit
                 handle_errors do
@@ -357,12 +359,6 @@ module MessageDriver
             @require_commit = false
           end
         end
-
-        def wait_for_confirms(channel)
-          # FIXME: make the thread-safety of this better once https://github.com/ruby-amqp/bunny/issues/227 is fixed
-          channel.wait_for_confirms until channel.unconfirmed_set.empty?
-        end
-        private :wait_for_confirms
 
         def rollback_transaction
           @rollback_only = true

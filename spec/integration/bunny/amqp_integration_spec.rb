@@ -78,4 +78,24 @@ RSpec.describe 'AMQP Integration', :bunny, type: :integration do
       expect(msg.body).to eq('Test Message 2')
     end
   end
+
+  context 'when nothing is done during a transaction' do
+    it 'does not raise an error' do
+      expect do
+        MessageDriver::Client.with_message_transaction do
+          #do nothing
+        end
+      end.not_to raise_error
+    end
+
+    context 'with a wait and confirm transaction' do
+      it 'does not raise an error' do
+        expect do
+          MessageDriver::Client.with_message_transaction(type: :confirm_and_wait) do
+            #do nothing
+          end
+        end.not_to raise_error
+      end
+    end
+  end
 end
