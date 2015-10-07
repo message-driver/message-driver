@@ -29,6 +29,8 @@ group :tools do
   gem 'launchy'
 end
 
+gem 'thread_safe'
+
 require File.expand_path('../test_lib/broker_config', __FILE__)
 
 adapter = BrokerConfig.current_adapter.to_s

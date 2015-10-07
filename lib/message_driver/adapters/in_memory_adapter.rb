@@ -81,8 +81,14 @@ module MessageDriver
       def initialize(broker, _config = {})
         @broker = broker
         @destinations = {}
-        @message_store = Hash.new { |h, k| h[k] = [] }
-        @subscriptions = Hash.new { |h, k| h[k] = [] }
+        begin
+          require 'thread_safe'
+          @message_store = ThreadSafe::Cache.new { |h, k| h[k] = [] }
+          @subscriptions = ThreadSafe::Cache.new { |h, k| h[k] = [] }
+        rescue LoadError
+          @message_store = Hash.new { |h, k| h[k] = [] }
+          @subscriptions = Hash.new { |h, k| h[k] = [] }
+        end
       end
 
       def build_context
