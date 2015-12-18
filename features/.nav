@@ -6,19 +6,19 @@
 - destination_metadata.feature
 - client_acks.feature
 - logging.feature
-- message_consumers (Message Consumers)
+- message_consumers (Message Consumers):
   - basics.feature
   - auto_ack_consumers.feature
   - manual_ack_consumers.feature
   - transactional_ack_consumers.feature
   - prefetch_size.feature
   - subscribe_with_a_block.feature
-- middleware
+- middleware:
   - middleware_basics.feature
   - middleware_ordering.feature
   - middleware_parameters.feature
   - middleware_with_blocks.feature
-- amqp_specific_features (AMQP-Specific Features)
+- amqp_specific_features (AMQP-Specific Features):
   - declaring_amqp_destinations.feature
   - binding_amqp_destinations.feature
   - server_named_desitnations.feature
