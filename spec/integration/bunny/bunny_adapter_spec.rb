@@ -15,7 +15,7 @@ module MessageDriver
               stub_const('Bunny::VERSION', version)
               expect do
                 described_class.new(broker, valid_connection_attrs)
-              end.to raise_error MessageDriver::Error, 'bunny 1.7.1 or later is required for the bunny adapter'
+              end.to raise_error MessageDriver::Error, 'bunny 1.7.0 or later is required for the bunny adapter'
             end
           end
           shared_examples "doesn't raise an error" do
@@ -33,7 +33,7 @@ module MessageDriver
               include_examples 'raises an error'
             end
           end
-          %w(1.7.1 2.0.1 2.1.0).each do |v|
+          %w(1.7.0 1.7.1 2.0.1 2.1.0).each do |v|
             context "bunny version #{v}" do
               let(:version) { v }
               include_examples "doesn't raise an error"
