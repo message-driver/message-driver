@@ -8,8 +8,7 @@ before_script:
   - ci/travis_setup
 script: bundle exec rake ci
 rvm:
-  - 2.2
-  - 2.1
+  - 2.3
   - 2.0.0
   - 1.9.3
   - jruby-19mode
