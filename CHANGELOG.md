@@ -1,12 +1,15 @@
 # Changelog
 
-## 0.6.0.dev - (current master)
+## 0.6.0 - 2016-01-28
 
 * official support for bunny 2.x
+* support ruby 2.3
 * drop support for bunny < 1.7
 * improved API documentation (still a WIP)
+* fix an issue with confirm_and_wait transactions erroring because there
+  was no open channel
 
-## 0.5.3 = 2014-10-23
+## 0.5.3 - 2014-10-23
 
 * In bunny adapter, avoid sending a tx_commit if we haven't done anything requiring
   a commit inside the transaction block.
