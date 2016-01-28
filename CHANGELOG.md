@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.1 - 2016-01-28
+
+* fix an issue that prevents gems built under ruby 2.3.0 to be installed
+  under ruby 2.3.0 by rebuilding the gem under ruby 2.2
+
 ## 0.6.0 - 2016-01-28
 
 * official support for bunny 2.x
