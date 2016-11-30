@@ -7,21 +7,22 @@ platform :rbx do
   gem 'rubysl'
 end
 
-gem 'rubocop', platform: [:ruby_20, :ruby_21]
+mri_2plus = [:mri_20, :mri_21, :mri_22, :mri_23]
+ruby_2plus = [:ruby_20, :ruby_21, :ruby_22, :ruby_23]
 
 group :tools do
-  gem 'guard', platform: [:mri_20, :mri_21]
-  gem 'guard-bundler', platform: [:mri_20, :mri_21]
-  gem 'guard-rspec', platform: [:mri_20, :mri_21]
-  gem 'guard-cucumber', platform: [:mri_20, :mri_21]
-  gem 'guard-rubocop', platform: [:mri_20, :mri_21]
+  gem 'guard', platform: mri_2plus
+  gem 'guard-bundler', platform: mri_2plus
+  gem 'guard-rspec', platform: mri_2plus
+  gem 'guard-cucumber', platform: mri_2plus
+  gem 'guard-rubocop', platform: mri_2plus
   gem 'pry'
-  gem 'pry-byebug', platform: [:mri_20, :mri_21]
-  gem 'pry-stack_explorer', platform: [:ruby_20, :ruby_21]
+  gem 'pry-byebug', platform: mri_2plus
+  gem 'pry-stack_explorer', platform: ruby_2plus
   group :darwin do
     gem 'ruby_gntp'
     gem 'rb-fsevent'
-    gem 'relish'
+    gem 'relish', platform: mri_2plus
     gem 'lunchy'
   end
   gem 'yard'
@@ -54,3 +55,9 @@ when :rabbitmq
 end
 
 gem 'coveralls', require: false
+
+platform :ruby_19 do
+  gem 'json', '< 2'
+  gem 'addressable', '< 2.5'
+  gem 'tins', '~> 1.6.0'
+end
