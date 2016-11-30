@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version = '>= 1.9.3'
 
   gem.add_development_dependency 'rake'
-  gem.add_development_dependency 'rspec', '~> 3.4.0'
+  gem.add_development_dependency 'rspec', '~> 3.5.0'
   gem.add_development_dependency 'cucumber', '~> 1.3.20'
-  gem.add_development_dependency 'aruba', '~> 0.13.0'
+  gem.add_development_dependency 'aruba', '~> 0.14.1'
 end
