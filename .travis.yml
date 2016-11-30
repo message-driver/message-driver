@@ -1,11 +1,11 @@
 language: ruby
-sudo: true
+sudo: required
 before_install: gem install bundler
 bundler_args: --without tools darwin
 services:
   - rabbitmq
 before_script:
-  - ci/travis_setup
+  - sudo rabbitmq-plugins enable rabbitmq_stomp
 script: bundle exec rake ci
 rvm:
   - 2.3
