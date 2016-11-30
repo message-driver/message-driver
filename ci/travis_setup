@@ -1,7 +1,0 @@
-#!/bin/bash
-
-if [ "$ADAPTER" = "stomp" ]; then
-  sudo rabbitmq-plugins enable rabbitmq_stomp
-  sudo service rabbitmq-server restart
-  sleep 3
-fi
