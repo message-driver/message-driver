@@ -23,15 +23,15 @@ module MessageDriver
       end
 
       def message_count
-        fail "#message_count is not supported by #{self.class}"
+        raise "#message_count is not supported by #{self.class}"
       end
 
       def subscribe(_options = {}, &_consumer)
-        fail "#subscribe is not supported by #{self.class}"
+        raise "#subscribe is not supported by #{self.class}"
       end
 
       def consumer_count
-        fail "#consumer_count is not supported by #{self.class}"
+        raise "#consumer_count is not supported by #{self.class}"
       end
 
       def middleware

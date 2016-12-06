@@ -5,7 +5,7 @@ module MessageDriver
 
       def initialize(destination, opts)
         super(destination)
-        fail ArgumentError, 'you must provide at least one of :on_publish and :on_consume' \
+        raise ArgumentError, 'you must provide at least one of :on_publish and :on_consume' \
           unless opts.keys.any? { |k| [:on_publish, :on_consume].include? k }
         @on_publish_block = opts[:on_publish]
         @on_consume_block = opts[:on_consume]

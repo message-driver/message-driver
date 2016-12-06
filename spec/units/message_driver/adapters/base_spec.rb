@@ -4,8 +4,7 @@ module MessageDriver
   module Adapters
     RSpec.describe Base do
       class TestAdapter < Base
-        def initialize(_configuration)
-        end
+        def initialize(_configuration); end
       end
       subject(:adapter) { TestAdapter.new({}) }
 
@@ -50,7 +49,6 @@ module MessageDriver
             end.to raise_error 'Must be implemented in subclass'
           end
         end
-
       end
     end
   end

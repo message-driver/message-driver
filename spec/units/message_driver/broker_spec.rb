@@ -150,7 +150,7 @@ module MessageDriver
       end
 
       it "raises and error if you don't provide a MessageDriver::Adapters::Base" do
-        adapter = Hash.new
+        adapter = {}
 
         expect do
           described_class.new(adapter: adapter)
@@ -335,6 +335,5 @@ module MessageDriver
         end
       end
     end
-
   end
 end

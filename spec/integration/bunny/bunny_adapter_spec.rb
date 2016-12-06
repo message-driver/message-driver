@@ -129,7 +129,6 @@ module MessageDriver
         end
 
         describe '#create_destination' do
-
           context 'with defaults' do
             context 'the resulting destination' do
               let(:dest_name) { 'my_dest' }
@@ -327,7 +326,6 @@ module MessageDriver
                   adapter_context.create_destination(dest_name, type: :exchange, declare: { auto_delete: true })
                 end.to raise_error MessageDriver::Error, /you must provide a valid exchange type/
               end
-
             end
 
             context 'and bindings are provided' do
@@ -363,7 +361,7 @@ module MessageDriver
             it 'raises in an error' do
               expect do
                 adapter_context.create_destination('my_dest', type: :foo_bar)
-              end.to raise_error MessageDriver::Error, "invalid destination type #{:foo_bar}"
+              end.to raise_error MessageDriver::Error, 'invalid destination type foo_bar'
             end
           end
         end

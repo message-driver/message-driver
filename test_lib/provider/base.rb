@@ -11,11 +11,7 @@ class BaseProvider
 
   def pause_if_needed(seconds = 0.1)
     seconds *= 10 if ENV['CI'] == 'true'
-    case BrokerConfig.current_adapter
-    when :in_memory
-    else
-      sleep seconds
-    end
+    sleep seconds unless BrokerConfig.current_adapter == :in_memory
   end
 
   def fetch_messages(destination_name, _opts = {})
@@ -49,7 +45,7 @@ class BaseProvider
     when MessageDriver::Destination::Base
       destination
     else
-      fail "didn't understand destination #{destination.inspect}"
+      raise "didn't understand destination #{destination.inspect}"
     end
   end
 

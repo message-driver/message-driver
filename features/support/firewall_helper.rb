@@ -20,7 +20,7 @@ module FirewallHelper
         'sudo service rabbitmq-server start'
       ]
     }
-  }
+  }.freeze
 
   def block_broker_port
     run_commands(:setup)
@@ -35,7 +35,7 @@ module FirewallHelper
   def run_commands(step)
     COMMANDS[os][step].each do |cmd|
       result = system(cmd)
-      fail "command `#{cmd}` failed!" unless result
+      raise "command `#{cmd}` failed!" unless result
     end
   end
 

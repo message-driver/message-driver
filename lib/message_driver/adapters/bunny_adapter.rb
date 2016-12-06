@@ -59,10 +59,10 @@ module MessageDriver
         def after_initialize(adapter_context)
           if @dest_options[:no_declare]
             if @name.empty?
-              fail MessageDriver::Error, 'server-named queues must be declared, but you provided :no_declare => true'
+              raise MessageDriver::Error, 'server-named queues must be declared, but you provided :no_declare => true'
             end
             if @dest_options[:bindings]
-              fail MessageDriver::Error, 'queues with bindings must be declared, but you provided :no_declare => true'
+              raise MessageDriver::Error, 'queues with bindings must be declared, but you provided :no_declare => true'
             end
           else
             adapter_context.with_channel(false) do |ch|
@@ -73,7 +73,7 @@ module MessageDriver
 
         def bunny_queue(channel, options = {})
           opts = @dest_options.dup
-          opts.merge!(passive: options[:passive]) if options.key? :passive
+          opts[:passive] = options[:passive] if options.key? :passive
           queue = channel.queue(@name, opts)
           handle_queue_init(queue) if options.fetch(:init, false)
           queue
@@ -83,7 +83,7 @@ module MessageDriver
           @name = queue.name
           if (bindings = @dest_options[:bindings])
             bindings.each do |bnd|
-              fail MessageDriver::Error, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
+              raise MessageDriver::Error, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
               queue.bind(bnd[:source], bnd[:args] || {})
             end
           end
@@ -125,14 +125,14 @@ module MessageDriver
           if (declare = @dest_options[:declare])
             adapter_context.with_channel(false) do |ch|
               type = declare.delete(:type)
-              fail MessageDriver::Error, 'you must provide a valid exchange type' unless type
+              raise MessageDriver::Error, 'you must provide a valid exchange type' unless type
               ch.exchange_declare(@name, type, declare)
             end
           end
           if (bindings = @dest_options[:bindings])
             adapter_context.with_channel(false) do |ch|
               bindings.each do |bnd|
-                fail MessageDriver::Error, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
+                raise MessageDriver::Error, "binding #{bnd.inspect} must provide a source!" unless bnd[:source]
                 ch.exchange_bind(bnd[:source], @name, bnd[:args] || {})
               end
             end
@@ -145,8 +145,8 @@ module MessageDriver
 
         def start
           unless destination.is_a? QueueDestination
-            fail MessageDriver::Error,
-                 'subscriptions are only supported with QueueDestinations'
+            raise MessageDriver::Error,
+                  'subscriptions are only supported with QueueDestinations'
           end
           @sub_ctx = adapter.new_subscription_context(self)
           @error_handler = options[:error_handler]
@@ -158,7 +158,7 @@ module MessageDriver
                               when :transactional
                                 TransactionalAckHandler.new(self)
                               else
-                                fail MessageDriver::Error, "unrecognized :ack option #{options[:ack]}"
+                                raise MessageDriver::Error, "unrecognized :ack option #{options[:ack]}"
                               end
           start_subscription
         end
@@ -312,7 +312,7 @@ module MessageDriver
                   when :queue, nil
                     QueueDestination.new(adapter, name, dest_options, message_props)
                   else
-                    fail MessageDriver::Error, "invalid destination type #{type}"
+                    raise MessageDriver::Error, "invalid destination type #{type}"
                   end
           dest.after_initialize(self)
           dest
@@ -324,8 +324,8 @@ module MessageDriver
 
         def begin_transaction(options = {})
           if in_transaction?
-            fail MessageDriver::TransactionError,
-                 "you can't begin another transaction, you are already in one!"
+            raise MessageDriver::TransactionError,
+                  "you can't begin another transaction, you are already in one!"
           end
           @in_transaction = true
           @in_confirms_transaction = true if options[:type] == :confirm_and_wait
@@ -333,22 +333,18 @@ module MessageDriver
 
         def commit_transaction
           if !in_transaction? && !@require_commit
-            fail MessageDriver::TransactionError,
-                 "you can't finish the transaction unless you already in one!"
+            raise MessageDriver::TransactionError,
+                  "you can't finish the transaction unless you already in one!"
           end
           begin
             if @in_confirms_transaction
-              unless @rollback_only || @channel.nil?
-                @channel.wait_for_confirms
-              end
-            else
-              if is_transactional? && valid? && !@need_channel_reset && @require_commit
-                handle_errors do
-                  if @rollback_only
-                    @channel.tx_rollback
-                  else
-                    @channel.tx_commit
-                  end
+              @channel.wait_for_confirms unless @rollback_only || @channel.nil?
+            elsif is_transactional? && valid? && !@need_channel_reset && @require_commit
+              handle_errors do
+                if @rollback_only
+                  @channel.tx_rollback
+                else
+                  @channel.tx_commit
                 end
               end
             end
@@ -368,7 +364,7 @@ module MessageDriver
         def transactional?
           @is_transactional
         end
-        alias_method :is_transactional?, :transactional?
+        alias is_transactional? transactional?
 
         def in_transaction?
           @in_transaction
@@ -388,7 +384,7 @@ module MessageDriver
         end
 
         def pop_message(destination, options = {})
-          fail MessageDriver::Error, "You can't pop a message off an exchange" if destination.is_a? ExchangeDestination
+          raise MessageDriver::Error, "You can't pop a message off an exchange" if destination.is_a? ExchangeDestination
 
           with_channel(false) do |ch|
             queue = ch.queue(destination.name, passive: true)
@@ -488,8 +484,8 @@ module MessageDriver
         end
 
         def with_channel(require_commit = true)
-          fail MessageDriver::TransactionRollbackOnly if @rollback_only
-          fail MessageDriver::Error, 'this adapter context is not valid!' unless valid?
+          raise MessageDriver::TransactionRollbackOnly if @rollback_only
+          raise MessageDriver::Error, 'this adapter context is not valid!' unless valid?
           ensure_channel
           @require_commit ||= require_commit
           if in_transaction?
@@ -535,7 +531,7 @@ module MessageDriver
         required = Gem::Requirement.create('>= 1.7.0')
         current = Gem::Version.create(Bunny::VERSION)
         unless required.satisfied_by? current
-          fail MessageDriver::Error, 'bunny 1.7.0 or later is required for the bunny adapter'
+          raise MessageDriver::Error, 'bunny 1.7.0 or later is required for the bunny adapter'
         end
       end
     end

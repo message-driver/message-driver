@@ -31,7 +31,7 @@ namespace :spec do
   end
 
   cucumber_opts = "--format progress --tag @all_adapters,@#{BrokerConfig.current_adapter} --tag ~@wip"
-  cucumber_opts += ' --tag ~@no_ci' #if ENV['CI'] == 'true' && ENV['ADAPTER'] && ENV['ADAPTER'].start_with?('bunny')
+  cucumber_opts += ' --tag ~@no_ci' # if ENV['CI'] == 'true' && ENV['ADAPTER'] && ENV['ADAPTER'].start_with?('bunny')
   Cucumber::Rake::Task.new(:features) do |t|
     t.cucumber_opts = cucumber_opts
   end
@@ -48,7 +48,6 @@ begin
 
   YARD::Rake::YardocTask.new(:docs)
   namespace :docs do
-
     desc 'open the documentation for this gem in your browser'
     task open: [:docs] do
       Launchy.open("file:///#{File.join(Dir.pwd, 'doc', 'index.html')}")

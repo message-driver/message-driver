@@ -12,7 +12,7 @@ module MessageDriver
       end
 
       def unsubscribe
-        fail 'must be implemented in subclass'
+        raise 'must be implemented in subclass'
       end
     end
   end

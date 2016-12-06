@@ -21,7 +21,7 @@ module MessageDriver
   #   end
   module Client
     include Logging
-    extend self
+    extend self # rubocop:disable Style/ModuleFunction
 
     # @!group Defining and Looking up Destinations
 
@@ -78,7 +78,7 @@ module MessageDriver
     end
 
     def subscribe(destination_name, consumer_name, options = {})
-      consumer =  find_consumer(consumer_name)
+      consumer = find_consumer(consumer_name)
       subscribe_with(destination_name, options, &consumer)
     end
 
@@ -186,11 +186,7 @@ module MessageDriver
     def fetch_context_wrapper(initialize = true)
       wrapper = Thread.current[adapter_context_key]
       if wrapper.nil? || !wrapper.valid?
-        if initialize
-          wrapper = build_context_wrapper
-        else
-          wrapper = nil
-        end
+        wrapper = (build_context_wrapper if initialize)
         Thread.current[adapter_context_key] = wrapper
       end
       wrapper

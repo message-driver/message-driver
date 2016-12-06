@@ -121,7 +121,7 @@ RSpec.shared_examples 'subscriptions are supported' do |subscription_type|
       let(:error) { RuntimeError.new('oh nos!') }
       let(:consumer) do
         lambda do |_|
-          fail error
+          raise error
         end
       end
 

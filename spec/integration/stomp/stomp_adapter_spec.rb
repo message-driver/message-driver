@@ -5,7 +5,6 @@ require 'message_driver/adapters/stomp_adapter'
 module MessageDriver
   module Adapters
     RSpec.describe StompAdapter, :stomp, type: :integration do
-
       let(:valid_connection_attrs) { BrokerConfig.config }
 
       describe '#initialize' do
@@ -113,7 +112,6 @@ module MessageDriver
         it_behaves_like 'subscriptions are not supported'
 
         describe '#create_destination' do
-
           context 'the resulting destination' do
             let(:dest_name) { '/queue/stomp_destination_spec' }
             subject(:destination) { adapter_context.create_destination(dest_name) }

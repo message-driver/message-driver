@@ -107,7 +107,7 @@ module MessageDriver
 
       def open_connection
         conn = Stomp::Connection.new(@config)
-        fail MessageDriver::ConnectionError, conn.connection_frame.to_s unless conn.open?
+        raise MessageDriver::ConnectionError, conn.connection_frame.to_s unless conn.open?
         conn
       end
 
@@ -115,8 +115,8 @@ module MessageDriver
         required = Gem::Requirement.create('~> 1.3.1')
         current = Gem::Version.create(Stomp::Version::STRING)
         unless required.satisfied_by? current
-          fail MessageDriver::Error,
-               'stomp 1.3.1 or a later version of the 1.3.x series is required for the stomp adapter'
+          raise MessageDriver::Error,
+                'stomp 1.3.1 or a later version of the 1.3.x series is required for the stomp adapter'
         end
       end
     end

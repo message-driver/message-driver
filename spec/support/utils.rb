@@ -1,11 +1,7 @@
 module Utils
   def pause_if_needed(seconds = 0.1)
     seconds *= 10 if ENV['CI'] == 'true'
-    case BrokerConfig.current_adapter
-    when :in_memory
-    else
-      sleep seconds
-    end
+    sleep seconds unless BrokerConfig.current_adapter == :in_memory
   end
 end
 

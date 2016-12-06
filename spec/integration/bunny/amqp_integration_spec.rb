@@ -6,11 +6,13 @@ RSpec.describe 'AMQP Integration', :bunny, type: :integration do
   context "when a queue can't be found" do
     let(:queue_name) { 'my.lost.queue' }
     it 'raises a MessageDriver::QueueNotFound error' do
+      # rubocop:disable Style/MultilineBlockChain
       expect do
         broker.dynamic_destination(queue_name, passive: true)
       end.to raise_error(MessageDriver::QueueNotFound) do |err|
         expect(err.nested).to be_a Bunny::NotFound
       end
+      # rubocop:enable
     end
   end
 
@@ -54,7 +56,7 @@ RSpec.describe 'AMQP Integration', :bunny, type: :integration do
       expect do
         MessageDriver::Client.with_message_transaction do
           destination.publish('Test Message')
-          fail 'unhandled error'
+          raise 'unhandled error'
         end
       end.to raise_error 'unhandled error'
       expect(destination.pop_message).to be_nil
@@ -64,7 +66,7 @@ RSpec.describe 'AMQP Integration', :bunny, type: :integration do
       expect do
         MessageDriver::Client.with_message_transaction do
           destination.publish('Test Message 1')
-          fail 'unhandled error'
+          raise 'unhandled error'
         end
       end.to raise_error 'unhandled error'
       expect(destination.pop_message).to be_nil
@@ -83,7 +85,7 @@ RSpec.describe 'AMQP Integration', :bunny, type: :integration do
     it 'does not raise an error' do
       expect do
         MessageDriver::Client.with_message_transaction do
-          #do nothing
+          # do nothing
         end
       end.not_to raise_error
     end
@@ -92,7 +94,7 @@ RSpec.describe 'AMQP Integration', :bunny, type: :integration do
       it 'does not raise an error' do
         expect do
           MessageDriver::Client.with_message_transaction(type: :confirm_and_wait) do
-            #do nothing
+            # do nothing
           end
         end.not_to raise_error
       end

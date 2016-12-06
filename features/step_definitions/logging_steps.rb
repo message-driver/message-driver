@@ -1,6 +1,6 @@
 require 'logger'
 
-LOG_FILE_NAME = 'cucumber_log_file.log'
+LOG_FILE_NAME = 'cucumber_log_file.log'.freeze
 
 Given(/^I am logging to a log file(?: at the (#{STRING_OR_SYM}) level)?$/) do |level|
   step "an empty file named \"#{LOG_FILE_NAME}\""
@@ -8,7 +8,8 @@ Given(/^I am logging to a log file(?: at the (#{STRING_OR_SYM}) level)?$/) do |l
     @logger = Logger.new(LOG_FILE_NAME)
   end
   step "I set the log level to #{level || 'info'}"
-  @orig_logger, MessageDriver.logger = MessageDriver.logger, @logger
+  @orig_logger = MessageDriver.logger
+  MessageDriver.logger = @logger
 end
 
 Given(/^I set the log level to (#{STRING_OR_SYM})$/) do |level|

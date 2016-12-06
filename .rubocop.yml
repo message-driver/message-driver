@@ -1,6 +1,7 @@
 inherit_from: '.rubocop_todo.yml'
 
 AllCops:
+  TargetRubyVersion: 1.9
   Include:
     - 'message-driver.gemspec'
     - '**/Gemfile'
@@ -9,6 +10,9 @@ AllCops:
   Exclude:
     - 'lib/vendor/**/*.rb'
     - 'vendor/**/*'
+
+Bundler/OrderedGems:
+  Enabled: false
 
 Metrics/BlockNesting:
   Max: 4
@@ -32,12 +36,23 @@ Style/FileName:
   Exclude:
     - 'lib/message-driver.rb'
 
+Style/MultilineMethodCallBraceLayout:
+  EnforcedStyle: new_line
+
 Style/NumericLiterals:
   Enabled: false
 
+Style/OptionalArguments:
+  Enabled: false
+
+Style/RaiseArgs:
+  Enabled: false
+
 Style/RegexpLiteral:
-  Exclude:
-    - 'Guardfile'
+  EnforcedStyle: slashes
+
+Style/RescueModifier:
+  Enabled: false
 
 Style/TrivialAccessors:
   ExactNameMatch: true

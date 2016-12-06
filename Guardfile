@@ -14,11 +14,11 @@ common_rspec_opts = {
   run_all: { cmd: 'bundle exec rspec' }
 }
 unit_spec_opts = common_rspec_opts.merge(
-  spec_paths: ['spec/units'],
+  spec_paths: ['spec/units']
 )
 integration_spec_opts = common_rspec_opts.merge(
   spec_paths: ["spec/integration/#{BrokerConfig.current_adapter}"],
-  cmd_additional_args: '-t all_adapters',
+  cmd_additional_args: '-t all_adapters'
 )
 
 group :tests_and_checks, halt_on_failure: true do
@@ -41,21 +41,21 @@ group :tests_and_checks, halt_on_failure: true do
   end
 
   group 'features' do
-    guard('cucumber', {
-      all_on_start: false,
-      cmd: "bundle exec cucumber --no-profile --color --strict --tag @all_adapters,@#{BrokerConfig.current_adapter} --tag ~@wip",
-      cmd_additional_args: '--format pretty --tag ~@slow',
-      run_all: {
-        cmd_additional_args: '--format progress --tag ~@slow',
-      }
-    }) do
+    guard('cucumber',
+          all_on_start: false,
+          cmd: "bundle exec cucumber --no-profile --color --strict --tag @all_adapters,@#{BrokerConfig.current_adapter} --tag ~@wip",
+          cmd_additional_args: '--format pretty --tag ~@slow',
+          run_all: {
+            cmd_additional_args: '--format progress --tag ~@slow'
+          }
+         ) do
       watch(%r{^features/.+\.feature$})
-      watch(%r{^features/support/.+$})          { 'features' }
+      watch(%r{^features/support/.+$}) { 'features' }
       watch(%r{^features/step_definitions/(.+)_steps\.rb$}) { |m| Dir[File.join("**/#{m[1]}.feature")][0] || 'features' }
     end
   end
 
-  guard :rubocop, all_on_start: false do
+  guard :rubocop do
     watch(/.+\.rb$/)
     watch('Gemfile')
     watch('Guardfile')

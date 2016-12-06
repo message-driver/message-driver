@@ -65,8 +65,6 @@ class BrokerConfig
         5672
       when :stomp
         61613
-      else
-        nil
       end
     end
   end

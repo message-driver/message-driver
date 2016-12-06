@@ -174,7 +174,7 @@ module MessageDriver
               it 'calls rollback instead of commit and raises the error' do
                 expect do
                   subject.with_message_transaction do
-                    fail 'having a tough time'
+                    raise 'having a tough time'
                   end
                 end.to raise_error 'having a tough time'
                 expect(adapter_context).to have_received(:begin_transaction)
@@ -188,7 +188,7 @@ module MessageDriver
                   allow(adapter_context).to receive(:rollback_transaction).and_raise('rollback failed!')
                   expect do
                     subject.with_message_transaction do
-                      fail 'having a tough time'
+                      raise 'having a tough time'
                     end
                   end.to raise_error 'having a tough time'
                   expect(logger).to have_received(:error).with(match('rollback failed!'))
@@ -212,7 +212,7 @@ module MessageDriver
                   expect do
                     subject.with_message_transaction do
                       subject.with_message_transaction do
-                        fail 'having a tough time'
+                        raise 'having a tough time'
                       end
                     end
                   end.to raise_error 'having a tough time'

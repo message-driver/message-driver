@@ -38,9 +38,7 @@ adapter = BrokerConfig.current_adapter.to_s
 version = BrokerConfig.adapter_version
 provider = BrokerConfig.provider
 
-case adapter
-when 'in_memory'
-else
+unless adapter == 'in_memory'
   case version
   when nil
     gem adapter

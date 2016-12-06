@@ -72,7 +72,6 @@ module MessageDriver
           destinations.each do |destination|
             expect(destination.subscription).to be_nil
           end
-
         end
       end
 
