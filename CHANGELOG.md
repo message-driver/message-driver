@@ -5,7 +5,6 @@
 * update test gems
 * drop support for ruby 1.9.2
 * test against newer versions of bunny
-* Restructure internal API for adapter contexts to better facilitate instrumentation
 
 ## 0.6.1 - 2016-01-28
 
