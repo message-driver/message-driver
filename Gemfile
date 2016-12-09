@@ -53,6 +53,9 @@ when :rabbitmq
 end
 
 gem 'coveralls', require: false
+if RUBY_VERSION == '1.9.3'
+  gem 'term-ansicolor', '~> 1.3.0'
+end
 
 platform :ruby_19 do
   gem 'json', '< 2'
