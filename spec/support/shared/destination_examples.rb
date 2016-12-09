@@ -17,6 +17,14 @@ RSpec.shared_examples 'a destination' do
 
       it { is_expected.to be_a MessageDriver::Message::Base }
 
+      it 'has a reference to the context that fetched it' do
+        expect(message.ctx).to be_a MessageDriver::Adapters::ContextBase
+      end
+
+      it 'has a reference to the destination that it was fetched from' do
+        expect(message.destination).to be_a MessageDriver::Destination::Base
+      end
+
       describe '#body' do
         it { expect(subject.body).to eq(body) }
       end
@@ -28,6 +36,14 @@ RSpec.shared_examples 'a destination' do
       describe '#properties' do
         it { expect(subject.properties).not_to be_nil }
       end
+    end
+
+    context 'interface' do
+      it { is_expected.to respond_to(:publish).with(1..3).arguments }
+      it { is_expected.to respond_to(:pop_message).with(0..1).arguments }
+      it { is_expected.to respond_to(:message_count).with(0).arguments }
+      it { is_expected.to respond_to(:subscribe).with(0..1).arguments }
+      it { is_expected.to respond_to(:consumer_count).with(0).arguments }
     end
   end
 end
@@ -49,6 +65,12 @@ RSpec.shared_examples 'supports #message_count' do
       destination.publish('msg2')
       pause_if_needed
     end.to change { destination.message_count }.by(2)
+  end
+
+  it { is_expected.not_to override_method :message_count }
+
+  it 'the adapter context overrides #handle_message_count' do
+    expect(subject.adapter.broker.client.current_adapter_context).to override_method :handle_message_count
   end
 end
 
@@ -78,5 +100,11 @@ RSpec.shared_examples 'supports #consumer_count' do
         sub2.unsubscribe
       end.to change { destination.consumer_count }.by(-2)
     end
+  end
+
+  it { is_expected.not_to override_method :consumer_count }
+
+  it 'the adapter context overrides #handle_consumer_count' do
+    expect(subject.adapter.broker.client.current_adapter_context).to override_method :handle_message_count
   end
 end

@@ -1,3 +1,9 @@
+begin
+  require 'pry'
+rescue LoadError
+  puts 'pry not loaded'
+end
+
 ENV['COMMAND_NAME'] = 'specs'
 require File.join(File.dirname(__FILE__), '..', 'test_lib', 'coverage')
 require File.join(File.dirname(__FILE__), '..', 'test_lib', 'broker_config')

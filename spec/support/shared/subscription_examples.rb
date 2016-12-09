@@ -5,6 +5,8 @@ RSpec.shared_examples 'subscriptions are not supported' do
     end
   end
 
+  it { is_expected.not_to override_method(:handle_subscribe) }
+
   describe '#subscribe' do
     it 'raises an error' do
       destination = double('destination')
@@ -22,6 +24,8 @@ RSpec.shared_examples 'subscriptions are supported' do |subscription_type|
       expect(subject.supports_subscriptions?).to eq(true)
     end
   end
+
+  it { is_expected.to override_method(:handle_subscribe) }
 
   let(:destination) { adapter_context.create_destination('subscriptions_example_queue') }
 
@@ -87,6 +91,7 @@ RSpec.shared_examples 'subscriptions are supported' do |subscription_type|
           subscription
           pause_if_needed
         end.to change { messages.size }.from(0).to(2)
+        expect(messages.map(&:destination)).to all(be_a(MessageDriver::Destination::Base))
         bodies = messages.map(&:body)
         expect(bodies).to include(message1)
         expect(bodies).to include(message2)

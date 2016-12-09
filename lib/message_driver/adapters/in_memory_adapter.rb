@@ -31,44 +31,44 @@ module MessageDriver
           adapter.subscription_for(name)
         end
 
-        def message_count
+        def handle_message_count
           message_queue.size
         end
 
-        def consumer_count
-          adapter.consumer_count_for(name)
+        def handle_pop_message(ctx, options = {})
+          _fetch_message(ctx, options)
         end
 
-        def pop_message(_options = {})
+        def handle_subscribe(options = {}, &consumer)
+          subscription = Subscription.new(adapter, self, consumer, options)
+          adapter.add_subscription_for(name, subscription)
+          _deliver_messages(subscription)
+          subscription
+        end
+
+        def handle_publish(body, headers = {}, properties = {})
+          raw_body = body
+          b, h, p = middleware.on_publish(body, headers, properties)
+          msg = Message.new(nil, self, b, h, p, raw_body)
+          message_queue << msg
+          _deliver_messages(subscription) if subscription
+        end
+
+        private
+
+        def _fetch_message(ctx, _options = {})
           message = message_queue.shift
           if message.nil?
             nil
           else
             raw_body = message.body
             b, h, p = middleware.on_consume(message.body, message.headers, message.properties)
-            Message.new(nil, b, h, p, raw_body)
+            Message.new(ctx, self, b, h, p, raw_body)
           end
         end
 
-        def subscribe(options = {}, &consumer)
-          subscription = Subscription.new(adapter, self, consumer, options)
-          adapter.add_subscription_for(name, subscription)
-          deliver_messages(subscription)
-          subscription
-        end
-
-        def publish(body, headers = {}, properties = {})
-          raw_body = body
-          b, h, p = middleware.on_publish(body, headers, properties)
-          msg = Message.new(nil, b, h, p, raw_body)
-          message_queue << msg
-          deliver_messages(subscription) if subscription
-        end
-
-        private
-
-        def deliver_messages(sub)
-          until (msg = pop_message).nil?
+        def _deliver_messages(sub)
+          until (msg = _fetch_message(current_adapter_context)).nil?
             sub.deliver_message(msg)
           end
         end
@@ -99,22 +99,31 @@ module MessageDriver
         destination = Destination.new(self, name, dest_options, message_props)
         @destinations[name] = destination
       end
+      alias handle_create_destination create_destination
 
       class InMemoryContext < ContextBase
         extend Forwardable
 
-        def_delegators :adapter, :create_destination
+        def_delegators :adapter, :handle_create_destination
 
-        def publish(destination, body, headers = {}, properties = {})
-          destination.publish(body, headers, properties)
+        def handle_publish(destination, body, headers = {}, properties = {})
+          destination.handle_publish(body, headers, properties)
         end
 
-        def pop_message(destination, options = {})
-          destination.pop_message(options)
+        def handle_pop_message(destination, options = {})
+          destination.handle_pop_message(self, options)
         end
 
-        def subscribe(destination, options = {}, &consumer)
-          destination.subscribe(options, &consumer)
+        def handle_subscribe(destination, options = {}, &consumer)
+          destination.handle_subscribe(options, &consumer)
+        end
+
+        def handle_message_count(destination)
+          destination.handle_message_count
+        end
+
+        def handle_consumer_count(destination)
+          adapter.consumer_count_for(destination.name)
         end
 
         def supports_subscriptions?

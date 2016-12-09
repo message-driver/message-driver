@@ -5,8 +5,10 @@ require 'message_driver/adapters/in_memory_adapter'
 module MessageDriver
   module Adapters
     RSpec.describe InMemoryAdapter, :in_memory, type: :integration do
-      let(:broker) { double(Broker) }
-      subject(:adapter) { described_class.new(broker) }
+      let(:broker) { Broker.configure(adapter: :in_memory) }
+      subject(:adapter) { broker.adapter }
+
+      it { is_expected.to be_a InMemoryAdapter }
 
       describe '#new_context' do
         it 'returns a InMemoryAdapter::InMemoryContext' do

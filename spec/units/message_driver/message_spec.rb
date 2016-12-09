@@ -8,12 +8,17 @@ module MessageDriver
         let(:headers) { { foo: :bar, bar: :baz } }
         let(:properties) { { persistent: true, client_ack: true } }
         let(:ctx) { double('adapter_context') }
+        let(:destination) { double('destination') }
 
         context 'sets the body, header and properites on initialization' do
-          subject { described_class.new(ctx, body, headers, properties) }
+          subject { described_class.new(ctx, destination, body, headers, properties) }
 
           describe '#ctx' do
             it { expect(subject.ctx).to be(ctx) }
+          end
+
+          describe '#destination' do
+            it { expect(subject.destination).to be(destination) }
           end
 
           describe '#body' do
@@ -34,7 +39,7 @@ module MessageDriver
             end
 
             it 'can be provided in the constructor' do
-              msg = described_class.new(ctx, body, headers, properties, 'my_raw_body')
+              msg = described_class.new(ctx, destination, body, headers, properties, 'my_raw_body')
 
               expect(msg.raw_body).to eq('my_raw_body')
               expect(msg.body).to eq(body)
@@ -45,8 +50,9 @@ module MessageDriver
 
       let(:logger) { MessageDriver.logger }
       let(:ctx) { double('adapter_context') }
+      let(:destination) { double('destination') }
       let(:options) { double('options') }
-      subject(:message) { described_class.new(ctx, 'body', {}, {}) }
+      subject(:message) { described_class.new(ctx, destination, 'body', {}, {}) }
 
       describe '#ack' do
         before do

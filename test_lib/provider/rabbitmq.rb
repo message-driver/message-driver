@@ -21,7 +21,7 @@ class RabbitmqProvider < BaseProvider
           if msg.nil?
             break
           else
-            result << build_message(msg)
+            result << build_message(msg, destination)
           end
         end
         break if msgs.nil? || msgs.empty?
@@ -46,10 +46,10 @@ class RabbitmqProvider < BaseProvider
 
   private
 
-  def build_message(data)
+  def build_message(data, destination)
     props = data.properties.dup
     headers = props.delete(:headers)
-    MessageDriver::Message::Base.new(Context, data.payload, headers, props)
+    MessageDriver::Message::Base.new(Context, destination, data.payload, headers, props)
   end
 
   def vhost

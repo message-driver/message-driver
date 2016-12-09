@@ -20,4 +20,7 @@ RSpec.shared_examples 'an adapter' do
       expect(subject.broker).to be(broker)
     end
   end
+
+  it { expect(subject.class).to respond_to(:new).with(1..2).arguments }
+  it { is_expected.to respond_to(:build_context).with(0).arguments }
 end

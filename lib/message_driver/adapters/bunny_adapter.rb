@@ -25,7 +25,7 @@ module MessageDriver
           raw_headers = properties[:headers]
           raw_headers = {} if raw_headers.nil?
           b, h, p = destination.middleware.on_consume(payload, raw_headers, properties)
-          super(ctx, b, h, p, raw_body)
+          super(ctx, destination, b, h, p, raw_body)
           @delivery_info = delivery_info
         end
 
@@ -97,24 +97,24 @@ module MessageDriver
           @name
         end
 
-        def message_count
-          adapter.broker.client.current_adapter_context.with_channel(false) do |ch|
+        def handle_message_count
+          current_adapter_context.with_channel(false) do |ch|
             bunny_queue(ch, passive: true).message_count
           end
         end
 
         def subscribe(options = {}, &consumer)
-          adapter.broker.client.current_adapter_context.subscribe(self, options, &consumer)
+          current_adapter_context.subscribe(self, options, &consumer)
         end
 
-        def consumer_count
-          adapter.broker.client.current_adapter_context.with_channel(false) do |ch|
+        def handle_consumer_count
+          current_adapter_context.with_channel(false) do |ch|
             bunny_queue(ch, passive: true).consumer_count
           end
         end
 
         def purge
-          adapter.broker.client.current_adapter_context.with_channel(false) do |ch|
+          current_adapter_context.with_channel(false) do |ch|
             bunny_queue(ch).purge
           end
         end
@@ -305,7 +305,7 @@ module MessageDriver
           @require_commit = false
         end
 
-        def create_destination(name, dest_options = {}, message_props = {})
+        def handle_create_destination(name, dest_options = {}, message_props = {})
           dest =  case type = dest_options.delete(:type)
                   when :exchange
                     ExchangeDestination.new(adapter, name, dest_options, message_props)
@@ -322,7 +322,7 @@ module MessageDriver
           true
         end
 
-        def begin_transaction(options = {})
+        def handle_begin_transaction(options = {})
           if in_transaction?
             raise MessageDriver::TransactionError,
                   "you can't begin another transaction, you are already in one!"
@@ -331,7 +331,7 @@ module MessageDriver
           @in_confirms_transaction = true if options[:type] == :confirm_and_wait
         end
 
-        def commit_transaction
+        def handle_commit_transaction(_ = nil)
           if !in_transaction? && !@require_commit
             raise MessageDriver::TransactionError,
                   "you can't finish the transaction unless you already in one!"
@@ -356,7 +356,7 @@ module MessageDriver
           end
         end
 
-        def rollback_transaction
+        def handle_rollback_transaction(_ = nil)
           @rollback_only = true
           commit_transaction
         end
@@ -370,7 +370,7 @@ module MessageDriver
           @in_transaction
         end
 
-        def publish(destination, body, headers = {}, properties = {})
+        def handle_publish(destination, body, headers = {}, properties = {})
           body, exchange, routing_key, props = *destination.publish_params(body, headers, properties)
           confirm = props.delete(:confirm)
           confirm = false if confirm.nil?
@@ -383,7 +383,7 @@ module MessageDriver
           end
         end
 
-        def pop_message(destination, options = {})
+        def handle_pop_message(destination, options = {})
           raise MessageDriver::Error, "You can't pop a message off an exchange" if destination.is_a? ExchangeDestination
 
           with_channel(false) do |ch|
@@ -402,13 +402,13 @@ module MessageDriver
           true
         end
 
-        def ack_message(message, _options = {})
+        def handle_ack_message(message, _options = {})
           with_channel(true) do |ch|
             ch.ack(message.delivery_tag)
           end
         end
 
-        def nack_message(message, options = {})
+        def handle_nack_message(message, options = {})
           requeue = options.fetch(:requeue, true)
           with_channel(true) do |ch|
             ch.reject(message.delivery_tag, requeue)
@@ -419,10 +419,26 @@ module MessageDriver
           true
         end
 
-        def subscribe(destination, options = {}, &consumer)
+        def handle_subscribe(destination, options = {}, &consumer)
           sub = Subscription.new(adapter, destination, consumer, options)
           sub.start
           sub
+        end
+
+        def handle_message_count(destination)
+          if destination.respond_to?(:handle_message_count)
+            destination.handle_message_count
+          else
+            super
+          end
+        end
+
+        def handle_consumer_count(destination)
+          if destination.respond_to?(:handle_consumer_count)
+            destination.handle_consumer_count
+          else
+            super
+          end
         end
 
         def invalidate(in_unsubscribe = false)

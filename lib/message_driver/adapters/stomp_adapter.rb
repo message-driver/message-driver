@@ -12,9 +12,9 @@ module MessageDriver
     class StompAdapter < Base
       class Message < MessageDriver::Message::Base
         attr_reader :stomp_message
-        def initialize(ctx, stomp_message)
+        def initialize(ctx, destination, stomp_message)
           @stomp_message = stomp_message
-          super(ctx, stomp_message.body, stomp_message.headers, {})
+          super(ctx, destination, stomp_message.body, stomp_message.headers, {})
         end
       end
 
@@ -48,21 +48,21 @@ module MessageDriver
 
         def_delegators :adapter, :with_connection, :poll_timeout
 
-        # def subscribe(destination, consumer)
+        # def handle_subscribe(destination, consumer)
         # destination.subscribe(&consumer)
         # end
 
-        def create_destination(name, dest_options = {}, message_props = {})
+        def handle_create_destination(name, dest_options = {}, message_props = {})
           Destination.new(adapter, name, dest_options, message_props)
         end
 
-        def publish(destination, body, headers = {}, _properties = {})
+        def handle_publish(destination, body, headers = {}, _properties = {})
           with_connection do |connection|
             connection.publish(destination.queue_path, body, headers)
           end
         end
 
-        def pop_message(destination, options = {})
+        def handle_pop_message(destination, options = {})
           with_connection do |connection|
             sub_id = connection.uuid
             msg = nil
@@ -76,7 +76,7 @@ module MessageDriver
               end
             end
             connection.unsubscribe(destination.queue_path, options, sub_id)
-            Message.new(self, msg) if msg
+            Message.new(self, destination, msg) if msg
           end
         end
 
