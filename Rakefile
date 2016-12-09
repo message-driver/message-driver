@@ -12,6 +12,8 @@ begin
   require 'rubocop/rake_task'
   RuboCop::RakeTask.new do |t|
     t.fail_on_error = false
+    t.options << '-D'
+    t.options << '-E'
   end
 rescue LoadError
   puts 'rubocop not present'

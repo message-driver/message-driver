@@ -23,6 +23,9 @@ Metrics/LineLength:
   Include:
     - 'lib/**/*.rb'
 
+Metrics/ParameterLists:
+  Enabled: false
+
 Style/AccessorMethodName:
   Enabled: false
 

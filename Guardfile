@@ -9,15 +9,17 @@ guard 'bundler' do
 end
 
 common_rspec_opts = {
-  all_after_pass: true,
+  all_after_pass: false,
   cmd: 'bundle exec rspec -f doc',
   run_all: { cmd: 'bundle exec rspec' }
 }
 unit_spec_opts = common_rspec_opts.merge(
-  spec_paths: ['spec/units']
+  spec_paths: ['spec/units'],
+  results_file: File.join(File.dirname(__FILE__), "tmp/rspec_units_#{BrokerConfig.current_adapter}_guard_result")
 )
 integration_spec_opts = common_rspec_opts.merge(
   spec_paths: ["spec/integration/#{BrokerConfig.current_adapter}"],
+  results_file: File.join(File.dirname(__FILE__), "tmp/rspec_integration_#{BrokerConfig.current_adapter}_guard_result"),
   cmd_additional_args: '-t all_adapters'
 )
 
@@ -34,9 +36,9 @@ group :tests_and_checks, halt_on_failure: true do
   group 'integration' do
     guard 'rspec', integration_spec_opts do
       watch(%r{^spec/integration/.+_spec\.rb$})
-      watch(%r{^lib/(.+)\.rb$})          { |m| "spec/integration/#{m[1]}_spec.rb" }
+      watch(%r{^lib/message_driver/adapters/(.+)\.rb$}) { |m| "spec/integration/#{BrokerConfig.current_adapter}/#{m[1]}_spec.rb" }
       watch(%r{^spec/support/(.+)\.rb$}) { integration_spec_opts[:spec_paths] }
-      watch('spec/spec_helper.rb')       { integration_spec_opts[:spec_paths] }
+      watch('spec/spec_helper.rb') { integration_spec_opts[:spec_paths] }
     end
   end
 
@@ -55,7 +57,7 @@ group :tests_and_checks, halt_on_failure: true do
     end
   end
 
-  guard :rubocop do
+  guard :rubocop, cli: '-D -E' do
     watch(/.+\.rb$/)
     watch('Gemfile')
     watch('Guardfile')
