@@ -6,8 +6,6 @@ require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 require 'cucumber/rake/task'
 
-require 'coveralls/rake/task'
-
 begin
   require 'rubocop/rake_task'
   RuboCop::RakeTask.new do |t|
@@ -75,8 +73,17 @@ def set_adapter_under_test(adapter)
   system "echo #{adapter} > #{File.join(File.dirname(__FILE__), '.adapter_under_test')}"
 end
 
-Coveralls::RakeTask.new
-desc 'run with code coverage'
+begin
+  require 'coveralls/rake/task'
+  Coveralls::RakeTask.new
+  desc 'run with code coverage'
+rescue LoadError
+  puts "couldn't load coveralls gems, code coverage tasks not available"
+  namespace :coveralls do
+    task :push
+  end
+end
+
 task ci: ['spec', 'coveralls:push']
 
 namespace :undertest do

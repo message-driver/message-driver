@@ -30,7 +30,18 @@ group :tools do
   gem 'launchy'
 end
 
-gem 'thread_safe'
+group :development do
+  gem 'thread_safe' # for the in_memory_adapter
+
+  # coveralls and it's dependencies need some management under ruby 1.9.3
+  gem 'coveralls', require: false
+  gem 'term-ansicolor', '~> 1.3.0' if RUBY_VERSION == '1.9.3'
+  platform :ruby_19 do
+    gem 'json', '< 2'
+    gem 'addressable', '< 2.5'
+    gem 'tins', '~> 1.6.0'
+  end
+end
 
 require File.expand_path('../test_lib/broker_config', __FILE__)
 
@@ -38,25 +49,18 @@ adapter = BrokerConfig.current_adapter.to_s
 version = BrokerConfig.adapter_version
 provider = BrokerConfig.provider
 
-unless adapter == 'in_memory'
-  case version
-  when nil
-    gem adapter
-  else
-    gem adapter.to_s, "~> #{version}"
+group :development do
+  unless adapter == 'in_memory'
+    case version
+    when nil
+      gem adapter
+    else
+      gem adapter.to_s, "~> #{version}"
+    end
   end
-end
 
-case provider
-when :rabbitmq
-  gem 'rabbitmq_http_api_client'
-end
-
-gem 'coveralls', require: false
-gem 'term-ansicolor', '~> 1.3.0' if RUBY_VERSION == '1.9.3'
-
-platform :ruby_19 do
-  gem 'json', '< 2'
-  gem 'addressable', '< 2.5'
-  gem 'tins', '~> 1.6.0'
+  case provider
+  when :rabbitmq
+    gem 'rabbitmq_http_api_client'
+  end
 end
