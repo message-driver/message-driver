@@ -37,14 +37,14 @@ RSpec.shared_examples 'a destination' do
         it { expect(subject.properties).not_to be_nil }
       end
     end
+  end
 
-    context 'interface' do
-      it { is_expected.to respond_to(:publish).with(1..3).arguments }
-      it { is_expected.to respond_to(:pop_message).with(0..1).arguments }
-      it { is_expected.to respond_to(:message_count).with(0).arguments }
-      it { is_expected.to respond_to(:subscribe).with(0..1).arguments }
-      it { is_expected.to respond_to(:consumer_count).with(0).arguments }
-    end
+  context 'interface' do
+    it { is_expected.to respond_to(:publish).with(1..3).arguments }
+    it { is_expected.to respond_to(:pop_message).with(0..1).arguments }
+    it { is_expected.to respond_to(:message_count).with(0).arguments }
+    it { is_expected.to respond_to(:subscribe).with(0..1).arguments }
+    it { is_expected.to respond_to(:consumer_count).with(0).arguments }
   end
 end
 
