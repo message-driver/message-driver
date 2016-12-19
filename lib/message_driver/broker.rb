@@ -86,6 +86,7 @@ module MessageDriver
           end
         end
         brokers.clear
+        clients.clear
       end
 
       private
