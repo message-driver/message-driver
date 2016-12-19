@@ -27,8 +27,8 @@ module MessageDriver
       end
 
       class Destination < MessageDriver::Destination::Base
-        def subscription
-          adapter.subscription_for(name)
+        def subscriptions
+          adapter.subscriptions_for(name)
         end
 
         def handle_message_count
@@ -42,7 +42,7 @@ module MessageDriver
         def handle_subscribe(options = {}, &consumer)
           subscription = Subscription.new(adapter, self, consumer, options)
           adapter.add_subscription_for(name, subscription)
-          _deliver_messages(subscription)
+          _deliver_messages
           subscription
         end
 
@@ -51,10 +51,14 @@ module MessageDriver
           b, h, p = middleware.on_publish(body, headers, properties)
           msg = Message.new(nil, self, b, h, p, raw_body)
           message_queue << msg
-          _deliver_messages(subscription) if subscription
+          _deliver_messages
         end
 
         private
+
+        def next_subscription
+          adapter.next_subscription_for(name)
+        end
 
         def _fetch_message(ctx, _options = {})
           message = message_queue.shift
@@ -67,9 +71,12 @@ module MessageDriver
           end
         end
 
-        def _deliver_messages(sub)
-          until (msg = _fetch_message(current_adapter_context)).nil?
-            sub.deliver_message(msg)
+        def _deliver_messages
+          unless subscriptions.empty?
+            until (msg = _fetch_message(current_adapter_context)).nil?
+              sub = next_subscription # this actually cycles through the subscriptions
+              sub.deliver_message(msg)
+            end
           end
         end
 
@@ -147,10 +154,16 @@ module MessageDriver
         @message_store[name]
       end
 
-      def subscription_for(name)
-        sub = @subscriptions[name].shift
-        @subscriptions[name].push sub
-        sub
+      def subscriptions_for(name)
+        @subscriptions[name]
+      end
+
+      def next_subscription_for(name)
+        unless (subs = @subscriptions[name]).empty?
+          sub = subs.shift
+          subs.push sub
+          sub
+        end
       end
 
       def add_subscription_for(name, subscription)

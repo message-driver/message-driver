@@ -72,7 +72,7 @@ module MessageDriver
           adapter.reset_after_tests
 
           destinations.each do |destination|
-            expect(destination.subscription).to be_nil
+            expect(destination.subscriptions).to be_empty
           end
         end
       end
@@ -88,7 +88,7 @@ module MessageDriver
             dest1.subscribe(&consumer)
           end
           it 'is the same consumer on the other destination' do
-            expect(dest2.subscription.consumer).to be(consumer)
+            expect(dest2.subscriptions.first.consumer).to be(consumer)
           end
         end
 
@@ -124,7 +124,46 @@ module MessageDriver
       describe 'subscribing a consumer' do
         let(:destination) { adapter.create_destination(:my_queue) }
 
-        let(:subscription_type) { MessageDriver::Adapters::InMemoryAdapter::Subscription }
+        context 'when there are already messages on the queue' do
+          it 'sends those initial messages to the first subscription created' do
+            4.times { destination.publish('a message') }
+            msgs1 = []
+            msgs2 = []
+
+            destination.subscribe do |msg|
+              msgs1 << msg
+            end
+
+            destination.subscribe do |msg|
+              msgs2 << msg
+            end
+
+            aggregate_failures do
+              expect(msgs1.size).to eq(4)
+              expect(msgs2.size).to eq(0)
+            end
+          end
+        end
+
+        it 'supports multiple subscriptions on a given destination and distributes the messages between them' do
+          msgs1 = []
+          msgs2 = []
+
+          destination.subscribe do |msg|
+            msgs1 << msg
+          end
+
+          destination.subscribe do |msg|
+            msgs2 << msg
+          end
+
+          4.times { destination.publish('a message') }
+
+          aggregate_failures do
+            expect(msgs1.size).to eq(2)
+            expect(msgs2.size).to eq(2)
+          end
+        end
       end
     end
   end

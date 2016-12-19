@@ -6,6 +6,8 @@
 * drop support for ruby 1.9.2
 * test against newer versions of bunny
 * Restructure internal API for adapter contexts to better facilitate instrumentation
+* Make the in_memory adapter actually support multiple subscriptions per destination
+    * This is a breaking change if you depended on the old behavior!
 
 ## 0.6.1 - 2016-01-28
 
