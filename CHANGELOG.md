@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.0 - in development
+## 0.7.0 - 2016-12-19
 
 * update test gems
 * drop support for ruby 1.9.2
