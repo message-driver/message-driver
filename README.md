@@ -1,4 +1,4 @@
-# Message::Driver
+# MessageDriver
 
 Easy message queues for ruby
 
