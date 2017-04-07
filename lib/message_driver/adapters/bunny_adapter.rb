@@ -181,13 +181,14 @@ module MessageDriver
           include Logging
 
           attr_accessor :subscription
-          def_delegators :subscription, :adapter, :sub_ctx, :consumer, :error_handler, :options
+          def_delegators :subscription, :adapter, :sub_ctx, :consumer, :error_handler, :options, :destination
 
           def initialize(subscription)
             @subscription = subscription
           end
 
-          def call(message)
+          def call(*message_args)
+            message = sub_ctx.args_to_message(*message_args, destination)
             consumer.call(message)
           rescue => e
             error_handler.call(e, message) unless error_handler.nil?
@@ -213,7 +214,8 @@ module MessageDriver
         end
 
         class AutoAckHandler < MessageHandler
-          def call(message)
+          def call(*message_args)
+            message = sub_ctx.args_to_message(*message_args, destination)
             consumer.call(message)
             sub_ctx.ack_message(message)
           rescue => e
@@ -223,7 +225,8 @@ module MessageDriver
         end
 
         class TransactionalAckHandler < MessageHandler
-          def call(message)
+          def call(*message_args)
+            message = sub_ctx.args_to_message(*message_args, destination)
             adapter.broker.client.with_message_transaction do
               consumer.call(message)
               sub_ctx.ack_message(message)
@@ -241,8 +244,7 @@ module MessageDriver
             sub_opts = options.merge(adapter.ack_key => true)
             @bunny_consumer = queue.subscribe(sub_opts) do |delivery_info, properties, payload|
               adapter.broker.client.with_adapter_context(@sub_ctx) do
-                message = @sub_ctx.args_to_message(delivery_info, properties, payload, destination)
-                @message_handler.call(message)
+                @message_handler.call(delivery_info, properties, payload)
               end
             end
           end

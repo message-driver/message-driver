@@ -45,6 +45,7 @@ group :tests_and_checks, halt_on_failure: true do
   group 'features' do
     guard('cucumber',
           all_on_start: false,
+          all_after_pass: false,
           cmd: "bundle exec cucumber --no-profile --color --strict --tag @all_adapters,@#{BrokerConfig.current_adapter} --tag ~@wip",
           cmd_additional_args: '--format pretty --tag ~@slow',
           run_all: {
