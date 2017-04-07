@@ -33,7 +33,7 @@ module MessageDriver
       end
 
       def on_consume(body, headers, properties)
-        @middlewares.reverse.reduce([body, headers, properties]) do |args, middleware|
+        @middlewares.reverse_each.reduce([body, headers, properties]) do |args, middleware|
           middleware.on_consume(*args)
         end
       end
