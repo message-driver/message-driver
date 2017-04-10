@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.1 - 2017-04-10
+
+* Move middleware processing for consumers inside the message handler so error in middleware are correctly handled - Fixes #35
+
 ## 0.7.0 - 2016-12-19
 
 * update test gems
