@@ -195,11 +195,12 @@ module MessageDriver
           end
 
           def nack_message(e, message)
+            return if message.nil?
             requeue = true
             if e.is_a?(DontRequeue) || (options[:retry_redelivered] == false && message.redelivered?)
               requeue = false
             end
-            if sub_ctx.valid?
+            if !sub_ctx.nil? && sub_ctx.valid?
               begin
                 sub_ctx.nack_message(message, requeue: requeue)
               rescue => e
