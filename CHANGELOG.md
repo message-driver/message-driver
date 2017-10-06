@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.2 - 2017-10-06
+
+* Fix some additional edge cases related to #35, where an error could cause a message to be nil
+
 ## 0.7.1 - 2017-04-10
 
 * Move middleware processing for consumers inside the message handler so error in middleware are correctly handled - Fixes #35
