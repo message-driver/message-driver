@@ -27,13 +27,13 @@ module MessageDriver
               end.to_not raise_error
             end
           end
-          %w(0.8.0 0.9.0 0.9.8 0.10.7 1.0.3 1.1.2 1.2.1 1.2.2 1.3.0 1.4.1 1.6.2).each do |v|
+          %w(0.8.0 0.9.0 0.9.8 0.10.7 1.0.3 1.1.2 1.2.1 1.2.2 1.3.0 1.4.1 1.6.2 1.7.1 2.0.0 2.5.1 2.6.7).each do |v|
             context "bunny version #{v}" do
               let(:version) { v }
               include_examples 'raises an error'
             end
           end
-          %w(1.7.0 1.7.1 2.0.1 2.1.0).each do |v|
+          %w(2.7.4 2.8.1 2.9.2).each do |v|
             context "bunny version #{v}" do
               let(:version) { v }
               include_examples "doesn't raise an error"
