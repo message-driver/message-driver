@@ -8,29 +8,14 @@ before_script:
   - sudo rabbitmq-plugins enable rabbitmq_stomp
 script: bundle exec rake ci
 rvm:
+  - 2.5
+  - 2.4
   - 2.3
   - 2.2
-  - 2.0.0
-  - 1.9.3
-  - jruby-19mode
-  - rbx-2
 env:
   - ADAPTER=in_memory
-  - ADAPTER=bunny:1.7.0
   - ADAPTER=bunny:2.5.1
   - ADAPTER=bunny:2.6.1
   - ADAPTER=stomp:1.3.1
 matrix:
   fast_finish: true
-  allow_failures:
-    - rvm: rbx-2
-    - rvm: jruby-19mode
-  exclude:
-    - rvm: 1.9.3
-      env: ADAPTER=bunny:2.5.1
-    - rvm: jruby-19mode
-      env: ADAPTER=bunny:2.5.1
-    - rvm: 1.9.3
-      env: ADAPTER=bunny:2.6.1
-    - rvm: jruby-19mode
-      env: ADAPTER=bunny:2.6.1
