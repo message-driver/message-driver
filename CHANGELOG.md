@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0 - 2018-05-07
+
+We decided to go 1.0 just because it was time to be done with the 0.x since we have been using this in production since 2013.
+
+* drop support for rubinius, old jruby and MRI < 2.2
+* drop support for bunny < 2.7
+
 ## 0.7.2 - 2017-10-06
 
 * Fix some additional edge cases related to #35, where an error could cause a message to be nil
