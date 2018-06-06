@@ -341,7 +341,7 @@ module MessageDriver
           end
           begin
             if @in_confirms_transaction
-              @channel.wait_for_confirms unless @rollback_only || @channel.nil?
+              @channel.wait_for_confirms unless @rollback_only || @channel.nil? || !@channel.using_publisher_confirms?
             elsif is_transactional? && valid? && !@need_channel_reset && @require_commit
               handle_errors do
                 if @rollback_only
