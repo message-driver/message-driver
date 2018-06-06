@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 - 2018-06-06
+
+* Fix an edge case with publisher acknowledgements in the bunny adapter. #40
+
 ## 1.0.0 - 2018-05-07
 
 We decided to go 1.0 just because it was time to be done with the 0.x since we have been using this in production since 2013.
